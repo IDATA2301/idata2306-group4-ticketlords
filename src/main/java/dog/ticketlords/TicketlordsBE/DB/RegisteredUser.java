@@ -1,12 +1,9 @@
 package dog.ticketlords.TicketlordsBE.DB;
 
-import java.awt.Composite;
-
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
 import lombok.Getter;
 
 @Getter
@@ -26,7 +23,7 @@ public class RegisteredUser {
   private UserRole role;
 
   public RegisteredUser(String email, String username, String firstName, String lastName, String hPassw,
-      int phoneNumber, String role) {
+      int phoneNumber, UserRole role) {
     this.email = email;
     this.username = username;
     this.firstName = firstName;
