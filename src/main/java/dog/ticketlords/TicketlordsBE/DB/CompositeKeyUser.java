@@ -8,6 +8,7 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
+//TODO: consider delete this class
 @Embeddable
 public class CompositeKeyUser implements Serializable {
   @Getter
