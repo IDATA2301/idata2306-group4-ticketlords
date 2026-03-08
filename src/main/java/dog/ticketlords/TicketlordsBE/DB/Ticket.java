@@ -16,7 +16,9 @@ public class Ticket {
   @Id
   private int ticketID;
   @Setter
-  private int eventID;
+  @ManyToOne
+  @JoinColumn(name = "event_id", referencedColumnName = "event_id")
+  private Event event;
   @Setter
   private String ticketType;
   @Setter
@@ -30,16 +32,11 @@ public class Ticket {
   @Setter
   private String ticketDescription;
 
-  @Setter
-  @ManyToOne
-  @JoinColumn(name = "eventID", referencedColumnName = "eventID")
-  private Event event;
-
-  public Ticket(int ticketID, int eventID, String ticketType, double price, int amountAvailable,
+  public Ticket(int ticketID, Event event, String ticketType, double price, int amountAvailable,
       String ticketVendor, String ticketLink, String ticketDescription) {
 
     this.ticketID = ticketID;
-    this.eventID = eventID;
+    this.event = event;
     this.ticketType = ticketType;
     this.price = price;
     this.amountAvailable = amountAvailable;
