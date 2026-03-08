@@ -2,26 +2,22 @@ package dog.ticketlords.TicketlordsBE.DB;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@NoArgsConstructor
+
 @Entity
+@Getter
 public class Category {
+
   @Id
-  private int categoryID;
+  private int venueId;
   @Setter
   private String categoryName;
 
-  /**
-   * This is for testing purposes only.
-   * @param categoryID
-   * @param categoryName
-   */
-  public Category(int categoryID, String categoryName) {
-    this.categoryID = categoryID;
+  public Category(int venueId, String categoryName) {
     this.categoryName = categoryName;
+    this.venueId = venueId;
+
   }
 }
