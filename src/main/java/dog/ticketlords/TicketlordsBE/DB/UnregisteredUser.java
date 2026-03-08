@@ -1,0 +1,28 @@
+package dog.ticketlords.TicketlordsBE.DB;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+@Entity
+@Table(name = "unregistered_user")
+public class UnregisteredUser {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_id")
+  private int uId;
+
+  @Column(name = "first_seen")
+  private LocalDateTime firstSeen;
+
+}
