@@ -1,9 +1,11 @@
 package dog.ticketlords.TicketlordsBE.DB;
 
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,8 +15,10 @@ import lombok.Setter;
 @Entity
 public class RegisteredUser {
 
-  @EmbeddedId
-  private CompositeKeyUser compositeKey;
+  @Id
+  @OneToOne
+  @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+  private UnregisteredUser unregisteredUser;
   @Setter
   private String email;
   @Setter
@@ -32,13 +36,16 @@ public class RegisteredUser {
   @Setter
   private UserRole role;
 
-  public RegisteredUser(String email, String username, String firstName, String lastName, String hPassw,
+  public RegisteredUser(UnregisteredUser unregisteredUser, String email, String username, String firstName,
+      String lastName, String hPassw,
       int phoneNumber, UserRole role) {
+    this.unregisteredUser = unregisteredUser;
     this.email = email;
     this.username = username;
     this.firstName = firstName;
     this.lastName = lastName;
     this.hashedPassword = hPassw;
     this.phoneNumber = phoneNumber;
+    this.role = role;
   }
 }
