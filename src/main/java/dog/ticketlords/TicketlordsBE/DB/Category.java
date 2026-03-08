@@ -18,15 +18,15 @@ public class Category {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "venue_id")
-  private int venueId;
+  @Column(name = "category_id")
+  private int categoryId;
   @Setter
   @Column(name = "category_name", nullable = false, unique = true)
   private String categoryName;
 
-  public Category(int venueId, String categoryName) {
+  public Category(int categoryId, String categoryName) {
     this.categoryName = categoryName;
-    this.venueId = venueId;
+    this.categoryId = categoryId;
 
   }
 }
