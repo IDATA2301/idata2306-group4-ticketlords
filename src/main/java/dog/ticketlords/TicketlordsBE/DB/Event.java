@@ -12,6 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity representation of the database event table.
+ * Represents an event with relevant info about the event.
+ */
+
 @NoArgsConstructor
 @Entity
 @Getter
@@ -50,6 +55,19 @@ public class Event {
   @Column(name = "total_clicks", nullable = false)
   private int totalClicks;
 
+  /**
+   * Constructs an Event with all fields. Should only be used for testing.
+   *
+   * @param eventName        the name of the event.
+   * @param eventID          the unique identifier of the event.
+   * @param host             the host of the event.
+   * @param category         the {@link Category} the event belongs to.
+   * @param eVenue           the {@link EventVenue} where the event takes place.
+   * @param eventDescription a description of the event.
+   * @param totalClicks      the total number of clicks/views.
+   * @param start            the start date of the event.
+   * @param end              the end date of the event.
+   */
   public Event(String eventName, int eventID, String host, Category category, EventVenue eVenue,
       String eventDescription, int totalClicks, LocalDate start, LocalDate end) {
     this.eventName = eventName;
