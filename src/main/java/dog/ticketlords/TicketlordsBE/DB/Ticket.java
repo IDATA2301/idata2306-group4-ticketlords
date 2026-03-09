@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity representation of the database ticket table.
+ */
 @NoArgsConstructor
 @Getter
 @Entity
@@ -22,6 +25,8 @@ public class Ticket {
   @Column(name = "ticket_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int ticketId;
+
+  // An event can have many tickets.
   @Setter
   @ManyToOne
   @JoinColumn(name = "event_id", referencedColumnName = "event_id")
@@ -36,6 +41,8 @@ public class Ticket {
   @Setter
   @Column(name = "amount_available", nullable = false)
   private int amountAvailable;
+
+  // A booking site can have multiple tickets.
   @Setter
   @ManyToOne
   @JoinColumn(name = "ticket_vendor", referencedColumnName = "ticket_vendor")
@@ -48,6 +55,19 @@ public class Ticket {
   @Column(name = "ticket_description")
   private String ticketDescription;
 
+  /**
+   * Constructs a ticket object. Should only be used for testing purposes.
+   *
+   * @param ticketId          The id of an individual Ticket.
+   * @param event             the event a ticket is for.
+   * @param ticketType        The type of ticket; Normal, VIP etc...
+   * @param price             The price of the ticket.
+   * @param amountAvailable   The amount of tickets available.
+   * @param bookingSite       the site at which said ticket can be purchased.
+   * @param ticketLink        A link to the site where the ticket can be
+   *                          purchased.
+   * @param ticketDescription A description of the ticket.
+   */
   public Ticket(int ticketId, Event event, String ticketType, double price, int amountAvailable,
       BookingSite bookingSite, String ticketLink, String ticketDescription) {
 
