@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity representation of the database booking_site table.
+ * Represents a BookingSite with vendor, website link and site description.
+ */
+
 @NoArgsConstructor
 @Getter
 @Entity
@@ -24,6 +29,13 @@ public class BookingSite {
   @Column(name = "booking_site_description")
   private String bookingSiteDescription;
 
+  /**
+   * Creates an instance of BookingSite. Should only be used for testing purposes.
+   *
+   * @param ticketVendor           the vendor that sells a specific ticket.
+   * @param websiteLink            the link to the vendor's website.
+   * @param bookingSiteDescription description of the website.
+   */
   public BookingSite(String ticketVendor, String websiteLink, String bookingSiteDescription) {
     this.ticketVendor = ticketVendor;
     this.websiteLink = websiteLink;
