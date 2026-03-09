@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity representation of the database category table.
+ * Represents a category with an id and a name.
+ */
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -24,6 +29,12 @@ public class Category {
   @Column(name = "category_name", nullable = false, unique = true)
   private String categoryName;
 
+  /**
+   * Creates an instance of Category. Should only be used for testing purposes.
+   *
+   * @param categoryId   the unique category id.
+   * @param categoryName the name of the category.
+   */
   public Category(int categoryId, String categoryName) {
     this.categoryName = categoryName;
     this.categoryId = categoryId;
