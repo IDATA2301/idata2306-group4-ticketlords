@@ -12,6 +12,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity representation of the database registered_user table.
+ * Reoresents a registered user with personal details, credentials,
+ * and a role.
+ * Each RegisteredUser is linked to an {@link UnregisteredUser} via
+ * a one-to-one relationship.
+ */
 @NoArgsConstructor
 @Getter
 @Entity
@@ -47,6 +54,18 @@ public class RegisteredUser {
   // TODO:Need table for this in the database.
   private UserRole role;
 
+  /**
+   * Constructs a RegisteredUser. Should only be used for testing.
+   *
+   * @param unregisteredUser the associated {@link UnregisteredUser} entity.
+   * @param email            the email address of the user.
+   * @param username         the username of the user.
+   * @param firstName        the first name of the user.
+   * @param lastName         the last name of the user.
+   * @param hPassw           the hashed password of the user.
+   * @param phoneNumber      the phone number of the user.
+   * @param role             the {@link UserRole} assigned to the user.
+   */
   public RegisteredUser(UnregisteredUser unregisteredUser, String email, String username, String firstName,
       String lastName, String hPassw,
       int phoneNumber, UserRole role) {
