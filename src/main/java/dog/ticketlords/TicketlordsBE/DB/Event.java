@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import lombok.Setter;
  * Represents an event with relevant info about the event.
  */
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
 @Table(name = "event")
@@ -34,7 +35,6 @@ public class Event {
   private String host;
   @ManyToOne
   @JoinColumn(name = "category_id", referencedColumnName = "category_id")
-  @Column(name = "category")
   @Setter
   private Category category;
   @Setter
@@ -46,7 +46,6 @@ public class Event {
   @Setter
   @ManyToOne
   @JoinColumn(name = "venue_id", referencedColumnName = "venue_id")
-  @Column(name = "event_venue")
   private EventVenue eventVenue;
   @Setter
   @Column(name = "event_description")

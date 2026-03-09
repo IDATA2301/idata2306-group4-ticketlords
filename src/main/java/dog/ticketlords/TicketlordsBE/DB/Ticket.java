@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import lombok.Setter;
 /**
  * Entity representation of the database ticket table.
  */
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "ticket")
@@ -30,7 +31,6 @@ public class Ticket {
   @Setter
   @ManyToOne
   @JoinColumn(name = "event_id", referencedColumnName = "event_id")
-  @Column(name = "event_id")
   private Event event;
   @Setter
   @Column(name = "ticket_type")

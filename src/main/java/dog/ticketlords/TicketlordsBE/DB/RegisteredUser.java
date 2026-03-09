@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import lombok.Setter;
  * Each RegisteredUser is linked to an {@link UnregisteredUser} via
  * a one-to-one relationship.
  */
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "registered_user")
@@ -28,7 +29,6 @@ public class RegisteredUser {
   @Id
   @OneToOne
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-  @Column(name = "user_id")
   private UnregisteredUser unregisteredUser;
   @Setter
   @Column(name = "email", nullable = false)
