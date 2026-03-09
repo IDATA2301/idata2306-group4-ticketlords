@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity representation of the database event_venue table.
+ * Represents an event_venue with location details and an id.
+ */
+
 @NoArgsConstructor
 @Entity
 @Getter
@@ -33,6 +38,15 @@ public class EventVenue {
   @Column(name = "address", nullable = false)
   private String address;
 
+  /**
+   * Constructs an EventVenue object.
+   *
+   * @param venueId The id of the venue.
+   * @param arena   the arena of the venue.
+   * @param city    the city the venue is held.
+   * @param country The country the venue is held in.
+   * @param address The address of the venue.
+   */
   public EventVenue(int venueId, String arena, String city, String country, String address) {
     this.venueId = venueId;
     this.address = address;
