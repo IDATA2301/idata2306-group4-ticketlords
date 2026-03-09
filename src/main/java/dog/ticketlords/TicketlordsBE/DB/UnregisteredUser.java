@@ -11,6 +11,9 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents any arbitrary user without a registered account in the system.
+ */
 @Getter
 @NoArgsConstructor
 @Entity
@@ -22,7 +25,7 @@ public class UnregisteredUser {
   @Column(name = "user_id")
   private int uId;
 
-  @Column(name = "first_seen")
+  @Column(name = "first_seen", insertable = false, updatable = false)
   private LocalDateTime firstSeen;
 
 }
