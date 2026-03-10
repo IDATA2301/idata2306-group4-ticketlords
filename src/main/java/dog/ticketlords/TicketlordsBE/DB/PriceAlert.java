@@ -49,9 +49,9 @@ public class PriceAlert {
   @Column(name = "target_price")
   private BigDecimal targetPrice;
 
-  /**
+   /**
    * Whether the user will be notified or not if the event's price reaches user's
-   * target
+   * target.
    */
   @Setter
   @Column(name = "is_active")
