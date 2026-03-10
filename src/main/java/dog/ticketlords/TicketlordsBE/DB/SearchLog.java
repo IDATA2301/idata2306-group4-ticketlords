@@ -45,7 +45,7 @@ public class SearchLog {
 
   /** The timestamp when the search was performed. */
   @Setter
-  @Column(name = "searched_at")
+  @Column(name = "searched_at", insertable = false, updatable = false)
   private LocalDateTime searchedAt;
 
   /**
