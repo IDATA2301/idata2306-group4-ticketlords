@@ -49,10 +49,13 @@ public class PriceAlert {
   @Column(name = "target_price")
   private BigDecimal targetPrice;
 
-  /** Whether the alert is currently active. */
+  /**
+   * Whether the user will be notified or not if the event's price reaches user's
+   * target
+   */
   @Setter
   @Column(name = "is_active")
-  private boolean isActive;
+  private boolean isActive = true;
 
   /**
    * Constructs a PriceAlert. Should only be used for testing.
