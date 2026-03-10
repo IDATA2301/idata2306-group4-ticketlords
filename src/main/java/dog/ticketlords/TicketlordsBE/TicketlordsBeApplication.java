@@ -11,7 +11,6 @@ public class TicketlordsBeApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(TicketlordsBeApplication.class, args);
-    RegisteredUser a = new RegisteredUser("l", "username", "firstName", "lastName", "hPassw", 123, UserRole.ADMIN);
 
   }
 
