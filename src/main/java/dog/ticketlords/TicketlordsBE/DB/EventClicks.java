@@ -46,7 +46,7 @@ public class EventClicks {
 
   /** The timestamp when the click occurred. */
   @Setter
-  @Column(name = "clicked_at")
+  @Column(name = "clicked_at", insertable = false, updatable = false)
   private LocalDateTime clickedAt;
 
   /**
