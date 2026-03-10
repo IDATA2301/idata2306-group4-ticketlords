@@ -46,7 +46,6 @@ public class Ticket {
   @Setter
   @ManyToOne
   @JoinColumn(name = "ticket_vendor", referencedColumnName = "ticket_vendor")
-  @Column(name = "booking_site")
   private BookingSite bookingSite;
   @Setter
   @Column(name = "ticket_link")
