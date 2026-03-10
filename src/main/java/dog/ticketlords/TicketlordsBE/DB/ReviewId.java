@@ -24,6 +24,17 @@ public class ReviewId implements Serializable {
   private String ticketVendor;
 
   /**
+   * Constructs a ReviewId. Should only be used for testing.
+   *
+   * @param userId       the user ID.
+   * @param ticketVendor the ticket vendor name.
+   */
+  public ReviewId(int userId, String ticketVendor) {
+    this.userId = userId;
+    this.ticketVendor = ticketVendor;
+  }
+
+  /**
    * Checks wheter the object o is the same as this object.
    *
    * @param o the object to check this against.
