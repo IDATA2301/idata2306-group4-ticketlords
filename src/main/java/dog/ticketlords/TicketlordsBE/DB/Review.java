@@ -31,9 +31,10 @@ public class Review {
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
   private RegisteredUser registeredUser;
 
+  @ManyToOne
   @Column(name = "ticket_vendor")
   @MapsId("ticketVendor")
-  private String ticketVendor;
+  private BookingSite bookingSite;
 
   @Max(5)
   @Min(1)
@@ -45,13 +46,13 @@ public class Review {
    *
    * @param revId          the id which uniquely represents the specific review.
    * @param registeredUser the composite key which links a user to a review.
-   * @param ticketVendor   the vendor the review should be for.
+   * @param bookingSite    the vendor the review should be for.
    * @param score          the score of the review.
    */
-  public Review(ReviewId revId, RegisteredUser registeredUser, String ticketVendor, int score) {
+  public Review(ReviewId revId, RegisteredUser registeredUser, BookingSite bookingSite, int score) {
     this.id = revId;
     this.registeredUser = registeredUser;
     this.score = score;
-    this.ticketVendor = ticketVendor;
+    this.bookingSite = bookingSite;
   }
 }
