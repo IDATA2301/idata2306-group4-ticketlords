@@ -50,8 +50,7 @@ public class RegisteredUser {
   private int phoneNumber;
 
   @Enumerated(EnumType.STRING)
-  @Setter
-  // TODO:Need table for this in the database.
+  @Column(name = "user_role", columnDefinition = "role_type")
   private UserRole role;
 
   /**
