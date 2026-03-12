@@ -35,8 +35,9 @@ public class UserInterest {
 
   /** The category name of the interest. */
   @MapsId("categoryName")
-  @Column(name = "category_name")
-  private String categoryName;
+  @ManyToOne
+  @JoinColumn(name = "category_name")
+  private Category category;
 
   /** The interest score for this category. */
   @Setter
@@ -50,10 +51,10 @@ public class UserInterest {
    * @param categoryName  the category name.
    * @param interestScore the interest score.
    */
-  public UserInterest(RegisteredUser user, String categoryName, int interestScore) {
+  public UserInterest(RegisteredUser user, Category category, int interestScore) {
     this.user = user;
-    this.categoryName = categoryName;
+    this.category = category;
     this.interestScore = interestScore;
-    this.id = new UserInterestId(user.getUnregisteredUser().getUId(), categoryName);
+    this.id = new UserInterestId(user.getUnregisteredUser().getUId(), category.getCategoryName());
   }
 }
