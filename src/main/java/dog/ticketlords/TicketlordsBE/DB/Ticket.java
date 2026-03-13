@@ -1,5 +1,7 @@
 package dog.ticketlords.TicketlordsBE.DB;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,7 +39,7 @@ public class Ticket {
   private String ticketType;
   @Setter
   @Column(name = "price", nullable = false)
-  private double price;
+  private BigDecimal price;
   @Setter
   @Column(name = "amount_available", nullable = false)
   private int amountAvailable;
@@ -67,7 +69,7 @@ public class Ticket {
    *                          purchased.
    * @param ticketDescription A description of the ticket.
    */
-  public Ticket(int ticketId, Event event, String ticketType, double price, int amountAvailable,
+  public Ticket(int ticketId, Event event, String ticketType, BigDecimal price, int amountAvailable,
       BookingSite bookingSite, String ticketLink, String ticketDescription) {
 
     this.ticketId = ticketId;
