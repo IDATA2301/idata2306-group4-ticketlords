@@ -29,4 +29,23 @@ public class UnregisteredUser {
   @Column(name = "first_seen", insertable = false, updatable = false)
   private LocalDateTime firstSeen;
 
+  @Override
+  public boolean equals(Object o) {
+    boolean doesEquals = false;
+    if (this == o) {
+      doesEquals = true;
+    }
+    if (o instanceof UnregisteredUser) {
+      UnregisteredUser that = (UnregisteredUser) o;
+      if (this.uId == that.getUId()) {
+        doesEquals = true;
+      }
+    }
+    return doesEquals;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(uId);
+  }
 }
