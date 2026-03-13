@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.DB;
+package dog.ticketlords.TicketlordsBE.entity;
 
 import java.math.BigDecimal;
 
@@ -49,7 +49,7 @@ public class PriceAlert {
   @Column(name = "target_price")
   private BigDecimal targetPrice;
 
-   /**
+  /**
    * Whether the user will be notified or not if the event's price reaches user's
    * target.
    */

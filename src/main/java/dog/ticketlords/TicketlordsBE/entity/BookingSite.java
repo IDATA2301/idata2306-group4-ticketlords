@@ -1,6 +1,7 @@
-package dog.ticketlords.TicketlordsBE.DB;
+package dog.ticketlords.TicketlordsBE.entity;
 
-import jakarta.persistence.Column; import jakarta.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;

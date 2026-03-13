@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.DB;
+package dog.ticketlords.TicketlordsBE.entity;
 
 public enum UserRole {
   ADMIN,

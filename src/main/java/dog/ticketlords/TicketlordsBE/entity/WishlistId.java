@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.DB;
+package dog.ticketlords.TicketlordsBE.entity;
 
 import java.io.Serializable;
 import java.util.Objects;

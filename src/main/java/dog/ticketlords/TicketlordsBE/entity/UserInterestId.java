@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.DB;
+package dog.ticketlords.TicketlordsBE.entity;
 
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;

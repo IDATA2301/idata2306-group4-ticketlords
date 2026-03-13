@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.DB;
+package dog.ticketlords.TicketlordsBE.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -24,10 +24,11 @@ public class EventClicksId implements Serializable {
   private int userId;
 
   /**
-   * Constructs an instance of EventClicksId. Should only be used for testing purposes.
+   * Constructs an instance of EventClicksId. Should only be used for testing
+   * purposes.
    *
    * @param eventId the id of a specific event.
-   * @param userId the id of the a specific user.
+   * @param userId  the id of the a specific user.
    */
   public EventClicksId(int eventId, int userId) {
     this.eventId = eventId;
