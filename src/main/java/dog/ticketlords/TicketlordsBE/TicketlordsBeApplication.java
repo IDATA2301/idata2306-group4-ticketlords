@@ -3,9 +3,6 @@ package dog.ticketlords.TicketlordsBE;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import dog.ticketlords.TicketlordsBE.DB.RegisteredUser;
-import dog.ticketlords.TicketlordsBE.DB.UserRole;
-
 @SpringBootApplication
 public class TicketlordsBeApplication {
 
