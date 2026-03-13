@@ -53,6 +53,27 @@ public class RegisteredUser {
   @Column(name = "user_role", columnDefinition = "role_type")
   private UserRole role;
 
+  @Override
+  public boolean equals(Object o) {
+    boolean doesEquals = false;
+    if (this == o) {
+      doesEquals = true;
+    }
+    if (o instanceof UnregisteredUser) {
+      RegisteredUser that = (RegisteredUser) o;
+      if (this.unregisteredUser == that.unregisteredUser
+          && this.unregisteredUser.getUId() == that.unregisteredUser.getUId()) {
+        doesEquals = true;
+      }
+    }
+    return doesEquals;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(this.unregisteredUser.getUId());
+  }
+
   /**
    * Constructs a RegisteredUser. Should only be used for testing.
    *
