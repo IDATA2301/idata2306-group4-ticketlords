@@ -34,8 +34,8 @@ public class RegisteredUser {
   @Column(name = "email", nullable = false)
   private String email;
   @Setter
-  @Column(name = "username")
-  private String username;
+  @Column(name = "display_name")
+  private String display_name;
   @Setter
   @Column(name = "first_name")
   private String firstName;
@@ -79,19 +79,19 @@ public class RegisteredUser {
    *
    * @param unregisteredUser the associated {@link UnregisteredUser} entity.
    * @param email            the email address of the user.
-   * @param username         the username of the user.
+   * @param display_name     the display_name of the user.
    * @param firstName        the first name of the user.
    * @param lastName         the last name of the user.
    * @param hPassw           the hashed password of the user.
    * @param phoneNumber      the phone number of the user.
    * @param role             the {@link UserRole} assigned to the user.
    */
-  public RegisteredUser(UnregisteredUser unregisteredUser, String email, String username, String firstName,
+  public RegisteredUser(UnregisteredUser unregisteredUser, String email, String display_name, String firstName,
       String lastName, String hPassw,
       int phoneNumber, UserRole role) {
     this.unregisteredUser = unregisteredUser;
     this.email = email;
-    this.username = username;
+    this.display_name = display_name;
     this.firstName = firstName;
     this.lastName = lastName;
     this.hashedPassword = hPassw;
