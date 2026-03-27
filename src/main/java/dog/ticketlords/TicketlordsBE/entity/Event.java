@@ -79,5 +79,5 @@ public class Event {
     this.eventDescription = eventDescription;
     this.totalClicks = totalClicks;
 
-  }
+  }//TODO: Consider using builder pattern
 }
