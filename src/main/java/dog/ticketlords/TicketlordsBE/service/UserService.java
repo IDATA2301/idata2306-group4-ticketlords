@@ -24,7 +24,8 @@ public class UserService {
   /**
    * Creates a new service for RegisteredUser operations.
    * 
-   * @param ruRepo the repository to perform persistence operations for {@link RegisteredUser}.
+   * @param regUserRepo the repository to perform persistence operations for {@link RegisteredUser}
+   * @param unregUserRepo the repository to perform persistence operations for {@link UnregisteredUser}
    */
   public UserService(RegisteredUserRepository regUserRepo, UnregisteredUserRepository unregUserRepo) {
     this.regUserRepo = regUserRepo;
