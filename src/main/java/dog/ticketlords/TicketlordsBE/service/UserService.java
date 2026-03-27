@@ -2,13 +2,11 @@ package dog.ticketlords.TicketlordsBE.service;
 
 import java.util.Optional;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.entity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.entity.UnregisteredUser;
-import dog.ticketlords.TicketlordsBE.entity.UserRole;
 import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 
