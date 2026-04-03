@@ -26,7 +26,7 @@ public class Event {
 
   @Id
   @Column(name = "event_id")
-  private int eventID;
+  private long eventID;
   @Setter
   @Column(name = "event_name", nullable = false)
   private String eventName;
@@ -52,7 +52,7 @@ public class Event {
   private String eventDescription;
   @Setter
   @Column(name = "total_clicks", nullable = false)
-  private int totalClicks;
+  private long totalClicks;
 
   /**
    * Constructs an Event with all fields. Should only be used for testing.
@@ -67,8 +67,8 @@ public class Event {
    * @param start            the start date of the event.
    * @param end              the end date of the event.
    */
-  public Event(String eventName, int eventID, String host, Category category, EventVenue eVenue,
-      String eventDescription, int totalClicks, LocalDate start, LocalDate end) {
+  public Event(String eventName, long eventID, String host, Category category, EventVenue eVenue,
+      String eventDescription, long totalClicks, LocalDate start, LocalDate end) {
     this.eventName = eventName;
     this.eventID = eventID;
     this.host = host;
@@ -79,5 +79,5 @@ public class Event {
     this.eventDescription = eventDescription;
     this.totalClicks = totalClicks;
 
-  }//TODO: Consider using builder pattern
+  }// TODO: Consider using builder pattern
 }

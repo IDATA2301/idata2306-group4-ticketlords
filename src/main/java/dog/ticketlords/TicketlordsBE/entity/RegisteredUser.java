@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -27,9 +28,13 @@ import lombok.Setter;
 public class RegisteredUser {
 
   @Id
+  private Long userId;
+
+  @MapsId
   @OneToOne
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
   private UnregisteredUser unregisteredUser;
+
   @Setter
   @Column(name = "email", nullable = false)
   private String email;
@@ -71,7 +76,7 @@ public class RegisteredUser {
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(this.unregisteredUser.getUId());
+    return Long.hashCode(this.unregisteredUser.getUId());
   }
 
   /**

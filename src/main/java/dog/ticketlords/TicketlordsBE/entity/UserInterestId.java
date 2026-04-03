@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class UserInterestId implements Serializable {
 
-  private int userId;
+  private long userId;
   private String categoryName;
 
   /**
@@ -26,7 +26,7 @@ public class UserInterestId implements Serializable {
    * @param userId       the user ID.
    * @param categoryName the category name.
    */
-  public UserInterestId(int userId, String categoryName) {
+  public UserInterestId(long userId, String categoryName) {
     this.userId = userId;
     this.categoryName = categoryName;
   }

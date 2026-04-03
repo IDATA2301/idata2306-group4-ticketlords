@@ -30,7 +30,7 @@ public class PriceAlert {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "alert_id")
-  private int alertId;
+  private long alertId;
 
   /** The registered user who set the alert. */
   @Setter

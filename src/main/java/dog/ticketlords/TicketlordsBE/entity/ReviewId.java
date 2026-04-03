@@ -19,7 +19,7 @@ import java.util.Objects;
 public class ReviewId implements Serializable {
 
   @Column(name = "user_id")
-  private int userId;
+  private long userId;
   @Column(name = "ticket_vendor")
   private String ticketVendor;
 
@@ -29,7 +29,7 @@ public class ReviewId implements Serializable {
    * @param userId       the user ID.
    * @param ticketVendor the ticket vendor name.
    */
-  public ReviewId(int userId, String ticketVendor) {
+  public ReviewId(long userId, String ticketVendor) {
     this.userId = userId;
     this.ticketVendor = ticketVendor;
   }

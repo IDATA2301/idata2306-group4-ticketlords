@@ -30,7 +30,7 @@ public class SearchLog {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "search_id")
-  private int searchId;
+  private long searchId;
 
   /** The user who performed the search. */
   @Setter
