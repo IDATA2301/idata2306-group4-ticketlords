@@ -1,7 +1,11 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
+import java.net.URI;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,8 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException.Conflict;
 
 import dog.ticketlords.TicketlordsBE.entity.RegisteredUser;
+import dog.ticketlords.TicketlordsBE.entity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.service.UserService;
 import jakarta.validation.Valid;
 
@@ -26,9 +32,20 @@ public class UserController {
     this.userService = userService;
   }
 
+  @PostMapping("/user/register")
+  public ResponseEntity<Void> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user) {
+    if (this.userService.insertRegisteredUserToDatabase(user)) {
+      return ResponseEntity.created(URI.create("/users/user/" + user.getUserId())).build();
+    } else {
+      return ResponseEntity.badRequest().build();
+    }
+  }
+
   @PostMapping("/user")
-  public void insertOneUnregisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user) {
-    this.userService.insertUnregisteredUserToDatabase();
+  public ResponseEntity<?> insertUnregUserIntoDatabase() {
+    UnregisteredUser user = this.userService.insertUnregisteredUserToDatabase();
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(Map.of("unregisteredUserId", user.getUId()));
   }
 
   @GetMapping("/user/{id}")

@@ -1,5 +1,7 @@
 package dog.ticketlords.TicketlordsBE.entity;
 
+import org.hibernate.annotations.Type;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -40,7 +42,7 @@ public class RegisteredUser {
   private String email;
   @Setter
   @Column(name = "display_name")
-  private String display_name;
+  private String displayName;
   @Setter
   @Column(name = "first_name")
   private String firstName;
@@ -91,12 +93,12 @@ public class RegisteredUser {
    * @param phoneNumber      the phone number of the user.
    * @param role             the {@link UserRole} assigned to the user.
    */
-  public RegisteredUser(UnregisteredUser unregisteredUser, String email, String display_name, String firstName,
+  public RegisteredUser(UnregisteredUser unregisteredUser, String email, String displayName, String firstName,
       String lastName, String hPassw,
       int phoneNumber, UserRole role) {
     this.unregisteredUser = unregisteredUser;
     this.email = email;
-    this.display_name = display_name;
+    this.displayName = displayName;
     this.firstName = firstName;
     this.lastName = lastName;
     this.hashedPassword = hPassw;

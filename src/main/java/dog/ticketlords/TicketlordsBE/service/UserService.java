@@ -2,6 +2,7 @@ package dog.ticketlords.TicketlordsBE.service;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,12 +44,12 @@ public class UserService {
    * @return an RegisteredUser from database as Optional
    */
   @Transactional(readOnly = true)
-  public Optional<RegisteredUser> getRegUser(int userId) {
-    return this.unregUserRepo.findById(userId).flatMap(this.regUserRepo::findById);
+  public Optional<RegisteredUser> getRegUser(long userId) {
+    return this.regUserRepo.findById(userId);
   }
 
   @Transactional(readOnly = true)
-  public Optional<UnregisteredUser> getUnregUser(int userId) {
+  public Optional<UnregisteredUser> getUnregUser(long userId) {
     return this.unregUserRepo.findById(userId);
   }
 
@@ -58,8 +59,18 @@ public class UserService {
    * 
    * @return the saved UnregisteredUser with generated id
    */
-  public void insertUnregisteredUserToDatabase() {
-    this.unregUserRepo.save(UnregisteredUser.create());
+  public UnregisteredUser insertUnregisteredUserToDatabase() {
+    return this.unregUserRepo.save(UnregisteredUser.create());
+  }
+
+  public boolean userAlreadyExists(Object user) {
+    if (user instanceof UnregisteredUser) {
+      return this.unregUserRepo.exists(Example.of((UnregisteredUser) user));
+    } else if (user instanceof RegisteredUser) {
+      return this.regUserRepo.exists(Example.of((RegisteredUser) user));
+    } else {
+      return false;
+    }
   }
 
   /**
