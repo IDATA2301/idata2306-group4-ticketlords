@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import dog.ticketlords.TicketlordsBE.entity.UnregisteredUser;
 
-public interface UnregisteredUserRepository extends JpaRepository<UnregisteredUser, Integer> {
+public interface UnregisteredUserRepository extends JpaRepository<UnregisteredUser, Long> {
 }
