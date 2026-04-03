@@ -24,7 +24,7 @@ public class UnregisteredUser {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
-  private int uId;
+  private Long uId;
 
   @Column(name = "first_seen", insertable = false, updatable = false)
   private LocalDateTime firstSeen;
@@ -46,12 +46,13 @@ public class UnregisteredUser {
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(uId);
+    return Long.hashCode(uId);
   }
 
   /**
    * Factory method to create a new UnregisteredUser instance.
    * Use this instead of calling the constructor directly.
+   * 
    * @return a new UnregisteredUser instance
    */
   public static UnregisteredUser create() {

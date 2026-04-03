@@ -25,7 +25,7 @@ public class EventVenue {
   @Id
   @Column(name = "venue_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int venueId;
+  private long venueId;
   @Setter
   @Column(name = "arena", nullable = false)
   private String arena;

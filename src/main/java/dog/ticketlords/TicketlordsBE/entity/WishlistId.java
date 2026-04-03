@@ -24,8 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WishlistId implements Serializable {
 
-  private int userId;
-  private int eventId;
+  private long userId;
+  private long eventId;
 
   /**
    * Creates a new WishlistId with the given user and event IDs.
@@ -34,7 +34,7 @@ public class WishlistId implements Serializable {
    * @param userId  the ID of the user.
    * @param eventId the ID of the event.
    */
-  public WishlistId(int userId, int eventId) {
+  public WishlistId(long userId, long eventId) {
     this.userId = userId;
     this.eventId = eventId;
 

@@ -27,7 +27,7 @@ public class Ticket {
   @Id
   @Column(name = "ticket_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int ticketId;
+  private long ticketId;
 
   // An event can have many tickets.
   @Setter

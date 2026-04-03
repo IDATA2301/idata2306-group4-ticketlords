@@ -19,9 +19,9 @@ import java.util.Objects;
 public class EventClicksId implements Serializable {
 
   @Column(name = "event_id")
-  private int eventId;
+  private long eventId;
   @Column(name = "user_id")
-  private int userId;
+  private long userId;
 
   /**
    * Constructs an instance of EventClicksId. Should only be used for testing
@@ -30,7 +30,7 @@ public class EventClicksId implements Serializable {
    * @param eventId the id of a specific event.
    * @param userId  the id of the a specific user.
    */
-  public EventClicksId(int eventId, int userId) {
+  public EventClicksId(long eventId, long userId) {
     this.eventId = eventId;
     this.userId = userId;
   }
