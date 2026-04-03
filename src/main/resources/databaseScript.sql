@@ -36,7 +36,7 @@ CREATE TABLE "ticket" (
   "ticket_type" varchar(100) references "booking_site" ("ticket_vendor"),
   "price" decimal (10, 2) check (price >= 0),
   --"currency" varchar(10) default 'NOK',
-  "amountAvailable" int,
+  "amount_available" int,
   "ticket_vendor" varchar,
   "ticket_link" varchar,
   "ticket_description" text
@@ -46,7 +46,6 @@ CREATE TABLE "unregistered_user" (
   "first_seen" timestamp default now()
 );
 
-CREATE TYPE role_type AS ENUM ('ADMIN', 'USER');
 
 CREATE TABLE "registered_user" (
   "display_name" varchar,
@@ -56,7 +55,7 @@ CREATE TABLE "registered_user" (
   "last_name" varchar(60),
   "password" varchar not null,
   "phonenumber" int,
-  "user_role" role_type default 'USER'
+  "user_role" varchar(255) default 'USER'
 );
 
 CREATE TABLE "review" (
