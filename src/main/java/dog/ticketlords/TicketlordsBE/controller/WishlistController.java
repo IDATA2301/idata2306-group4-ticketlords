@@ -1,14 +1,17 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.entity.Wishlist;
-import dog.ticketlords.TicketlordsBE.repositories.WishlistRepository;
 import dog.ticketlords.TicketlordsBE.service.WishlistService;
 
 @RestController
@@ -20,30 +23,49 @@ public class WishlistController {
   public WishlistController(WishlistService wlService) {
     this.wishlistService = wlService;
   }
-  
-  @GetMapping
-  public List<Wishlist> getAll() {
-    return wishlistService.getAll();
+
+  @GetMapping("/all")
+  public ResponseEntity<List<Wishlist>> getAll() {
+    if (wishlistService.getAllWishlists().size() >= 1) {
+      return ResponseEntity.ok(wishlistService.getAllWishlists());
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   @GetMapping("/users/{userId}")
-  public List<Wishlist> getAllForUser(@PathVariable int userId) {
-    return wishlistService.getAllForUser(userId);
+  public ResponseEntity<List<Wishlist>> getAllUsersWishes(@PathVariable long userId) {
+    List<Wishlist> wishes = this.wishlistService.getAllUsersWishes(userId);
+    if (!wishes.isEmpty()) {
+      return ResponseEntity.ok(wishes);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   @GetMapping("/users/{userId}/events/{eventId}")
-  public Optional<Wishlist> getWish(@PathVariable int userId, @PathVariable int eventId) {
-    return wishlistService.getWish(userId, eventId);
+  public ResponseEntity<Wishlist> getWish(@PathVariable int userId, @PathVariable int eventId) {
+    if (wishlistService.getWish(userId, eventId).isPresent()) {
+      return ResponseEntity.ok(wishlistService.getWish(userId, eventId).get());
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   @PostMapping("/users/{userId}/events/{eventId}")
-  public void insertOneIntoDatabase(@PathVariable int userId, @PathVariable int eventId) {
-    wishlistService.insertOneIntoDatabase(userId, eventId);
+  public ResponseEntity<Void> insertOneIntoDatabase(@PathVariable int userId, @PathVariable int eventId) {
+    boolean inserted = wishlistService.insertOneIntoDatabase(userId, eventId);
+    if (inserted) {
+      return ResponseEntity.ok().build();
+    } else {
+      return ResponseEntity.notFound().build();
+    }
+
   }
 
   @DeleteMapping("/users/{userId}/events/{eventId}")
-  public ResponseEntity<Void> remove(@PathVariable int userId, @PathVariable int eventId) {
-    boolean removed = wishlistService.remove(userId, eventId);
+  public ResponseEntity<Void> remove(@PathVariable long userId, @PathVariable long eventId) {
+    boolean removed = wishlistService.removeWishlist(userId, eventId);
     if (!removed) {
       return ResponseEntity.notFound().build();
     }
