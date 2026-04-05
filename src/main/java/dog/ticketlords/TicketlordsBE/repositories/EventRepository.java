@@ -1,5 +1,6 @@
 package dog.ticketlords.TicketlordsBE.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByNameContaining(String name);
 
   List<Event> findByCategory_CategoryId(long Id);
+
+  List<Event> findByEventDateStartBetween(LocalDateTime start, LocalDateTime end);
+
+  List<Event> findByEventDateStartAfter(LocalDateTime date);
 }
