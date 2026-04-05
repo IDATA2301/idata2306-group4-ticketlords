@@ -78,6 +78,29 @@ public class EventService {
     }
   }
 
+  public boolean deleteEvent(long eventId) {
+    if (this.eventRepo.existsById(eventId)) {
+      this.eventRepo.deleteById(eventId);
+      return true;
+    }
+    return false;
+  }
 
-  hallo
+  /**
+   * Finds all events by a category's id.
+   *
+   * @return A list of all Events
+   */
+  public List<Event> getEventsByCategoryId(long id) {
+    return this.eventRepo.findByCategory_CategoryId(id);
+  }
+
+  /**
+   * Finds all events by a category's non case sensitive name.
+   *
+   * @return A list of all Events matching the query.
+   */
+  public List<Event> getEventsByCategoryName(String categoryName) {
+    return this.eventRepo.findByCategory_CategoryNameIgnoreCase(categoryName);
+  }
 }
