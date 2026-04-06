@@ -24,8 +24,8 @@ public class ReviewId implements Serializable {
   private String ticketVendor;
 
   /**
-   * Constructs a ReviewId. Should only be used for testing.
-   *
+   * Constructs a ReviewId.
+   * 
    * @param userId       the user ID.
    * @param ticketVendor the ticket vendor name.
    */

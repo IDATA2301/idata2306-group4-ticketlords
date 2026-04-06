@@ -31,8 +31,8 @@ public class Category {
   private String categoryName;
 
   /**
-   * Creates an instance of Category. Should only be used for testing purposes.
-   *
+   * Creates an instance of Category.
+   * 
    * @param categoryId   the unique category id.
    * @param categoryName the name of the category.
    */

@@ -45,10 +45,10 @@ public class UserInterest {
   private int interestScore;
 
   /**
-   * Constructs a UserInterest. Should only be used for testing.
+   * Constructs a UserInterest object.
    *
    * @param user          the {@link RegisteredUser} this interest belongs to.
-   * @param categoryName  the category name.
+   * @param category      the category object.
    * @param interestScore the interest score.
    */
   public UserInterest(RegisteredUser user, Category category, int interestScore) {

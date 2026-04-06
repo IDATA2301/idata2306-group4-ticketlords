@@ -31,7 +31,7 @@ public class BookingSite {
   private String bookingSiteDescription;
 
   /**
-   * Creates an instance of BookingSite. Should only be used for testing purposes.
+   * Creates an instance of BookingSite.
    *
    * @param ticketVendor           the vendor that sells a specific ticket.
    * @param websiteLink            the link to the vendor's website.

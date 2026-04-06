@@ -29,7 +29,6 @@ public class WishlistId implements Serializable {
 
   /**
    * Creates a new WishlistId with the given user and event IDs.
-   * Constructor is meant to be used only for testing purposes.
    *
    * @param userId  the ID of the user.
    * @param eventId the ID of the event.

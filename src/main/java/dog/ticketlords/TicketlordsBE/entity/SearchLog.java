@@ -49,7 +49,7 @@ public class SearchLog {
   private LocalDateTime searchedAt;
 
   /**
-   * Constructs a SearchLog. Should only be used for testing.
+   * Constructs a SearchLog.
    *
    * @param user        the {@link UnregisteredUser} who performed the search.
    * @param searchQuery the search query text.

@@ -86,7 +86,7 @@ public class RegisteredUser {
    *
    * @param unregisteredUser the associated {@link UnregisteredUser} entity.
    * @param email            the email address of the user.
-   * @param display_name     the display_name of the user.
+   * @param displayName      the display name of the user.
    * @param firstName        the first name of the user.
    * @param lastName         the last name of the user.
    * @param hPassw           the hashed password of the user.

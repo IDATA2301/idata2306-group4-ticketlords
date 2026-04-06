@@ -1,7 +1,6 @@
 package dog.ticketlords.TicketlordsBE.entity;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -54,7 +53,7 @@ public class Wishlist {
    */
   public Wishlist(RegisteredUser user, Event event) {
     this.id = new WishlistId(user.getUnregisteredUser().getUId(),
-        event.getEventID());
+        event.getEventId());
     this.user = user;
     this.event = event;
   }

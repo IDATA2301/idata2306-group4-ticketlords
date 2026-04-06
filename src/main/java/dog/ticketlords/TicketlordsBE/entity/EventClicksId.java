@@ -24,9 +24,8 @@ public class EventClicksId implements Serializable {
   private long userId;
 
   /**
-   * Constructs an instance of EventClicksId. Should only be used for testing
-   * purposes.
-   *
+   * Constructs an instance of EventClicksId.
+   * 
    * @param eventId the id of a specific event.
    * @param userId  the id of the a specific user.
    */

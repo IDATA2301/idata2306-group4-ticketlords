@@ -57,8 +57,8 @@ public class Ticket {
   private String ticketDescription;
 
   /**
-   * Constructs a ticket object. Should only be used for testing purposes.
-   *
+   * Constructs a ticket object.  
+   * 
    * @param ticketId          The id of an individual Ticket.
    * @param event             the event a ticket is for.
    * @param ticketType        The type of ticket; Normal, VIP etc...

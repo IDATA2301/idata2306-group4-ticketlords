@@ -58,7 +58,7 @@ public class PriceAlert {
   private boolean isActive = true;
 
   /**
-   * Constructs a PriceAlert. Should only be used for testing.
+   * Constructs a PriceAlert.
    *
    * @param user        the {@link RegisteredUser} who set the alert.
    * @param event       the {@link Event} the alert is for.

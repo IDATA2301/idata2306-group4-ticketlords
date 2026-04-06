@@ -41,7 +41,7 @@ public class Review {
   private int score;
 
   /**
-   * Constructs an instance of Review. Should be used for testing only.
+   * Constructs an instance of Review.
    *
    * @param revId          the id which uniquely represents the specific review.
    * @param registeredUser the composite key which links a user to a review.

@@ -58,6 +58,6 @@ public class EventClicks {
   public EventClicks(Event event, UnregisteredUser user) {
     this.event = event;
     this.user = user;
-    this.id = new EventClicksId(event.getEventID(), user.getUId());
+    this.id = new EventClicksId(event.getEventId(), user.getUId());
   }
 }
