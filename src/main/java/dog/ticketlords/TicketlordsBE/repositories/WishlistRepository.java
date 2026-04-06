@@ -11,7 +11,7 @@ import dog.ticketlords.TicketlordsBE.entity.WishlistId;
 
 public interface WishlistRepository extends JpaRepository<Wishlist, WishlistId> {
 
-  List<Wishlist> findAllById_UserId(long userId);
+  List<Wishlist> findAllByUser_UserId(long userId);
 
   Page<Wishlist> findAllByUser_UserId(long userId, Pageable pageable);
 

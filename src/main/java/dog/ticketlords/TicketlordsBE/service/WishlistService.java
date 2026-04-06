@@ -66,7 +66,7 @@ public class WishlistService {
   }
 
   public List<Wishlist> getAllUsersWishes(long userId) {
-    return this.wishlistRepository.findAllById_UserId(userId);
+    return this.wishlistRepository.findAllByUser_UserId(userId);
   }
 
   /**
