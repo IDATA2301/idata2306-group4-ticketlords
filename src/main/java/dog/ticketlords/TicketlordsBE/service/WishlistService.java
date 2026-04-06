@@ -3,6 +3,9 @@ package dog.ticketlords.TicketlordsBE.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +66,7 @@ public class WishlistService {
   }
 
   public List<Wishlist> getAllUsersWishes(long userId) {
-    return this.wishlistRepository.findAllByIdUserId(userId);
+    return this.wishlistRepository.findAllById_UserId(userId);
   }
 
   /**
@@ -71,6 +74,7 @@ public class WishlistService {
    * 
    * @param userId  the id of the user who makes the wishlist
    * @param eventId the id of the wish, that the user wants to save
+   * @return true if suceeded, false otherwise.
    */
   public boolean insertOneIntoDatabase(long userId, long eventId) {
     Optional<RegisteredUser> user = registeredUserRepository.findById(userId);
@@ -78,6 +82,15 @@ public class WishlistService {
     if (user.isPresent() && event.isPresent()) {
       Wishlist wishlist = new Wishlist(user.get(), event.get());
       this.wishlistRepository.save(wishlist);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean isEventInWishlist(long userId, long eventId) {
+    WishlistId wishlist = new WishlistId(userId, eventId);
+    if (this.wishlistRepository.existsById(wishlist)) {
       return true;
     } else {
       return false;
@@ -109,4 +122,51 @@ public class WishlistService {
       return false;
     }
   }
+
+  /**
+   * Finds all wishes for an event by the given id.
+   *
+   * @param eventId the id of the event to find wishlistings for.
+   * @return the amount of wishlistings for the given id.
+   */
+  public long getWishlistingAmountForEventById(long eventId) {
+    return this.wishlistRepository.countByEvent_EventId(eventId);
+  }
+
+  /**
+   * Finds all wishes for an event by the given substring.
+   *
+   * @param eventNamePart the substring of the event to find wishlistings for's
+   *                      name.
+   * @return the amount of wishlistings for the given event name.
+   */
+  public long getWishlistingAmountForEventBySubstring(String eventNamePart) {
+    return this.wishlistRepository.countByEvent_EventNameContainingIgnoreCase(eventNamePart);
+  }
+
+  /**
+   * Finds all wishes a user has saved.
+   *
+   * @param userId the id of the user to find events from.
+   *
+   * @return the amount of wishlistings said user has made.
+   */
+  public long countWishesByUser(long userId) {
+    return this.wishlistRepository.countByRegisteredUser_UserId(userId);
+  }
+
+  /**
+   * Gets a page of wishlistings by a users id.
+   *
+   * @param userId   the id of the user to find wishlistings from.
+   * @param page     the page number to get wishlistings from.
+   * @param pageSize the amount of wishlistings to get per page.
+   *
+   * @return pageSize amount of wishlistings if there are enough available. All
+   *         available Wishlistings on said page otherwise,
+   */
+  public Page<Wishlist> getUsersWishlistingsPaged(long userId, int page, int pageSize) {
+    return this.wishlistRepository.findAllByUser_UserId(userId, PageRequest.of(page, pageSize));
+  }
+
 }
