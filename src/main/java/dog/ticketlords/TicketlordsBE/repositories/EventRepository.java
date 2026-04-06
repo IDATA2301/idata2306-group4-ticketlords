@@ -10,13 +10,17 @@ import dog.ticketlords.TicketlordsBE.entity.Event;
 public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByCategory_CategoryNameIgnoreCase(String categoryName);
 
-  List<Event> findByHost(String host);
+  long countByCategory_NameContainingIgnoreCase(String categoryNameSubstring);
 
-  List<Event> findByNameContaining(String name);
+  List<Event> findByHostIgnoreCase(String host);
+
+  List<Event> findByNameContainingIgnoreCase(String name);
 
   List<Event> findByCategory_CategoryId(long Id);
 
   List<Event> findByEventDateStartBetween(LocalDateTime start, LocalDateTime end);
 
   List<Event> findByEventDateStartAfter(LocalDateTime date);
+
+  List<Event> findByEventDateEndBefore(LocalDateTime date);
 }

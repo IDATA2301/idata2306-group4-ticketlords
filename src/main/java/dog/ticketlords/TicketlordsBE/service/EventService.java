@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import dog.ticketlords.TicketlordsBE.entity.Event;
 import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -153,6 +156,71 @@ public class EventService {
    */
   public List<Event> getAllUpcomingEvents() {
     return this.eventRepo.findByEventDateStartAfter(LocalDateTime.now());
+  }
+
+  /**
+   * Retrieves all events that have already ended.
+   *
+   * @return A list of past events.
+   */
+  public List<Event> getPastEvents() {
+    LocalDateTime now = LocalDateTime.now();
+    return eventRepo.findByEventDateEndBefore(now);
+  }
+
+  /**
+   * Searches for events with names containing the specified substring
+   * (case-insensitive).
+   *
+   * @param namePart The substring to search for in event names.
+   * @return A list of events whose names contain the given substring.
+   */
+  public List<Event> getEventsByName(String namePart) {
+    return this.eventRepo.findByNameContainingIgnoreCase(namePart);
+  }
+
+  /**
+   * Retrieves all events organized by the specified hostName string
+   * (case-insensitive).
+   *
+   * @param hostName The name of the host.
+   * @return A list of events organized by the given host.
+   */
+  public List<Event> getEventsByHostName(String hostName) {
+    return eventRepo.findByHostIgnoreCase(hostName);
+  }
+
+  /**
+   * Returns the total number of events.
+   *
+   * @return The count of all events.
+   */
+  public long countAllEvents() {
+    return eventRepo.count();
+  }
+
+  /**
+   * Returns the total number of events, based on a category's, or substring of
+   * category's name.
+   *
+   * @param categoryNameSubstring the category's name to find amount of events
+   *                              from.
+   * @return the amount of events in the specified category.
+   */
+  public long countEventsByCategoryName(String categoryNameSubstring) {
+    return this.eventRepo.countByCategory_NameContainingIgnoreCase(categoryNameSubstring);
+  }
+
+  /**
+   * Retrieves a paginated list of events.
+   *
+   * @param page The page number (0-based).
+   * @param size The number of events per page.
+   * @return A list of events for the specified page.
+   */
+  public List<Event> getEventsPaged(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return eventRepo.findAll(pageable).getContent();
   }
 
 }
