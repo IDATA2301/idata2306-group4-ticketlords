@@ -39,7 +39,7 @@ public class EventService {
    * Inserts an event into the database, as long as it doesnt already exist.
    */
   public boolean insertEventIntoDatabase(Event event) {
-    if (!this.eventRepo.existsById(event.getEventID())) {
+    if (!this.eventRepo.existsById(event.getEventId())) {
       this.eventRepo.save(event);
       return true;
     } else {
