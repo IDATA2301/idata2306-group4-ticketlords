@@ -14,5 +14,5 @@ public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
 
   List<Review> findAllByBookingSite_TicketVendorIgnoreCaseContaining(String vendorNameSubstring);
 
-  List<Review> findByBookSite_TicketVendorIgnoreCase(String vendorName);
+  double findByBookingSite_TicketVendorIgnoreCase(String vendorName);
 }
