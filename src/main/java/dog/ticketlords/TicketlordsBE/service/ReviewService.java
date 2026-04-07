@@ -1,7 +1,7 @@
 package dog.ticketlords.TicketlordsBE.service;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,4 +47,48 @@ public class ReviewService {
     }
   }
 
+  /**
+   * Returns the average rating for a specific vendor.
+   *
+   * @param vendorName the full (non case sensitive) name of the vendor.
+   * @return the average rating of the vendor.
+   */
+  public double getAverageRatingForVendor(String vendorName) {
+    return this.findByBookSite_TicketVendorIgnoreCase(vendorName);
+  }
+
+  // TODO: Need to create test for this method, to guarentee correctness.
+
+  /**
+   * Finds all vendors which match the substring parameter, and maps their name,
+   * to the average rating of the vendor.
+   *
+   * @param a substring of the vendorName to search reviews from.
+   * @return a list of VendorRating which holds the vendor's name, and that
+   *         vendor's average rating.
+   */
+  public List<VendorRating> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
+    class VendorRating {
+      String vendorName;
+      double averageRating;
+
+      VendorRating(String vendorName, double averageRating) {
+        this.vendorName = vendorName;
+        this.averageRating = averageRating;
+      }
+
+      public String getVendorName() {
+        return this.vendorName;
+      }
+
+      public double getAverageRating() {
+        return this.averageRating;
+      }
+    }
+    List<Review> reviews = this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(vendorNameSubstring);
+    return reviews.stream()
+        .collect(Collectors.groupingBy(r -> r.getBookingSite().getTicketVendor(),
+            Collectors.averagingDouble(Review::getScore)))
+        .entrySet().stream().map(e -> new VendorRating(e.getKey(), e.getValue())).collect(Collectors.toList());
+  }
 }
