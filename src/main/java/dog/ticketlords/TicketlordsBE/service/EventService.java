@@ -176,7 +176,7 @@ public class EventService {
    * @return A list of events whose names contain the given substring.
    */
   public List<Event> getEventsByName(String namePart) {
-    return this.eventRepo.findByNameContainingIgnoreCase(namePart);
+    return this.eventRepo.findByEventNameContainingIgnoreCase(namePart);
   }
 
   /**
@@ -208,7 +208,7 @@ public class EventService {
    * @return the amount of events in the specified category.
    */
   public long countEventsByCategoryName(String categoryNameSubstring) {
-    return this.eventRepo.countByCategory_NameContainingIgnoreCase(categoryNameSubstring);
+    return this.eventRepo.countByCategory_CategoryNameContainingIgnoreCase(categoryNameSubstring);
   }
 
   /**
