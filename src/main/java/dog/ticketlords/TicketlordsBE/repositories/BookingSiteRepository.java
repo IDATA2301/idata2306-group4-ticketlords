@@ -2,7 +2,7 @@ package dog.ticketlords.TicketlordsBE.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import dog.ticketlords.TicketlordsBE.entity.BookingSite;
+import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

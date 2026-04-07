@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import dog.ticketlords.TicketlordsBE.entity.Wishlist;
-import dog.ticketlords.TicketlordsBE.entity.WishlistId;
+import dog.ticketlords.TicketlordsBE.dbentity.Wishlist;
+import dog.ticketlords.TicketlordsBE.dbentity.WishlistId;
 
 public interface WishlistRepository extends JpaRepository<Wishlist, WishlistId> {
 

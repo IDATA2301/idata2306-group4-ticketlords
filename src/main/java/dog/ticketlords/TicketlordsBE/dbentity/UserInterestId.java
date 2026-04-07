@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.entity;
+package dog.ticketlords.TicketlordsBE.dbentity;
 
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
@@ -21,7 +21,7 @@ public class UserInterestId implements Serializable {
   private String categoryName;
 
   /**
-   * Constructs an instance of UserInterestId. 
+   * Constructs an instance of UserInterestId.
    * 
    * @param userId       the user ID.
    * @param categoryName the category name.

@@ -2,7 +2,7 @@ package dog.ticketlords.TicketlordsBE.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import dog.ticketlords.TicketlordsBE.entity.SearchLog;
+import dog.ticketlords.TicketlordsBE.dbentity.SearchLog;
 
 public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
 }

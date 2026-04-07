@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import dog.ticketlords.TicketlordsBE.entity.Event;
+import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
 

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dog.ticketlords.TicketlordsBE.entity.Review;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
 import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 
 @Service

@@ -9,11 +9,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dog.ticketlords.TicketlordsBE.entity.Event;
-import dog.ticketlords.TicketlordsBE.entity.RegisteredUser;
-import dog.ticketlords.TicketlordsBE.entity.Review;
-import dog.ticketlords.TicketlordsBE.entity.Wishlist;
-import dog.ticketlords.TicketlordsBE.entity.WishlistId;
+import dog.ticketlords.TicketlordsBE.dbentity.Event;
+import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
+import dog.ticketlords.TicketlordsBE.dbentity.Wishlist;
+import dog.ticketlords.TicketlordsBE.dbentity.WishlistId;
 import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.WishlistRepository;

@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.entity;
+package dog.ticketlords.TicketlordsBE.dbentity;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;

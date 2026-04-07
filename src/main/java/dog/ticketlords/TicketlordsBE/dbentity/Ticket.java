@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.entity;
+package dog.ticketlords.TicketlordsBE.dbentity;
 
 import java.math.BigDecimal;
 
@@ -57,7 +57,7 @@ public class Ticket {
   private String ticketDescription;
 
   /**
-   * Constructs a ticket object.  
+   * Constructs a ticket object.
    * 
    * @param ticketId          The id of an individual Ticket.
    * @param event             the event a ticket is for.

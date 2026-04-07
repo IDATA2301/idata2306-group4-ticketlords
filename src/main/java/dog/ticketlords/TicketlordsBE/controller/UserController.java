@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException.Conflict;
 
-import dog.ticketlords.TicketlordsBE.entity.RegisteredUser;
-import dog.ticketlords.TicketlordsBE.entity.UnregisteredUser;
+import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
+import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.service.UserService;
 import jakarta.validation.Valid;
 

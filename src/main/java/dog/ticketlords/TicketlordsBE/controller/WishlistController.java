@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dog.ticketlords.TicketlordsBE.entity.Wishlist;
+import dog.ticketlords.TicketlordsBE.dbentity.Wishlist;
 import dog.ticketlords.TicketlordsBE.service.WishlistService;
 
 @RestController

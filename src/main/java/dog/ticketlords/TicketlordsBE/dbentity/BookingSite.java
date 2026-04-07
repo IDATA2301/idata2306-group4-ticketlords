@@ -1,4 +1,4 @@
-package dog.ticketlords.TicketlordsBE.entity;
+package dog.ticketlords.TicketlordsBE.dbentity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

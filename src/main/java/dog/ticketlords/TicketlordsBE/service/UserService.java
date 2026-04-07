@@ -6,8 +6,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dog.ticketlords.TicketlordsBE.entity.RegisteredUser;
-import dog.ticketlords.TicketlordsBE.entity.UnregisteredUser;
+import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
+import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 

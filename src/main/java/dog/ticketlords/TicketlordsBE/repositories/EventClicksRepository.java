@@ -2,8 +2,8 @@ package dog.ticketlords.TicketlordsBE.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import dog.ticketlords.TicketlordsBE.entity.EventClicks;
-import dog.ticketlords.TicketlordsBE.entity.EventClicksId;
+import dog.ticketlords.TicketlordsBE.dbentity.EventClicks;
+import dog.ticketlords.TicketlordsBE.dbentity.EventClicksId;
 
 public interface EventClicksRepository extends JpaRepository<EventClicks, EventClicksId> {
 }

@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import dog.ticketlords.TicketlordsBE.entity.Review;
-import dog.ticketlords.TicketlordsBE.entity.ReviewId;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
+import dog.ticketlords.TicketlordsBE.dbentity.ReviewId;
 
 public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
   List<Review> findAllByUser_UserId(long userId);
