@@ -152,7 +152,7 @@ public class WishlistService {
    * @return the amount of wishlistings said user has made.
    */
   public long countWishesByUser(long userId) {
-    return this.wishlistRepository.countByRegisteredUser_UserId(userId);
+    return this.wishlistRepository.countByUser_UserId(userId);
   }
 
   /**
