@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Review;
 import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
+import dog.ticketlords.TicketlordsBE.entity.VendorRating;
 
 @Service
 @Transactional
@@ -54,7 +55,7 @@ public class ReviewService {
    * @return the average rating of the vendor.
    */
   public double getAverageRatingForVendor(String vendorName) {
-    return this.findByBookSite_TicketVendorIgnoreCase(vendorName);
+    return this.reviewRepo.findByBookingSite_TicketVendorIgnoreCase(vendorName);
   }
 
   // TODO: Need to create test for this method, to guarentee correctness.
@@ -68,23 +69,7 @@ public class ReviewService {
    *         vendor's average rating.
    */
   public List<VendorRating> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
-    class VendorRating {
-      String vendorName;
-      double averageRating;
 
-      VendorRating(String vendorName, double averageRating) {
-        this.vendorName = vendorName;
-        this.averageRating = averageRating;
-      }
-
-      public String getVendorName() {
-        return this.vendorName;
-      }
-
-      public double getAverageRating() {
-        return this.averageRating;
-      }
-    }
     List<Review> reviews = this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(vendorNameSubstring);
     return reviews.stream()
         .collect(Collectors.groupingBy(r -> r.getBookingSite().getTicketVendor(),
