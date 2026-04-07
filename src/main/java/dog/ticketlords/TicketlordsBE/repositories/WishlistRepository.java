@@ -17,7 +17,7 @@ public interface WishlistRepository extends JpaRepository<Wishlist, WishlistId> 
 
   long countByEvent_EventId(long eventId);
 
-  long countByRegisteredUser_UserId(long userId);
+  long countByUser_UserId(long userId);
 
   long countByEvent_EventNameContainingIgnoreCase(String eventNameSubstring);
 
