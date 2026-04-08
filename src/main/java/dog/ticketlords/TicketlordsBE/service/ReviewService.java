@@ -64,7 +64,7 @@ public class ReviewService {
    * Finds all vendors which match the substring parameter, and maps their name,
    * to the average rating of the vendor.
    *
-   * @param a substring of the vendorName to search reviews from.
+   * @param vendorNameSubstring a substring of the vendorName to search reviews from.
    * @return a list of VendorRating which holds the vendor's name, and that
    *         vendor's average rating.
    */
@@ -72,6 +72,7 @@ public class ReviewService {
 
     List<Review> reviews = this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(vendorNameSubstring);
     return reviews.stream()
+            .filter(r -> r != null && r.getBookingSite() != null && r.getBookingSite().getTicketVendor() != null)
         .collect(Collectors.groupingBy(r -> r.getBookingSite().getTicketVendor(),
             Collectors.averagingDouble(Review::getScore)))
         .entrySet().stream().map(e -> new VendorRating(e.getKey(), e.getValue())).collect(Collectors.toList());
