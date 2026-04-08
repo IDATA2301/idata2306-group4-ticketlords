@@ -38,7 +38,7 @@ public class Review {
   @Max(5)
   @Min(1)
   @Column(name = "score")
-  private int score;
+  private double score;
 
   @Column(name = "review_content")
   private String reviewContent;
