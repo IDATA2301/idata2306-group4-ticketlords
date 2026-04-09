@@ -61,7 +61,7 @@ CREATE TABLE "registered_user" (
 CREATE TABLE "review" (
   "user_id" bigint references "registered_user"("user_id") on delete CASCADE,
   "ticket_vendor" varchar,
-  "score" int check (score >=1 and score <= 5),
+  "score" decimal(2, 1) check (score >=1.0 and score <= 5.0),
   "review_content" text,
   primary key ("user_id", "ticket_vendor")
 );

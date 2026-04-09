@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * An entity representation of the review table in the database.
@@ -38,9 +39,11 @@ public class Review {
   @Max(5)
   @Min(1)
   @Column(name = "score")
-  private int score;
+  @Setter
+  private double score;
 
   @Column(name = "review_content")
+  @Setter
   private String reviewContent;
 
   /**
@@ -53,11 +56,61 @@ public class Review {
    * @param reviewContent  the user's review.
    */
   public Review(ReviewId revId, RegisteredUser registeredUser, BookingSite bookingSite, int score,
-      String reviewContent) {
+                String reviewContent) {
     this.id = revId;
     this.user = registeredUser;
     this.score = score;
     this.bookingSite = bookingSite;
     this.reviewContent = reviewContent;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  private Review(Builder b) {
+    this.id = b.id;
+    this.user = b.user;
+    this.bookingSite = b.bookingSite;
+    this.score = b.score;
+    this.reviewContent = b.reviewContent;
+  }
+
+  public static class Builder {
+    private ReviewId id;
+    private RegisteredUser user;
+    private BookingSite bookingSite;
+    private double score;
+    private String reviewContent;
+
+
+    public Builder id(ReviewId id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder user(RegisteredUser user) {
+      this.user = user;
+      return this;
+    }
+
+    public Builder bookingSite(BookingSite bookingSite) {
+      this.bookingSite = bookingSite;
+      return this;
+    }
+
+    public Builder score(double score) {
+      this.score = score;
+      return this;
+    }
+
+    public Builder reviewContent(String reviewContent) {
+      this.reviewContent = reviewContent;
+      return this;
+    }
+
+    public Review build() {
+      return new Review(this);
+    }
   }
 }
