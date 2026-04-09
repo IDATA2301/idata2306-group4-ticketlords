@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dog.ticketlords"
-version = "0.0.1-SNAPSHOT"
+version = "0.1.0-SNAPSHOT"
 description = "Backend project for a ticket comparator website."
 
 java {
