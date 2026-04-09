@@ -25,7 +25,7 @@ CREATE TABLE "event" (
 );
 
 CREATE TABLE "booking_site" (
-  "ticket_vendor_id" bigint PRIMARY KEY,
+  "ticket_vendor_id" bigserial PRIMARY KEY,
   "ticket_vendor" varchar(100),
   "website_link" text,
   "booking_site_description" text
