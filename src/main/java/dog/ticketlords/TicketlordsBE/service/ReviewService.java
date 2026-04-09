@@ -1,5 +1,7 @@
 package dog.ticketlords.TicketlordsBE.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,17 +66,43 @@ public class ReviewService {
    * Finds all vendors which match the substring parameter, and maps their name,
    * to the average rating of the vendor.
    *
-   * @param vendorNameSubstring a substring of the vendorName to search reviews from.
+   * @param vendorNameSubstring a substring of the vendorName to search reviews
+   *                            from.
    * @return a list of VendorRating which holds the vendor's name, and that
    *         vendor's average rating.
    */
-  public List<VendorRating> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
 
+  /*
+   * public List<VendorRating> getAverageRatingForAllVendorsByName(String
+   * vendorNameSubstring) {
+   * 
+   * List<Review> reviews =
+   * this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(
+   * vendorNameSubstring);
+   * return reviews.stream().filter(r -> r != null && r.getBookingSite() != null
+   * && r.getBookingSite().getTicketVendor() != null)
+   * .collect(Collectors.groupingBy(r -> r.getBookingSite().getTicketVendor(),
+   * Collectors.averagingDouble(Review::getScore)))
+   * .entrySet().stream().map(e -> new VendorRating(e.getKey(),
+   * e.getValue())).collect(Collectors.toList());
+   * }
+   */
+
+  public List<VendorRating> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
     List<Review> reviews = this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(vendorNameSubstring);
+
     return reviews.stream()
-            .filter(r -> r != null && r.getBookingSite() != null && r.getBookingSite().getTicketVendor() != null)
+        .filter(r -> r != null && r.getBookingSite() != null && r.getBookingSite().getTicketVendor() != null)
         .collect(Collectors.groupingBy(r -> r.getBookingSite().getTicketVendor(),
-            Collectors.averagingDouble(Review::getScore)))
-        .entrySet().stream().map(e -> new VendorRating(e.getKey(), e.getValue())).collect(Collectors.toList());
+            Collectors.mapping(Review::getScore, Collectors.toList())))
+        .entrySet().stream().map(e -> {
+          List<BigDecimal> scores = e.getValue();
+          BigDecimal avg = scores.isEmpty() ? BigDecimal.ZERO
+              : scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add)
+                  .divide(BigDecimal.valueOf(scores.size()), 1, RoundingMode.HALF_UP);
+          return new VendorRating(e.getKey(), avg);
+        })
+        .collect(Collectors.toList());
   }
+
 }

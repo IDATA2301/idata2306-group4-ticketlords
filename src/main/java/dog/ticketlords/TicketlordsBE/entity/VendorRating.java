@@ -1,4 +1,6 @@
 package dog.ticketlords.TicketlordsBE.entity;
 
-public record VendorRating(String vendorName, double avgVendorRating) {
+import java.math.BigDecimal;
+
+public record VendorRating(String vendorName, BigDecimal avgVendorRating) {
 }
