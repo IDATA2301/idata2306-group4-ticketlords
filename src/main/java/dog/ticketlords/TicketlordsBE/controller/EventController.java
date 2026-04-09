@@ -1,18 +1,22 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
+import java.net.URI;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.service.EventService;
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/events")
 public class EventController {
 
   private final EventService eventService;
@@ -30,9 +34,13 @@ public class EventController {
     }
   }
 
-  @PostMapping("/event/{eventId}") //TODO: fix
-  public ResponseEntity<Void> insertEventIntoDatabase(@PathVariable int eventId) {
-    boolean inserted = eventService.insertEventIntoDatabase(eventId);
+  @PostMapping("/event/")
+  public ResponseEntity<Void> insertEventIntoDatabase(@Valid @RequestBody Event event) {
+    if (this.eventService.insertEventIntoDatabase(event)) {
+      return ResponseEntity.created(URI.create("/events/event/" + event.getEventId())).build();
+    } else {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @DeleteMapping("/event/{eventId}")
