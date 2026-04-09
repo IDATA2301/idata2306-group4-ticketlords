@@ -15,7 +15,7 @@ import dog.ticketlords.TicketlordsBE.dbentity.Wishlist;
 import dog.ticketlords.TicketlordsBE.service.WishlistService;
 
 @RestController
-@RequestMapping("/api/wishlists")
+@RequestMapping("/wishlists")
 public class WishlistController {
 
   private final WishlistService wishlistService;
