@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
+import dog.ticketlords.TicketlordsBE.dbentity.ReviewId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,18 +16,31 @@ import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
 import dog.ticketlords.TicketlordsBE.dbentity.Review;
 import dog.ticketlords.TicketlordsBE.entity.VendorRating;
 import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * This class tests methods related to the ReviewService class.
+ *
+ * ----------- Positive tests ------------
+ *
+ *
+ * ----------- Negative tests ------------
+ */
+@ExtendWith(MockitoExtension.class)
 public class ReviewServiceTests {
 
+  @Mock
   private ReviewRepository reviewRepo;
+  @InjectMocks
   private ReviewService reviewService;
 
-  @BeforeEach
-  public void setUp() {
-    reviewRepo = mock(ReviewRepository.class);
-    reviewService = new ReviewService(reviewRepo);
-  }
 
+  /**
+   * Tests that the method actually returns the Vendor's name, with its average review.
+   */
   @Test
   public void testGetAverageRatingForAllVendorsByName() {
     Review review1 = mock(Review.class);
@@ -60,6 +74,5 @@ public class ReviewServiceTests {
     assertEquals(2, result.size());
     assertTrue(result.stream().anyMatch(vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating() == 3.33333333333333333));
     assertTrue(result.stream().anyMatch(vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating() == 5.0));
-
   }
 }
