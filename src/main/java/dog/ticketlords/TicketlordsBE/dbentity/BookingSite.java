@@ -21,6 +21,9 @@ import lombok.Setter;
 public class BookingSite {
 
   @Id
+  @Column(name = "ticket_vendor_id")
+  private long ticketVendorId;
+  @Setter
   @Column(name = "ticket_vendor")
   private String ticketVendor;
   @Setter
@@ -33,11 +36,13 @@ public class BookingSite {
   /**
    * Creates an instance of BookingSite.
    *
+   * @param ticketVendorId         the id of vendor that sells a specific ticket.
    * @param ticketVendor           the vendor that sells a specific ticket.
    * @param websiteLink            the link to the vendor's website.
    * @param bookingSiteDescription description of the website.
    */
-  public BookingSite(String ticketVendor, String websiteLink, String bookingSiteDescription) {
+  public BookingSite(long ticketVendorId, String ticketVendor, String websiteLink, String bookingSiteDescription) {
+    this.ticketVendorId = ticketVendorId;
     this.ticketVendor = ticketVendor;
     this.websiteLink = websiteLink;
     this.bookingSiteDescription = bookingSiteDescription;

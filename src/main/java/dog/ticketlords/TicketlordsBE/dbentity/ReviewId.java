@@ -20,8 +20,8 @@ public class ReviewId implements Serializable {
 
   @Column(name = "user_id")
   private long userId;
-  @Column(name = "ticket_vendor")
-  private String ticketVendor;
+  @Column(name = "ticket_vendor_id")
+  private long ticketVendorId;
 
   /**
    * Constructs a ReviewId.
@@ -29,9 +29,9 @@ public class ReviewId implements Serializable {
    * @param userId       the user ID.
    * @param ticketVendor the ticket vendor name.
    */
-  public ReviewId(long userId, String ticketVendor) {
+  public ReviewId(long userId, long ticketVendorId) {
     this.userId = userId;
-    this.ticketVendor = ticketVendor;
+    this.ticketVendorId = ticketVendorId;
   }
 
   /**
@@ -46,7 +46,7 @@ public class ReviewId implements Serializable {
     if (!(o instanceof ReviewId))
       return false;
     ReviewId that = (ReviewId) o;
-    return this.userId == that.userId && Objects.equals(this.ticketVendor, that.ticketVendor);
+    return this.userId == that.userId && Objects.equals(this.ticketVendorId, that.ticketVendorId);
   }
 
   /**
@@ -54,6 +54,6 @@ public class ReviewId implements Serializable {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(userId, ticketVendor);
+    return Objects.hash(userId, ticketVendorId);
   }
 }
