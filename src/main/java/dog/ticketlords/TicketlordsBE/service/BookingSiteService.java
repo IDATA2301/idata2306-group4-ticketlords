@@ -14,10 +14,22 @@ public class BookingSiteService {
     this.bookingSiteRepository = bsRepo;
   }
 
+  /**
+   * Gets all booking site objects from the database.
+   *
+   * @return empty list of no objects exist. List of all {@link BookingSite}
+   *         otherwise.
+   */
   public List<BookingSite> getAllBookingSites() {
     return this.bookingSiteRepository.findAll();
   }
 
+  /**
+   * Finds a booking site based on its id.
+   *
+   * @param id the id to find the BookingSite by.
+   * @return Optional of the booking site with id as its id, or null.
+   */
   public Optional<BookingSite> getBookingSiteById(long id) {
     return this.bookingSiteRepository.findById(id);
   }
