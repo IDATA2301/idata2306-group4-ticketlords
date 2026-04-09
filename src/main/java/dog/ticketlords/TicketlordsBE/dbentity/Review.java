@@ -1,5 +1,7 @@
 package dog.ticketlords.TicketlordsBE.dbentity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -38,9 +40,9 @@ public class Review {
 
   @Max(5)
   @Min(1)
-  @Column(name = "score")
+  @Column(name = "score", precision = 2, scale = 1)
   @Setter
-  private double score;
+  private BigDecimal score;
 
   @Column(name = "review_content")
   @Setter
@@ -55,8 +57,8 @@ public class Review {
    * @param score          the score of the review.
    * @param reviewContent  the user's review.
    */
-  public Review(ReviewId revId, RegisteredUser registeredUser, BookingSite bookingSite, int score,
-                String reviewContent) {
+  public Review(ReviewId revId, RegisteredUser registeredUser, BookingSite bookingSite, BigDecimal score,
+      String reviewContent) {
     this.id = revId;
     this.user = registeredUser;
     this.score = score;
@@ -80,9 +82,8 @@ public class Review {
     private ReviewId id;
     private RegisteredUser user;
     private BookingSite bookingSite;
-    private double score;
+    private BigDecimal score;
     private String reviewContent;
-
 
     public Builder id(ReviewId id) {
       this.id = id;
@@ -99,7 +100,7 @@ public class Review {
       return this;
     }
 
-    public Builder score(double score) {
+    public Builder score(BigDecimal score) {
       this.score = score;
       return this;
     }
