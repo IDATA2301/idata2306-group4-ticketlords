@@ -25,7 +25,8 @@ CREATE TABLE "event" (
 );
 
 CREATE TABLE "booking_site" (
-  "ticket_vendor" varchar(100) PRIMARY KEY,
+  "ticket_vendor_id" bigint PRIMARY KEY,
+  "ticket_vendor" varchar(100),
   "website_link" text,
   "booking_site_description" text
 );
@@ -33,19 +34,19 @@ CREATE TABLE "booking_site" (
 CREATE TABLE "ticket" (
   "ticket_id" bigserial primary key,
   "event_id" bigint REFERENCES "event" ("event_id") on delete cascade,
-  "ticket_type" varchar(100) references "booking_site" ("ticket_vendor"),
+  "ticket_vendor_id" bigint references "booking_site" ("ticket_vendor_id") on delete cascade,
   "price" decimal (10, 2) check (price >= 0),
   --"currency" varchar(10) default 'NOK',
   "amount_available" int,
-  "ticket_vendor" varchar,
+  "ticket_type" varchar(100),
   "ticket_link" varchar,
   "ticket_description" text
 );
+
 CREATE TABLE "unregistered_user" (
   "user_id" bigserial primary key,
   "first_seen" timestamp default now()
 );
-
 
 CREATE TABLE "registered_user" (
   "display_name" varchar,
@@ -60,10 +61,10 @@ CREATE TABLE "registered_user" (
 
 CREATE TABLE "review" (
   "user_id" bigint references "registered_user"("user_id") on delete CASCADE,
-  "ticket_vendor" varchar,
+  "ticket_vendor_id" bigint references "booking_site"("ticket_vendor_id") on delete CASCADE,
   "score" decimal(2, 1) check (score >=1.0 and score <= 5.0),
   "review_content" text,
-  primary key ("user_id", "ticket_vendor")
+  primary key ("user_id", "ticket_vendor_id")
 );
 
 CREATE TABLE "event_clicks" (
@@ -104,7 +105,6 @@ create table "search_log" (
 "searched_at" TIMESTAMP default NOW()
 );
 
-ALTER TABLE "review" ADD FOREIGN KEY ("ticket_vendor") REFERENCES "booking_site" ("ticket_vendor");
 
 CREATE OR REPLACE FUNCTION update_event_click_count()
 RETURNS TRIGGER AS $$
