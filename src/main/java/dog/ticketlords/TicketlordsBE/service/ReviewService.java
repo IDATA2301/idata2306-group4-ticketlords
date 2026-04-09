@@ -87,7 +87,6 @@ public class ReviewService {
    * e.getValue())).collect(Collectors.toList());
    * }
    */
-
   public List<VendorRating> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
     List<Review> reviews = this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(vendorNameSubstring);
 
