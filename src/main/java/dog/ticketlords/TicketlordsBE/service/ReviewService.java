@@ -3,14 +3,16 @@ package dog.ticketlords.TicketlordsBE.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dog.ticketlords.TicketlordsBE.dbentity.Review;
-import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 import dog.ticketlords.TicketlordsBE.DTO.VendorRatingDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
+import dog.ticketlords.TicketlordsBE.dbentity.ReviewId;
+import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 
 @Service
 @Transactional
@@ -28,8 +30,28 @@ public class ReviewService {
     this.reviewRepo = revRepo;
   }
 
+  /**
+   * Gets all reviews by a user's id.
+   *
+   * @param userId the id of the user to find reviews from.
+   * @return all reviews the user has made.
+   */
   public List<Review> getAllReviewsByUserId(long userId) {
     return this.reviewRepo.findAllByUser_UserId(userId);
+  }
+
+  /**
+   * Gets a single review.
+   *
+   * @param userId   the id of the user who'se review is to be returned.
+   * @param vendorId the id of the vendor for who the user has made the review
+   *                 for.
+   *
+   * @return the review.
+   */
+  public Optional<Review> getReview(long userId, long vendorId) {
+    ReviewId id = new ReviewId(userId, vendorId);
+    return this.reviewRepo.findById(id);
   }
 
   /**
