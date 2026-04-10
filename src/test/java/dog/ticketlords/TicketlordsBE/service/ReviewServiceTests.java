@@ -9,18 +9,16 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import dog.ticketlords.TicketlordsBE.dbentity.ReviewId;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
-import dog.ticketlords.TicketlordsBE.dbentity.Review;
-import dog.ticketlords.TicketlordsBE.entity.VendorRating;
-import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import dog.ticketlords.TicketlordsBE.DTO.VendorRatingDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
+import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 
 /**
  * This class tests methods related to the ReviewService class.
@@ -68,14 +66,14 @@ public class ReviewServiceTests {
     when(reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining("Vendor"))
         .thenReturn(reviews);
 
-    ReviewService service = new ReviewService(reviewRepo);
-    List<VendorRating> result = reviewService.getAverageRatingForAllVendorsByName("Vendor");
+    List<VendorRatingDTO> result = reviewService.getAverageRatingForAllVendorsByName("Vendor");
     System.out.println(result.get(0).vendorName() + " " + result.get(0).avgVendorRating());
     System.out.println(result.get(1).vendorName() + " " + result.get(1).avgVendorRating());
     assertEquals(2, result.size());
     assertTrue(result.stream().anyMatch(
         vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating().compareTo(new BigDecimal("3.3")) == 0));
     assertTrue(result.stream()
-        .anyMatch(vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating().compareTo(new BigDecimal("5.0")) == 0));
+        .anyMatch(
+            vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating().compareTo(new BigDecimal("5.0")) == 0));
   }
 }

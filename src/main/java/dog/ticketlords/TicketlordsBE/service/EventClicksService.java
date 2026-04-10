@@ -8,7 +8,7 @@ import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.dbentity.EventClicks;
 import dog.ticketlords.TicketlordsBE.dbentity.EventClicksId;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
-import dog.ticketlords.TicketlordsBE.entity.CategoryClicksDTO;
+import dog.ticketlords.TicketlordsBE.DTO.CategoryClicksDTO;
 import dog.ticketlords.TicketlordsBE.repositories.EventClicksRepository;
 
 @Service

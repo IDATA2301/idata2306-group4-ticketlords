@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Review;
 import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
-import dog.ticketlords.TicketlordsBE.entity.VendorRating;
+import dog.ticketlords.TicketlordsBE.DTO.VendorRatingDTO;
 
 @Service
 @Transactional
@@ -66,10 +66,10 @@ public class ReviewService {
    *
    * @param vendorNameSubstring a substring of the vendorName to search reviews
    *                            from.
-   * @return a list of VendorRating which holds the vendor's name, and that
+   * @return a list of VendorRatingDTO which holds the vendor's name, and that
    *         vendor's average rating.
    */
-  public List<VendorRating> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
+  public List<VendorRatingDTO> getAverageRatingForAllVendorsByName(String vendorNameSubstring) {
     List<Review> reviews = this.reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining(vendorNameSubstring);
 
     return reviews.stream()
@@ -81,7 +81,7 @@ public class ReviewService {
           BigDecimal avg = scores.isEmpty() ? BigDecimal.ZERO
               : scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add)
                   .divide(BigDecimal.valueOf(scores.size()), 1, RoundingMode.HALF_UP);
-          return new VendorRating(e.getKey(), avg);
+          return new VendorRatingDTO(e.getKey(), avg);
         })
         .collect(Collectors.toList());
   }
