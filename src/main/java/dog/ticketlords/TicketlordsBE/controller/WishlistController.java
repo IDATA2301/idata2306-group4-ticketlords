@@ -1,6 +1,7 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -91,8 +92,9 @@ public class WishlistController {
    */
   @GetMapping("/users/{userId}/events/{eventId}")
   public ResponseEntity<Wishlist> getWish(@PathVariable int userId, @PathVariable int eventId) {
-    if (wishlistService.getWish(userId, eventId).isPresent()) {
-      return ResponseEntity.ok(wishlistService.getWish(userId, eventId).get());
+    Optional<Wishlist> wish = this.wishlistService.getWish(userId, eventId);
+    if (wish.isPresent()) {
+      return ResponseEntity.ok(wish.get());
     } else {
       return ResponseEntity.notFound().build();
     }
