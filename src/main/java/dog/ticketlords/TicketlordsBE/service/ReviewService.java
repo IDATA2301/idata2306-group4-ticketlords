@@ -78,8 +78,8 @@ public class ReviewService {
    * @param vendorName the full (non case sensitive) name of the vendor.
    * @return the average rating of the vendor.
    */
-  public double getAverageRatingForVendor(String vendorName) {
-    return this.reviewRepo.findByBookingSite_TicketVendorIgnoreCase(vendorName);
+  public BigDecimal getAverageRatingForVendor(String vendorName) {
+    return this.reviewRepo.getAverageRatingForVendor(vendorName);
   }
 
   /**
