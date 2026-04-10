@@ -8,6 +8,7 @@ import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.dbentity.EventClicks;
 import dog.ticketlords.TicketlordsBE.dbentity.EventClicksId;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
+import dog.ticketlords.TicketlordsBE.entity.CategoryClicksDTO;
 import dog.ticketlords.TicketlordsBE.repositories.EventClicksRepository;
 
 @Service
@@ -65,7 +66,18 @@ public class EventClicksService {
    */
   public List<EventClicks> getClicksForEvent(long eventId) {
     return this.eventClicksRepository.findAllByEvent_EventId(eventId);
+  }
 
+  /**
+   * Retrieves aggregated click data for a user per category. Maps user interests
+   * based on the number of events the user has clicked in each category.
+   *
+   * @param userId the user ID to retrieve category interests for.
+   * @return A list of CategoryClicksDTO objects ordered by click count
+   *         descending. Empty list if user has no clicks.
+   */
+  public List<CategoryClicksDTO> getUserInterestByCategory(long userId) {
+    return this.eventClicksRepository.findClicksByUserPerCategory(userId);
   }
 
 }
