@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import dog.ticketlords.TicketlordsBE.dbentity.SearchLog;
-import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 
 public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
 
