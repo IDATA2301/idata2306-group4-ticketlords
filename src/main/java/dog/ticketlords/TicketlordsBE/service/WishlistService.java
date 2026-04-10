@@ -61,7 +61,7 @@ public class WishlistService {
    * @return the object of the wish as an optional.
    */
   @Transactional(readOnly = true)
-  public Optional<Wishlist> getWish(int userId, int eventId) {
+  public Optional<Wishlist> getWish(long userId, long eventId) {
     return this.wishlistRepository.findById(new WishlistId(userId, eventId));
   }
 
