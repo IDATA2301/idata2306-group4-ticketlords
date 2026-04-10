@@ -74,8 +74,8 @@ public class ReviewServiceTests {
     System.out.println(result.get(1).vendorName() + " " + result.get(1).avgVendorRating());
     assertEquals(2, result.size());
     assertTrue(result.stream().anyMatch(
-        vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating().compareTo(new BigDecimal(3.33)) == 0));
+        vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating().compareTo(new BigDecimal("3.3")) == 0));
     assertTrue(result.stream()
-        .anyMatch(vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating().compareTo(new BigDecimal(5.0)) == 0));
+        .anyMatch(vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating().compareTo(new BigDecimal("5.0")) == 0));
   }
 }

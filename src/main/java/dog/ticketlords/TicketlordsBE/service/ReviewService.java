@@ -93,13 +93,9 @@ public class ReviewService {
 
     return reviews.stream()
         .filter(r -> r != null && r.getBookingSite() != null && r.getBookingSite().getTicketVendor() != null)
-        .collect(Collectors.groupingBy(
-            r -> r.getBookingSite().getTicketVendor(),
-            Collectors.mapping(
-                Review::getScore,
-                Collectors.toList())))
-        .entrySet().stream()
-        .map(e -> {
+        .collect(Collectors.groupingBy(r -> r.getBookingSite().getTicketVendor(),
+            Collectors.mapping(Review::getScore, Collectors.toList())))
+        .entrySet().stream().map(e -> {
           List<BigDecimal> scores = e.getValue();
           BigDecimal avg = scores.isEmpty() ? BigDecimal.ZERO
               : scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add)
