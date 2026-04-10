@@ -55,7 +55,7 @@ public class PriceAlert {
    */
   @Setter
   @Column(name = "is_active")
-  private boolean isActive = true;
+  private Boolean isActive = true;
 
   /**
    * Constructs a PriceAlert.

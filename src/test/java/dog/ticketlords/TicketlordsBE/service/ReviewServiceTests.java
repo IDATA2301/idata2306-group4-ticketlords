@@ -5,21 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import dog.ticketlords.TicketlordsBE.dbentity.ReviewId;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
-import dog.ticketlords.TicketlordsBE.dbentity.Review;
-import dog.ticketlords.TicketlordsBE.entity.VendorRating;
-import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import dog.ticketlords.TicketlordsBE.DTO.VendorRatingDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
+import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
 
 /**
  * This class tests methods related to the ReviewService class.
@@ -37,9 +36,9 @@ public class ReviewServiceTests {
   @InjectMocks
   private ReviewService reviewService;
 
-
   /**
-   * Tests that the method actually returns the Vendor's name, with its average review.
+   * Tests that the method actually returns the Vendor's name, with its average
+   * review.
    */
   @Test
   public void testGetAverageRatingForAllVendorsByName() {
@@ -59,20 +58,22 @@ public class ReviewServiceTests {
     when(review3.getBookingSite()).thenReturn(site2);
     when(review4.getBookingSite()).thenReturn(site1);
 
-    when(review1.getScore()).thenReturn(4.0);
-    when(review2.getScore()).thenReturn(3.0);
-    when(review3.getScore()).thenReturn(5.0);
-    when(review4.getScore()).thenReturn(3.0);
+    when(review1.getScore()).thenReturn(new BigDecimal(4.0));
+    when(review2.getScore()).thenReturn(new BigDecimal(3.0));
+    when(review3.getScore()).thenReturn(new BigDecimal(5.0));
+    when(review4.getScore()).thenReturn(new BigDecimal(3.0));
     List<Review> reviews = Arrays.asList(review1, review2, review3, review4);
     when(reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining("Vendor"))
         .thenReturn(reviews);
 
-    ReviewService service = new ReviewService(reviewRepo);
-    List<VendorRating> result = reviewService.getAverageRatingForAllVendorsByName("Vendor");
+    List<VendorRatingDTO> result = reviewService.getAverageRatingForAllVendorsByName("Vendor");
     System.out.println(result.get(0).vendorName() + " " + result.get(0).avgVendorRating());
     System.out.println(result.get(1).vendorName() + " " + result.get(1).avgVendorRating());
     assertEquals(2, result.size());
-    assertTrue(result.stream().anyMatch(vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating() == 3.33333333333333333));
-    assertTrue(result.stream().anyMatch(vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating() == 5.0));
+    assertTrue(result.stream().anyMatch(
+        vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating().compareTo(new BigDecimal("3.3")) == 0));
+    assertTrue(result.stream()
+        .anyMatch(
+            vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating().compareTo(new BigDecimal("5.0")) == 0));
   }
 }
