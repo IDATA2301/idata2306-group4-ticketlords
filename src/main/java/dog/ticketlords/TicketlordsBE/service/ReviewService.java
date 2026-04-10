@@ -73,13 +73,19 @@ public class ReviewService {
   }
 
   /**
-   * Returns the average rating for a specific vendor.
+   * Returns a dto of the vendor's name, with said vendor's average rating.
    *
    * @param vendorName the full (non case sensitive) name of the vendor.
-   * @return the average rating of the vendor.
+   * @return dto of vendor's name and its average rating.
    */
-  public BigDecimal getAverageRatingForVendor(String vendorName) {
-    return this.reviewRepo.getAverageRatingForVendor(vendorName);
+  public VendorRatingDTO getAverageRatingForVendor(String vendorName) {
+    BigDecimal avg = reviewRepo.getAverageRatingForVendor(vendorName);
+    if (avg == null) {
+      avg = BigDecimal.ZERO;
+    }
+    BigDecimal rounded = avg.setScale(1, RoundingMode.HALF_UP);
+    VendorRatingDTO dto = new VendorRatingDTO(vendorName, rounded);
+    return dto;
   }
 
   /**
