@@ -93,7 +93,7 @@ CREATE TABLE "price_alert" (
 
 CREATE TABLE "user_interest" (
   "user_id" bigint REFERENCES "registered_user"("user_id") ON DELETE CASCADE,
-  "category_name" varchar(100), 
+  "category_name" references "category"("category_name"),
   "interest_score" int not null DEFAULT 0,
   PRIMARY KEY ("user_id", "category_name")
 );
