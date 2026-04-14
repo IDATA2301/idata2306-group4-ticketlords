@@ -32,7 +32,7 @@ public class CategoryController {
    * @return ResponseEntity containing a list of all categories, or not found if no categories exist.
    */
   @GetMapping("/")
-  public ResponseEntity<List<Category>> getAllEvents() {
+  public ResponseEntity<List<Category>> getAllCategories() {
     if (this.categoryService.getAllCategories().size() >= 1) {
       return ResponseEntity.ok(this.categoryService.getAllCategories());
     } else {
