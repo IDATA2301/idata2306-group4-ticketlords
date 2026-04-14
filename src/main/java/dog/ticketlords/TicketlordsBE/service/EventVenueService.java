@@ -100,4 +100,29 @@ public class EventVenueService {
       return false;
     }
   }
+
+  /**
+   * Deletes an {@link EventVenue} if it exists in the database.
+   *
+   * @param id the id of the EventVenue to delete.
+   * @return true if the deletion succeeded, false otherwise.
+   */
+  public boolean deleteEventVenueById(long id) {
+    if (this.eventVenueRepo.existsById(id)) {
+      this.eventVenueRepo.deleteById(id);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Counts the amount of {@link EventVenue} collumns in the database.
+   *
+   * @return long representing the amount of EventVenue's in the database.
+   */
+  public long countEventVenues() {
+    return this.eventVenueRepo.count();
+  }
+
 }

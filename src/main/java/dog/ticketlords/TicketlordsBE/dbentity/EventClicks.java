@@ -46,8 +46,8 @@ public class EventClicks {
 
   /** The timestamp when the click occurred. */
   @Setter
-  @Column(name = "clicked_at", insertable = false, updatable = false)
-  private LocalDateTime clickedAt;
+  @Column(name = "last_interaction", insertable = true, updatable = false)
+  private LocalDateTime lastInteraction;
 
   /**
    * Constructs an EventClicks entry.
