@@ -67,8 +67,13 @@ public class CategoryController {
               .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-
-  @GetMapping()
+  @GetMapping("/search")
+  public ResponseEntity<List<Category>> search(@RequestParam String name) {
+      List<Category> matches = categoryService.findAllCategoriesMatchingSubstringName(name);
+      return matches.isEmpty()
+              ? ResponseEntity.notFound().build()
+              : ResponseEntity.ok(matches);
+  }
 
 
   /**
@@ -80,7 +85,7 @@ public class CategoryController {
   @PostMapping("/category")
   public ResponseEntity<Void> addCategory(@Valid @RequestBody Category category) {
       if (this.categoryService.addCategory(category)) {
-        return ResponseEntity.created(URI.create("/categories/category/" + category.getCategoryId())).build();
+        return ResponseEntity.created(URI.create("/categories/category" + category.getCategoryId())).build();
       } else {
         return ResponseEntity.badRequest().build();
       }
