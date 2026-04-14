@@ -28,6 +28,7 @@ public class UserInterest {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_interest_id")
   private long id;
   /** The registered user this interest belongs to. */
   @ManyToOne
