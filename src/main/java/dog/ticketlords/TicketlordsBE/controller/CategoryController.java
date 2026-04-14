@@ -1,13 +1,12 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Category;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import dog.ticketlords.TicketlordsBE.service.CategoryService;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -46,7 +45,7 @@ public class CategoryController {
    * @param categoryId the ID of the event to retrieve
    * @return ResponseEntity containing the category, or not found if event does not exist
    */
-  @GetMapping("/categories/{categoryId}")
+  @GetMapping("/{categoryId}")
   public ResponseEntity<Category> getCategory(@PathVariable long categoryId) {
     if (this.categoryService.getCategoryByCategoryId(categoryId).isPresent()) {
       return ResponseEntity.ok(categoryService.getCategoryByCategoryId(categoryId).get());
@@ -66,6 +65,36 @@ public class CategoryController {
       return categoryService.getCategoryByCategoryName(categoryName)
               .map(ResponseEntity::ok)
               .orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
+
+  @GetMapping()
+
+
+  /**
+   * Adds a category if an identical category does not already exist.
+   *
+   * @param category the category object to add.
+   * @return ResponseEntity with created status and location URI, or bad request if insertion fails
+   */
+  @PostMapping("/category")
+  public ResponseEntity<Void> addCategory(@Valid @RequestBody Category category) {
+      if (this.categoryService.addCategory(category)) {
+        return ResponseEntity.created(URI.create("/categories/category/" + category.getCategoryId())).build();
+      } else {
+        return ResponseEntity.badRequest().build();
+      }
+  }
+
+
+
+  @DeleteMapping("/category/{categoryId}")
+  public ResponseEntity<Void> deleteCategoryById(@PathVariable int categoryId) {
+    boolean removed = this.categoryService.deleteCategoryById(categoryId);
+    if (!removed) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.noContent().build();
   }
 
 
