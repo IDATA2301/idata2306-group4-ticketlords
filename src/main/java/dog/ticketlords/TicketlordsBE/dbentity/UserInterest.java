@@ -1,8 +1,12 @@
 package dog.ticketlords.TicketlordsBE.dbentity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -23,26 +27,23 @@ import lombok.Setter;
 @Table(name = "user_interest")
 public class UserInterest {
 
-  /** The composite primary key (user_id, category_name). */
-  @EmbeddedId
-  private UserInterestId id;
-
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
   /** The registered user this interest belongs to. */
   @ManyToOne
-  @MapsId("userId")
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
   private RegisteredUser user;
 
   /** The category name of the interest. */
-  @MapsId("categoryName")
   @ManyToOne
-  @JoinColumn(name = "category_name")
+  @JoinColumn(name = "category_id")
   private Category category;
 
   /** The interest score for this category. */
   @Setter
-  @Column(name = "interest_score", nullable = false)
-  private int interestScore;
+  @Column(name = "clicked_at", nullable = false)
+  private LocalDateTime clickedAt;
 
   /**
    * Constructs a UserInterest object.
@@ -51,10 +52,9 @@ public class UserInterest {
    * @param category      the category object.
    * @param interestScore the interest score.
    */
-  public UserInterest(RegisteredUser user, Category category, int interestScore) {
+  public UserInterest(RegisteredUser user, Category category, LocalDateTime clickedAt) {
     this.user = user;
     this.category = category;
-    this.interestScore = interestScore;
-    this.id = new UserInterestId(user.getUnregisteredUser().getUId(), category.getCategoryName());
+    this.clickedAt = clickedAt;
   }
 }
