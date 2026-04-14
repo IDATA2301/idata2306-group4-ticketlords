@@ -91,11 +91,12 @@ CREATE TABLE "price_alert" (
   "is_active" boolean DEFAULT true
 );
 
+
 CREATE TABLE "user_interest" (
-  "user_id" bigint REFERENCES "registered_user"("user_id") ON DELETE CASCADE,
-  "category_name" references "category"("category_name"),
-  "clicked_at" TIMESTAMP NOT NULL DEFAULT NOW(),
-  PRIMARY KEY ("user_id", "category_name")
+  "user_interest_id" bigserial PRIMARY KEY,
+  "user_id" bigint REFERENCES "registered_user" ("user_id") ON DELETE CASCADE,
+  "category_id" bigint REFERENCES "category" ("category_id"),
+  "clicked_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 create table "search_log" (
