@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Class handling the calculations related to finding a person's categorical
+ * interests.
+ */
 public class CategoryInterestMath {
   private static final int BASE_SAME_DAY_SCORE = 10;
 
@@ -21,7 +25,7 @@ public class CategoryInterestMath {
       return BigDecimal.ZERO;
     } else {
       return BigDecimal
-          .valueOf(BASE_SAME_DAY_SCORE * (scalingCalculator(ChronoUnit.DAYS.between(inputTime, LocalDateTime.now()))));
+          .valueOf(BASE_SAME_DAY_SCORE * (scalingCalculator(daysSinceNow)));
     }
   }
 
