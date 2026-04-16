@@ -2,6 +2,7 @@ package dog.ticketlords.TicketlordsBE.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,9 +20,21 @@ import dog.ticketlords.TicketlordsBE.utility.CategoryInterestMath;
 public class UserInterestService {
 
   private UserInterestRepository userInterestRepository;
+  private Clock clock;
 
-  public UserInterestService(UserInterestRepository userInterestRepository) {
+  /**
+   * Creates an instance of UserInterestService. The class takes a clock object,
+   * which defines the time
+   * the dependent parts of the class operate on. For most normal usecases this
+   * should be Clock.systemDefaultZone();
+   * For testing, the clock can be set to whatever is needed for the test.
+   *
+   * @param userInterestRepository dependency injection handled by spring boot.
+   * @param clock
+   */
+  public UserInterestService(UserInterestRepository userInterestRepository, Clock clock) {
     this.userInterestRepository = userInterestRepository;
+    this.clock = clock;
   }
 
   /**
@@ -34,6 +47,7 @@ public class UserInterestService {
    */
   public List<UserInterest> getAllInterestRaw(long userId) {
     return this.userInterestRepository.findAllById(Collections.singleton(userId));
+
   }
 
   /**
@@ -73,18 +87,18 @@ public class UserInterestService {
         .collect(Collectors.groupingBy(UserInterest::getCategory));
 
     BigDecimal totalInterestScore = BigDecimal.ZERO;
+    CategoryInterestMath mathHelper = new CategoryInterestMath(this.clock);
 
     for (Map.Entry<Category, List<UserInterest>> entry : groupedCategories.entrySet()) {
       Category category = entry.getKey();
       BigDecimal categoryScore = BigDecimal.ZERO;
       for (UserInterest interest : entry.getValue()) {
-        BigDecimal score = CategoryInterestMath.getScoreByDate(interest.getClickedAt());
+        BigDecimal score = mathHelper.getScoreByDate(interest.getClickedAt());
         categoryScore = categoryScore.add(score);
         totalInterestScore = totalInterestScore.add(score);
       }
       dtoMap.put(category, new UserInterestScoreDTO(userId, category.getCategoryName(), categoryScore));
     }
-
     for (UserInterestScoreDTO interest : dtoMap.values()) {
       if (totalInterestScore.compareTo(BigDecimal.ZERO) > 0) {
         interest.setPercentageInterest(
