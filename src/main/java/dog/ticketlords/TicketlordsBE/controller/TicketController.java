@@ -3,7 +3,6 @@ package dog.ticketlords.TicketlordsBE.controller;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import dog.ticketlords.TicketlordsBE.service.TicketService;
@@ -38,18 +37,16 @@ public class TicketController {
  * Retrieves a specific event using its ID.
  *
  */
-  @GetMapping("/{ticketId}")
-  public ResponseEntity<Ticket> getTicket(@PathVariable int ticketId) {
-    if (this.ticketService.getTicket(ticketId).isPresent()) {
-      return ResponseEntity.ok(ticketService.getTicket(ticketId).get());
-    } else {
-      return ResponseEntity.notFound().build();
-    }
-  }
+ @GetMapping("/{ticketId}")
+ public ResponseEntity<Ticket> getTicket(@PathVariable long ticketId) {
+   return ticketService.getTicket(ticketId)
+       .map(ResponseEntity::ok)
+       .orElseGet(() -> ResponseEntity.notFound().build());
+ }
 
 
   @GetMapping("/type/{ticketType}")
-  public ResponseEntity<Ticket> getTicketByType(@PathVariable String ticketType) {
+  public ResponseEntity<List<Ticket>> getTicketsByType(@PathVariable String ticketType) {
     List<Ticket> matches = ticketService.getTicketType(ticketType);
     return matches.isEmpty()
             ? ResponseEntity.notFound().build()
