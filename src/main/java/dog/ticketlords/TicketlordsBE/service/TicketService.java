@@ -1,11 +1,10 @@
 package dog.ticketlords.TicketlordsBE.service;
 
-import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,5 +60,38 @@ public class TicketService {
     return false;
   }
 
+  /**
+   * Retrieves all {@link Ticket}s belonging to the given event.
+   *
+   * @param eventId the event id to filter tickets by
+   * @return a list of tickets for the specified event (may be empty)
+   */
+  public List<Ticket> getTicketByEventId(long eventId) {
+    return ticketRepo.findAllByEvent_EventId(eventId);
+  }
+
+
+  /**
+   * Retrieves all {@link Ticket}s with a price less than or equal to the given maximum value
+   *
+   * @param maxPrice the maximum price (inclusive)
+   * @return a list of tickets priced at most {@code maxPrice} (may be empty)
+   */
+  public List<Ticket> getTicketsCheaperThan(BigDecimal maxPrice) {
+    return ticketRepo.findByPriceLessThanEqual(maxPrice);
+  }
+
+  /**
+   * Retrieves all {@link Ticket}s with a price within the given range.
+   *
+   * <p>The bounds are inclusive.
+   *
+   * @param min the minimum price (inclusive)
+   * @param max the maximum price (inclusive)
+   * @return a list of tickets priced between {@code min} and {@code max} (may be empty)
+   */
+  public List<Ticket> getTicketsInPriceRange(BigDecimal min, BigDecimal max) {
+    return ticketRepo.findByPriceBetween(min, max);
+  }
 
 }
