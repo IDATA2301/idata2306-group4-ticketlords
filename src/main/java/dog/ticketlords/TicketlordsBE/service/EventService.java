@@ -31,14 +31,14 @@ public class EventService {
    * Checks the database for an event.
    *
    * @param eventId the id of the event to look for.
-   * @return an optional which either contains or doesnt contain the event.
+   * @return an optional which either contains or doesn't contain the event.
    */
   public Optional<Event> getEvent(long eventId) {
     return this.eventRepo.findById(eventId);
   }
 
   /**
-   * Inserts an event into the database, as long as it doesnt already exist.
+   * Inserts an event into the database, as long as it doesn't already exist.
    */
   public boolean insertEventIntoDatabase(Event event) {
     if (!this.eventRepo.existsById(event.getEventId())) {
@@ -53,7 +53,7 @@ public class EventService {
    * Finds all events in the database.
    *
    * @return A list containing the event objects, found in the database.
-   *         If no events are found, returns an empty list.
+   *         If no events are found, return an empty list.
    */
   public List<Event> getAllEvents() {
     return this.eventRepo.findAll();
@@ -66,7 +66,7 @@ public class EventService {
    * meaningful updating of the original Event.
    *
    * @param eventId      the id of the event to edit.
-   * @param updatedEvent the dummy who'se fields are to be copied over to the
+   * @param updatedEvent the dummy whose fields are to be copied over to the
    *                     actual event in the database.
    */
   public boolean updateEvent(long eventId, Event updatedEvent) {
@@ -95,7 +95,7 @@ public class EventService {
   }
 
   /**
-   * Deletes a {@link Event} collumn in the database if it exists.
+   * Deletes a {@link Event} column in the database if it exists.
    *
    * @param eventId the id of the event to delete.
    *
@@ -119,7 +119,7 @@ public class EventService {
   }
 
   /**
-   * Finds all events by a category's non case sensitive name.
+   * Finds all events by a category's non-case sensitive name.
    * 
    * @param categoryName the name of the category to find events from.
    *
