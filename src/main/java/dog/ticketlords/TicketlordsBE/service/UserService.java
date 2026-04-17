@@ -3,6 +3,8 @@ package dog.ticketlords.TicketlordsBE.service;
 import java.util.Optional;
 
 import org.springframework.data.domain.Example;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class UserService {
 
   private final RegisteredUserRepository regUserRepo;
   private final UnregisteredUserRepository unregUserRepo;
+  private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   /**
    * Creates a new service for RegisteredUser operations.
@@ -74,9 +77,9 @@ public class UserService {
   }
 
   /**
-   * Inserts a new registered user into the database.
-   * Checks if {@link UnregisteredUser} does exists.
-   * 
+   * Checks if {@link UnregisteredUser} exists, and if it does, encrypts the raw password
+   * of the user, before saving the {@link RegisteredUser} to the database.
+   *
    * @param user the registered user to insert into the database
    * @throws IllegalArgumentException if the associated UnregisteredUser is not
    *                                  found
@@ -89,8 +92,20 @@ public class UserService {
     if (this.getUnregUser(user.getUnregisteredUser().getUId()).isEmpty()) {
       return false;
     }
+    user.setHashedPassword(this.passwordEncoder.encode(user.getHashedPassword()));
     this.regUserRepo.save(user);
     return true;
+  }
+
+  /**
+   * Checks if the hashed password in the database matches the raw password the user tries to login with.
+   *
+   * @param rawPassword the password the user types into the login field.
+   * @param hashedPassword the hashed version of the user's password, stored in the database.
+   * @return
+   */
+  public boolean checkPassword(String rawPassword, String hashedPassword){
+    return passwordEncoder.matches(rawPassword, hashedPassword);
   }
 
   /**
