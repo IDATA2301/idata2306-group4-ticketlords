@@ -66,6 +66,11 @@ public class UserService {
     return this.unregUserRepo.save(UnregisteredUser.create());
   }
 
+  /**
+   * Checks if a user already exists.
+   * @param user An object, of any user.
+   * @return true, if any user exists, false otherwise.
+   */
   public boolean userAlreadyExists(Object user) {
     if (user instanceof UnregisteredUser) {
       return this.unregUserRepo.exists(Example.of((UnregisteredUser) user));
