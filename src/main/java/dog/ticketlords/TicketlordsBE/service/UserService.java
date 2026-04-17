@@ -96,7 +96,7 @@ public class UserService {
    * @throws IllegalArgumentException if the associated {@link RegisteredUser} is
    *                                  not found
    */
-  public boolean deleteRegisteredUserFromDatabase(int userId) {
+  public boolean deleteRegisteredUserFromDatabase(long userId) {
     Optional<RegisteredUser> user = getRegUser(userId);
     if (user.isEmpty()) {
       return false;
