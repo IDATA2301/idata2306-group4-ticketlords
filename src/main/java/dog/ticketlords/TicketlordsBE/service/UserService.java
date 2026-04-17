@@ -82,6 +82,10 @@ public class UserService {
    *                                  found
    */
   public boolean insertRegisteredUserToDatabase(RegisteredUser user) {
+    if (user == null || user.getUnregisteredUser().getUId() == null || user.getEmail() == null
+        || user.getHashedPassword() == null) {
+      return false;
+    }
     if (this.getUnregUser(user.getUnregisteredUser().getUId()).isEmpty()) {
       return false;
     }
