@@ -32,9 +32,10 @@ public class TicketService {
   }
 
   /**
+   *Inserts the given {@link Ticket} into the database if no ticket with the same id exists already.
    *
-   * @param ticket
-   * @return
+   * @param ticket the ticket to insert
+   * @return {@code true} if the ticket was inserted, {@code false} if a ticket with the same id already exists
    */
   public boolean insertTicketIntoDatabase(Ticket ticket) {
     if (!this.ticketRepo.existsById(ticket.getTicketId())) {
