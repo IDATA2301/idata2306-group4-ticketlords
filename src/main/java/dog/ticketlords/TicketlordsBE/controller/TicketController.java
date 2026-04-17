@@ -34,10 +34,13 @@ public class TicketController {
     this.ticketService = ticketService;
   }
 //TODO finne ut hvilken lenke som skal brukes, og om nødvendig
-/**
- * Retrieves a specific event using its ID.
- *
- */
+
+  /**
+   * Retrieves a single {@link Ticket} by its id.
+   *
+   * @param ticketId the ticket id
+   * @return {@code 200 OK} with the ticket if found; otherwise {@code 404 Not Found}
+   */
  @GetMapping("/{ticketId}")
  public ResponseEntity<Ticket> getTicket(@PathVariable long ticketId) {
    return ticketService.getTicket(ticketId)
@@ -45,7 +48,14 @@ public class TicketController {
        .orElseGet(() -> ResponseEntity.notFound().build());
  }
 
-
+  /**
+   * Retrieves all tickets with the given ticket type (case-insensitive exact match)
+   *
+   * <p>Example: {@code GET /tickets/type/VIP}
+   *
+   * @param ticketType the ticket type to match (e.g., {@code VIP})
+   * @return {@code 200 OK} with matching tickets; otherwise {@code 404 Not Found}
+   */
   @GetMapping("/type/{ticketType}")
   public ResponseEntity<List<Ticket>> getTicketsByType(@PathVariable String ticketType) {
     List<Ticket> matches = ticketService.getTicketsByType(ticketType);
@@ -68,6 +78,14 @@ public class TicketController {
    return tickets.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tickets);
   }
 
+  /**
+   * Searches for tickets by event name (case-insensitive substring match).
+   *
+   * <p>Example: {@code GET /tickets/search/by-event-name?name=rock}
+   *
+   * @param name substring to search for in the event name
+   * @return {@code 200 OK} with matching tickets; otherwise {@code 404 Not Found}
+   */
   @GetMapping("/search/by-event-name")
   public ResponseEntity<List<Ticket>> getTicketsByEventName(@RequestParam String name) {
     List<Ticket> tickets = ticketService.getTicketsByEventName(name);
@@ -95,6 +113,24 @@ public class TicketController {
   }
 
   /**
+   * Retrieves all tickets in the specified range.
+   *
+   * @param min minimum range
+   * @param max maximum range
+   * @return a list of the tickets in the specified range
+   */
+  @GetMapping("/search/price-range")
+  public ResponseEntity<List<Ticket>> getTicketsInRange(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
+    List<Ticket> tickets = ticketService.getTicketsInPriceRange(min, max);
+    if (tickets.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(tickets);
+    }
+  }
+
+
+  /**
    * Inserts a new ticket into the database.
    *
    * @param ticket the ticket to be inserted
@@ -102,11 +138,8 @@ public class TicketController {
    */
   @PostMapping("/ticket")
   public ResponseEntity<Void> insertTicketIntoDatabase(@Valid @RequestBody Ticket ticket) {
-    if (this.ticketService.insertTicketIntoDatabase(ticket)) {
-      return ResponseEntity.created(URI.create("/tickets/ticket/" + ticket.getTicketId())).build();
-    } else {
-      return ResponseEntity.badRequest().build();
-    }
+    Ticket saved = this.ticketService.insertTicketIntoDatabase(ticket);
+    return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
   }
 
 
@@ -117,7 +150,7 @@ public class TicketController {
    * @return ResponseEntity with no content status if successful, or not found if ticket does not exist
    */
   @DeleteMapping("/ticket/{ticketId}")
-  public ResponseEntity<Void> removeTicket(@PathVariable int ticketId) {
+  public ResponseEntity<Void> removeTicket(@PathVariable long ticketId) {
     boolean removed = this.ticketService.deleteTicket(ticketId);
     if (!removed) {
       return ResponseEntity.notFound().build();
