@@ -62,4 +62,11 @@ public class UserController {
     }
   }
 
+  @GetMapping("/unregistered/{id}")
+  public ResponseEntity<UnregisteredUser> getUnregisteredUserById(@PathVariable long id){
+    Optional<UnregisteredUser> unregisteredUser = this.userService.getUnregUser(id);
+    return unregisteredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+  }
+
 }
