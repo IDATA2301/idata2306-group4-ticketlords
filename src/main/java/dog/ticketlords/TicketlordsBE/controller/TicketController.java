@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import dog.ticketlords.TicketlordsBE.service.TicketService;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -48,9 +49,41 @@ public class TicketController {
   @GetMapping("/type/{ticketType}")
   public ResponseEntity<List<Ticket>> getTicketsByType(@PathVariable String ticketType) {
     List<Ticket> matches = ticketService.getTicketsByType(ticketType);
-    return matches.isEmpty()
-            ? ResponseEntity.notFound().build()
-            : ResponseEntity.ok(matches);
+    if (matches.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(matches);
+    }
+  }
+
+  /**
+   * Retrieves all tickets relating to an event using event ID.
+   *
+   * @param eventId the id of the event
+   * @return List of all the tickets relating to the event
+   */
+  @GetMapping("/by-event/{eventId}")
+  public ResponseEntity<List<Ticket>> getTicketByEventId(@PathVariable long eventId) {
+   List<Ticket> tickets = ticketService.getTicketByEventId(eventId);
+   return tickets.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tickets);
+  }
+
+
+
+  /**
+   * Retrieves all tickets cheaper than the specified price.
+   *
+   * @param max the price to filter the tickets by
+   * @return a list of the tickets in the specified range
+   */
+  @GetMapping("/search/price")
+  public ResponseEntity<List<Ticket>> getTicketsCheaperThan(@RequestParam BigDecimal max) {
+   List<Ticket> tickets = ticketService.getTicketsCheaperThan(max);
+   if (tickets.isEmpty()) {
+     return ResponseEntity.notFound().build();
+   } else {
+     return ResponseEntity.ok(tickets);
+   }
   }
 
   /**
