@@ -27,8 +27,8 @@ public class TicketService {
     return this.ticketRepo.findById(ticketId);
   }
 
-  public List<Ticket> getTicketType(String ticketType) {
-    return this.ticketRepo.findByTicketTypeContainingIgnoreCase(ticketType);
+  public List<Ticket> getTicketsByType(String ticketType) {
+    return this.ticketRepo.findByTicketTypeIgnoreCase(ticketType);
   }
 
   /**

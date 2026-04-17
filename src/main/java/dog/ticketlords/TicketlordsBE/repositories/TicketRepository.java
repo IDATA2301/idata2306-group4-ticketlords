@@ -9,7 +9,7 @@ import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-  List<Ticket> findByTicketTypeContainingIgnoreCase(String ticketType);
+  List<Ticket> findByTicketTypeIgnoreCase(String ticketType);
 
   List<Ticket> findAllByEvent_EventId(long eventId);
 
