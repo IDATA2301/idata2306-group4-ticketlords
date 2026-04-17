@@ -27,6 +27,12 @@ public class TicketService {
     return this.ticketRepo.findById(ticketId);
   }
 
+  /**
+   * Gets a ticket by the ticket type
+   *
+   * @param ticketType
+   * @return
+   */
   public List<Ticket> getTicketsByType(String ticketType) {
     return this.ticketRepo.findByTicketTypeIgnoreCase(ticketType);
   }
@@ -37,13 +43,8 @@ public class TicketService {
    * @param ticket the ticket to insert
    * @return {@code true} if the ticket was inserted, {@code false} if a ticket with the same id already exists
    */
-  public boolean insertTicketIntoDatabase(Ticket ticket) {
-    if (!this.ticketRepo.existsById(ticket.getTicketId())) {
-      this.ticketRepo.save(ticket);
-      return true;
-    } else {
-      return false;
-    }
+  public Ticket insertTicketIntoDatabase(Ticket ticket) {
+    return ticketRepo.save(ticket);
   }
 
   /**
