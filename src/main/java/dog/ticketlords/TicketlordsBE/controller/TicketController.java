@@ -47,7 +47,7 @@ public class TicketController {
 
   @GetMapping("/type/{ticketType}")
   public ResponseEntity<List<Ticket>> getTicketsByType(@PathVariable String ticketType) {
-    List<Ticket> matches = ticketService.getTicketType(ticketType);
+    List<Ticket> matches = ticketService.getTicketsByType(ticketType);
     return matches.isEmpty()
             ? ResponseEntity.notFound().build()
             : ResponseEntity.ok(matches);
@@ -67,5 +67,22 @@ public class TicketController {
       return ResponseEntity.badRequest().build();
     }
   }
+
+
+  /**
+   * Removes a ticket from the database.
+   *
+   * @param ticketId the ID of the ticket to be removed
+   * @return ResponseEntity with no content status if successful, or not found if ticket does not exist
+   */
+  @DeleteMapping("/ticket/{ticketId}")
+  public ResponseEntity<Void> removeTicket(@PathVariable int ticketId) {
+    boolean removed = this.ticketService.deleteTicket(ticketId);
+    if (!removed) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.noContent().build();
+  }
+
 
 }
