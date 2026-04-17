@@ -68,7 +68,15 @@ public class TicketController {
    return tickets.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tickets);
   }
 
-
+  @GetMapping("/search/by-event-name")
+  public ResponseEntity<List<Ticket>> getTicketsByEventName(@RequestParam String name) {
+    List<Ticket> tickets = ticketService.getTicketsByEventName(name);
+    if (tickets.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(tickets);
+    }
+  }
 
   /**
    * Retrieves all tickets cheaper than the specified price.

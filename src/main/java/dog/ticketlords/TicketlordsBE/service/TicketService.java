@@ -70,6 +70,10 @@ public class TicketService {
     return ticketRepo.findAllByEvent_EventId(eventId);
   }
 
+  public List<Ticket> getTicketsByEventName(String eventName) {
+    return ticketRepo.findAllByEvent_EventNameContainingIgnoreCase(eventName);
+  }
+
 
   /**
    * Retrieves all {@link Ticket}s with a price less than or equal to the given maximum value

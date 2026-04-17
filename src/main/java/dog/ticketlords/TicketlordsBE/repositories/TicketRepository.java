@@ -13,6 +13,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
   List<Ticket> findAllByEvent_EventId(long eventId);
 
+  List<Ticket> findAllByEvent_EventNameContainingIgnoreCase(String eventName);
+
   List<Ticket> findByPriceLessThanEqual(BigDecimal maxPrice);
 
   List<Ticket> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
