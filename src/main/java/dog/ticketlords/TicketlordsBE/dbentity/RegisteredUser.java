@@ -30,6 +30,7 @@ import lombok.Setter;
 public class RegisteredUser {
 
   @Id
+  @Column(name = "user_id")
   private Long userId;
 
   @MapsId

@@ -15,12 +15,13 @@ public interface EventClicksRepository extends JpaRepository<EventClicks, EventC
 
   List<EventClicks> findAllByEvent_EventId(long eventId);
 
-  @Query("SELECT new dog.ticketlords.TicketlordsBE.DTO.CategoryClicksDTO(c.categoryId, c.categoryName, COUNT(ec)) " +
+  @Query("SELECT new dog.ticketlords.TicketlordsBE.DTO.CategoryClicksDTO(ec.user.uId, c.categoryId, c.categoryName, COUNT(ec)) "
+      +
       "FROM EventClicks ec " +
       "JOIN ec.event e " +
       "JOIN e.category c " +
       "WHERE ec.user.uId = :userId " +
-      "GROUP BY c.categoryId, c.categoryName " +
+      "GROUP BY ec.user.uId, c.categoryId, c.categoryName " +
       "ORDER BY COUNT(ec) DESC")
   List<CategoryClicksDTO> findClicksByUserPerCategory(@Param("userId") long userId);
 
