@@ -38,16 +38,16 @@ public class UserInterestService {
   }
 
   /**
-   * Finds all {@link UserInterest} based on the user and category.
+   * Finds all {@link UserInterest} based on the user.
    *
-   * @param userId       the user whose interest to find.
-   * @param categoryName the name of the category to ...??
+   * @param userId the user whose interest to find.
    *
    * @return A list of all {@link UserInterest}.
    */
   public List<UserInterest> getAllInterestRaw(long userId) {
-    return this.userInterestRepository.findAllById(Collections.singleton(userId));
-
+    List<UserInterest> interests = this.userInterestRepository.findAllById(Collections.singleton(userId));
+    interests.sort(Comparator.comparing(ui -> ui.getClickedAt()));
+    return interests;
   }
 
   /**
