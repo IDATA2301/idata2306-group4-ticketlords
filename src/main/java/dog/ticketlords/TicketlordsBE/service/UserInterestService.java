@@ -79,9 +79,10 @@ public class UserInterestService {
    *
    * @param userId the id of the user to find the interests for.
    * @return A list of {@link UserInterestScoreDTO}, representing all the
-   *         categories this user has shown interest in, percentage wise.
+   *         categories this user has shown interest in, percentage wise. The list
+   *         is sorted by the cateories names.
    */
-  public List<UserInterestScoreDTO> getAllCategoriesInterestScoreByUser(long userId) {
+  public List<UserInterestScoreDTO> getAllCategoriesInterestScoreByUserSorted(long userId) {
     Map<Category, UserInterestScoreDTO> dtoMap = new HashMap<>();
     Map<Category, List<UserInterest>> groupedCategories = getSortedUserInterests(userId).stream()
         .collect(Collectors.groupingBy(UserInterest::getCategory));
@@ -109,6 +110,7 @@ public class UserInterestService {
     }
 
     ArrayList<UserInterestScoreDTO> listOfUserInterestScoreDTOs = new ArrayList<>(dtoMap.values());
+    listOfUserInterestScoreDTOs.sort(Comparator.comparing(interest -> interest.getCategoryName()));
     return listOfUserInterestScoreDTOs;
   }
 
