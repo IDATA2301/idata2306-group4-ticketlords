@@ -25,6 +25,16 @@ public class BookingSiteService {
   }
 
   /**
+   * Gets a booking site by name.
+   *
+   * @param bookingSiteName the name of the booking site to find.
+   * @return an optional containing the booking site if it exists, optional containing null otherwise.
+   */
+  public Optional<BookingSite> getBookingSiteByName(String bookingSiteName){
+    return this.bookingSiteRepository.findByTicketVendor(bookingSiteName);
+  }
+
+  /**
    * Finds a booking site based on its id.
    *
    * @param id the id to find the BookingSite by.
@@ -78,8 +88,8 @@ public class BookingSiteService {
   /**
    * Deletes the booking site entry in the database if it exists.
    *
-   * @param bookingSiteName the name of the bookingSite to delete the entry of.
-   * @return true if the deletion is successfull, false otherwise.
+   * @param bookingSiteId the id of the bookingSite to delete the entry of.
+   * @return true if the deletion is successful, false otherwise.
    */
   public boolean deleteBookingSite(long bookingSiteId) {
     if (this.bookingSiteRepository.findById(bookingSiteId).isPresent()) {
