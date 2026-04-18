@@ -98,13 +98,17 @@ public class UserInterestServiceTests {
 
     when(userInterestRepository.findByUser_UserId(1L)).thenReturn(interests);
     List<UserInterestScoreDTO> percentageBasedInterests = this.userInterestService
-        .getAllCategoriesInterestScoreByUser(1L);
-    percentageBasedInterests.sort(Comparator.comparing(dto -> dto.getCategoryName()));
+        .getAllCategoriesInterestScoreByUserSorted(1L);
 
+    //Camel riding's score
     assertEquals(BigDecimal.valueOf(0.2351), percentageBasedInterests.get(0).getPercentageInterest());
+    //Cultural's score
     assertEquals(BigDecimal.valueOf(0.0714), percentageBasedInterests.get(1).getPercentageInterest());
+    //Festival's score
     assertEquals(BigDecimal.valueOf(0.1306), percentageBasedInterests.get(2).getPercentageInterest());
+    //Music's score
     assertEquals(BigDecimal.valueOf(0.0098), percentageBasedInterests.get(3).getPercentageInterest());
+    //Sport's score
     assertEquals(BigDecimal.valueOf(0.5531), percentageBasedInterests.get(4).getPercentageInterest());
   }
 }
