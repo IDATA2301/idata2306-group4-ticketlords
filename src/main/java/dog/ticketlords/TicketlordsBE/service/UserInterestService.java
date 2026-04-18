@@ -42,11 +42,12 @@ public class UserInterestService {
    *
    * @param userId the user whose interest to find.
    *
-   * @return A list of all {@link UserInterest}.
+   * @return A list of all {@link UserInterest} sorted newest first -> oldest
+   *         last.
    */
   public List<UserInterest> getAllInterestRaw(long userId) {
     List<UserInterest> interests = this.userInterestRepository.findAllById(Collections.singleton(userId));
-    interests.sort(Comparator.comparing(ui -> ui.getClickedAt()));
+    interests.sort(Comparator.comparing(ui -> ui.getClickedAt()).reversed());
     return interests;
   }
 
