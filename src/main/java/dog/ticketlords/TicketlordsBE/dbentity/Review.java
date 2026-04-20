@@ -48,6 +48,26 @@ public class Review {
   @Setter
   private String reviewContent;
 
+  @Override
+  public boolean equals(Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that == null || getClass() != that.getClass()) {
+      return false;
+    }
+    if (that instanceof Review) {
+      Review thatReview = (Review) that;
+      return this.id != null && this.getId().equals(thatReview.getId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return this.id != null ? this.id.hashCode() : 0;
+  }
+
   /**
    * Constructs an instance of Review.
    *
