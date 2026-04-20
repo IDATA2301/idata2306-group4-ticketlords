@@ -31,13 +31,16 @@ public class EventClicksService {
    * @param user  the {@link UnregisteredUser} that clicked the event.
    */
   public void recordClick(Event event, UnregisteredUser user) {
+    if (!this.eventClicksRepository.existsById(new EventClicksId(event.getEventId(), user.getUId()))) {
+      this.eventClicksRepository.save(new EventClicks(event, user));
+      return;
+    }
+
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime lastClickTime = this.eventClicksRepository.findLastInteraction(event.getEventId(), user.getUId());
     boolean hasPassedOneMinuteOrMore = ChronoUnit.MINUTES.between(lastClickTime, now) >= 1;
 
-    if (!this.eventClicksRepository.existsById(new EventClicksId(event.getEventId(), user.getUId()))) {
-      this.eventClicksRepository.save(new EventClicks(event, user));
-    } else if (hasPassedOneMinuteOrMore) {
+    if (hasPassedOneMinuteOrMore) {
       EventClicks ec = this.eventClicksRepository
           .getReferenceById(new EventClicksId(event.getEventId(), user.getUId()));
       ec.setLastInteraction(now);
