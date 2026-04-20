@@ -68,6 +68,7 @@ public class UserService {
 
   /**
    * Checks if a user already exists.
+   * 
    * @param user An object, of any user.
    * @return true, if any user exists, false otherwise.
    */
@@ -82,7 +83,8 @@ public class UserService {
   }
 
   /**
-   * Checks if {@link UnregisteredUser} exists, and if it does, encrypts the raw password
+   * Checks if {@link UnregisteredUser} exists, and if it does, encrypts the raw
+   * password
    * of the user, before saving the {@link RegisteredUser} to the database.
    *
    * @param user the registered user to insert into the database
@@ -103,13 +105,15 @@ public class UserService {
   }
 
   /**
-   * Checks if the hashed password in the database matches the raw password the user tries to login with.
+   * Checks if the hashed password in the database matches the raw password the
+   * user tries to login with.
    *
-   * @param rawPassword the password the user types into the login field.
-   * @param hashedPassword the hashed version of the user's password, stored in the database.
+   * @param rawPassword    the password the user types into the login field.
+   * @param hashedPassword the hashed version of the user's password, stored in
+   *                       the database.
    * @return
    */
-  public boolean checkPassword(String rawPassword, String hashedPassword){
+  public boolean checkPassword(String rawPassword, String hashedPassword) {
     return passwordEncoder.matches(rawPassword, hashedPassword);
   }
 
