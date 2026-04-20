@@ -21,6 +21,9 @@ import dog.ticketlords.TicketlordsBE.dbentity.UserInterest;
 import dog.ticketlords.TicketlordsBE.repositories.UserInterestRepository;
 import dog.ticketlords.TicketlordsBE.utility.CategoryInterestMath;
 
+/**
+ * Service class for service logic.
+ */
 @Service
 public class UserInterestService {
 
@@ -35,7 +38,7 @@ public class UserInterestService {
    * For testing, the clock can be set to whatever is needed for the test.
    *
    * @param userInterestRepository dependency injection handled by spring boot.
-   * @param clock
+   * @param clock                  clock used mainly for testing purposes.
    */
   public UserInterestService(UserInterestRepository userInterestRepository, Clock clock) {
     this.userInterestRepository = userInterestRepository;
@@ -62,7 +65,7 @@ public class UserInterestService {
    * seconds.
    *
    * @param userInterest the userInterest object to add.
-   * @return true if successfull, and false otherwise.
+   * @return true if successful, and false otherwise.
    */
   public boolean addUserInterestEntry(UserInterest userInterest) {
     Optional<LocalDateTime> latestInterestEntry = this.userInterestRepository.findMostRecentInterestByUserAndCategory(
@@ -138,5 +141,4 @@ public class UserInterestService {
             .thenComparing(UserInterest::getClickedAt))
         .collect(Collectors.toList());
   }
-
 }
