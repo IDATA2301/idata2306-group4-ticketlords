@@ -24,10 +24,10 @@ public class ReviewController {
   private final ReviewService reviewService;
 
   /**
- * Constructs a ReviewController with the provided ReviewService.
- * 
- * @param reviewService the review service to be used
- */
+   * Constructs a ReviewController with the provided ReviewService.
+   *
+   * @param reviewService the review service to be used
+   */
   public ReviewController(ReviewService reviewService) {
     this.reviewService = reviewService;
   }
@@ -41,11 +41,11 @@ public class ReviewController {
       return ResponseEntity.badRequest().build();
     }
   }
-  
+
   /**
    * Retrieves a specific review by user ID and ticket vendor ID.
-   * 
-   * @param userId the ID of the user
+   *
+   * @param userId   the ID of the user
    * @param vendorId the ID of the ticket vendor
    * @return ResponseEntity containing the review, or not found if review does not exist
    */
@@ -61,7 +61,7 @@ public class ReviewController {
 
   /**
    * Retrieves all reviews written by a specific user.
-   * 
+   *
    * @param userId the ID of the user
    * @return ResponseEntity containing a list of all reviews by the user
    */
