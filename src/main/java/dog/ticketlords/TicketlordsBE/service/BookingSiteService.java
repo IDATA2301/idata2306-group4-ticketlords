@@ -3,9 +3,12 @@ package dog.ticketlords.TicketlordsBE.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
 import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
 import dog.ticketlords.TicketlordsBE.repositories.BookingSiteRepository;
 
+@Service
 public class BookingSiteService {
 
   private BookingSiteRepository bookingSiteRepository;
@@ -28,9 +31,10 @@ public class BookingSiteService {
    * Gets a booking site by name.
    *
    * @param bookingSiteName the name of the booking site to find.
-   * @return an optional containing the booking site if it exists, optional containing null otherwise.
+   * @return an optional containing the booking site if it exists, optional
+   *         containing null otherwise.
    */
-  public Optional<BookingSite> getBookingSiteByName(String bookingSiteName){
+  public Optional<BookingSite> getBookingSiteByName(String bookingSiteName) {
     return this.bookingSiteRepository.findByTicketVendor(bookingSiteName);
   }
 
