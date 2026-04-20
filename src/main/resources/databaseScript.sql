@@ -106,21 +106,20 @@ create table "search_log" (
 "searched_at" TIMESTAMP default NOW()
 );
 
+-- calls update_event_click_count() when a event_clicks gets a new insert or is updated
+CREATE TRIGGER after_click_inserted_or_updated
+AFTER INSERT OR UPDATE ON "event_clicks"
+FOR EACH ROW 
+EXECUTE FUNCTION update_event_click_count();
 
 CREATE OR REPLACE FUNCTION update_event_click_count()
 RETURNS TRIGGER AS $$
-BEGIN
-    -- Increment the total_clicks in the events table
-    UPDATE "event"
-    SET "total_clicks" = "total_clicks" + 1
-    WHERE "event_id" = NEW."event_id";
-    
-    RETURN NEW;
+BEGIN 
+  UPDATE "event"
+  SET "total_clicks" = "total_clicks" + 1
+  WHERE "event_id" = NEW."event_id";
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- calls update_event_click_count() when a event_clicks gets a new insert
-CREATE TRIGGER after_click_inserted
-AFTER INSERT ON "event_clicks"
-FOR EACH ROW
-EXECUTE FUNCTION update_event_click_count();
+
