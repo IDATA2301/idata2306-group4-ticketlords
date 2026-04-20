@@ -48,9 +48,9 @@ public class UserInterest {
   /**
    * Constructs a UserInterest object.
    *
-   * @param user          the {@link RegisteredUser} this interest belongs to.
-   * @param category      the category object.
-   * @param interestScore the interest score.
+   * @param user      the {@link RegisteredUser} this interest belongs to.
+   * @param category  the category object.
+   * @param clickedAt the time the interest was tracked.
    */
   public UserInterest(RegisteredUser user, Category category, LocalDateTime clickedAt) {
     this.user = user;
