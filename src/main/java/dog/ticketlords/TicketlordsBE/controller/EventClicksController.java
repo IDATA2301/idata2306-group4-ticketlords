@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class EventClicksController {
    * @param eventId the id of the event to find clicks for.
    * @return 200 OK with the click count inside.
    */
-  @RequestMapping("/{eventId}")
+  @GetMapping("/{eventId}")
   public ResponseEntity<Long> getEventClickCountById(@PathVariable long eventId) {
     long clickAmount = this.eventClicksService.getClickCountForEvent(eventId);
     return ResponseEntity.ok(clickAmount);
@@ -51,10 +52,10 @@ public class EventClicksController {
    *
    * @return ResponseEntity ok if successful, not found if params cant be found.
    */
-  @PostMapping("/{eventId}/{unregUser}")
-  public ResponseEntity<Void> saveEventClick(@PathVariable long eventId, @PathVariable long unregUserId) {
+  @PostMapping("/{eventId}/{userId}")
+  public ResponseEntity<Void> saveEventClick(@PathVariable long eventId, @PathVariable long userId) {
     Optional<Event> clickedEvent = this.eventService.getEvent(eventId);
-    Optional<UnregisteredUser> user = this.userService.getUnregUser(unregUserId);
+    Optional<UnregisteredUser> user = this.userService.getUnregUser(userId);
     if (clickedEvent.isPresent() && user.isPresent()) {
       this.eventClicksService.recordClick(clickedEvent.get(), user.get());
       return ResponseEntity.ok().build();
@@ -70,7 +71,7 @@ public class EventClicksController {
    * @return OK 200 with list of EventClicks as body if successful, 404 NOT FOUND
    *         if no event in the database by eventId param.
    */
-  @RequestMapping("/{eventId}/full")
+  @GetMapping("/{eventId}/full")
   public ResponseEntity<List<EventClicks>> getAllEventClicksById(long eventId) {
     List<EventClicks> ecList = this.eventClicksService.getEventClicksForEvent(eventId);
     if (!ecList.isEmpty()) {
