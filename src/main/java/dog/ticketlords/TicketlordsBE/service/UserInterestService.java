@@ -11,12 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.UserInterest;
 import dog.ticketlords.TicketlordsBE.repositories.UserInterestRepository;
 import dog.ticketlords.TicketlordsBE.utility.CategoryInterestMath;
 
+@Service
 public class UserInterestService {
 
   private UserInterestRepository userInterestRepository;
