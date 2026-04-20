@@ -3,12 +3,14 @@ package dog.ticketlords.TicketlordsBE.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
@@ -46,20 +48,26 @@ public class UserInterestService {
    *         last.
    */
   public List<UserInterest> getAllInterestRaw(long userId) {
-    List<UserInterest> interests = this.userInterestRepository.findAllById(Collections.singleton(userId));
-    interests.sort(Comparator.comparing(ui -> ui.getClickedAt()).reversed());
+    List<UserInterest> interests = this.userInterestRepository.findByUser_UserId(userId);
+    interests.sort(Comparator.comparing(UserInterest::getClickedAt).reversed());
     return interests;
   }
 
   /**
    * Adds a {@link UserInterest} instance to the database, as long as it doesnt
-   * already exist.
+   * already exist, or if they have not clicked on the same category within 10
+   * seconds.
    *
    * @param userInterest the userInterest object to add.
    * @return true if successfull, and false otherwise.
    */
   public boolean addUserInterestEntry(UserInterest userInterest) {
-    if (!this.userInterestRepository.existsById(userInterest.getId())) {
+    Optional<LocalDateTime> latestInterestEntry = this.userInterestRepository.findMostRecentInterestByUserAndCategory(
+        userInterest.getUser().getUserId(), userInterest.getCategory().getCategoryId());
+    if (latestInterestEntry.isEmpty()) {
+      this.userInterestRepository.save(userInterest);
+      return true;
+    } else if (ChronoUnit.SECONDS.between(latestInterestEntry.get(), LocalDateTime.now(clock)) >= 10) {
       this.userInterestRepository.save(userInterest);
       return true;
     } else {
