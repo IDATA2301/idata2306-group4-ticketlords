@@ -1,5 +1,6 @@
 package dog.ticketlords.TicketlordsBE.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,8 @@ public interface EventClicksRepository extends JpaRepository<EventClicks, EventC
       "ORDER BY COUNT(ec) DESC")
   List<CategoryClicksDTO> findClicksByUserPerCategory(@Param("userId") long userId);
 
+  boolean existsByEvent_EventId(long eventId);
+
+  @Query("SELECT ec.lastInteraction FROM EventClicks ec WHERE ec.event.eventId = :eventId AND ec.user.uId = :userId")
+  LocalDateTime findLastInteraction(@Param("eventId") long eventId, @Param("userId") long userId);
 }
