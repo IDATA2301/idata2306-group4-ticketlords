@@ -41,6 +41,18 @@ public class ReviewService {
   }
 
   /**
+   * Gets all reviews of a ticketVendor.
+   *
+   * @param ticketVendorId the id of the ticketVendor.
+   * @return a list of all reviews of the specified ticketvendor.
+   */
+  public List<Review> getReviewsForBookingSite(long vendorId) {
+    List<Review> vendorReviews = this.reviewRepo.findAllByBookingSite_TicketVendorId(vendorId);
+    return vendorReviews;
+
+  }
+
+  /**
    * Gets a single review.
    *
    * @param userId   the id of the user who'se review is to be returned.
@@ -52,6 +64,47 @@ public class ReviewService {
   public Optional<Review> getReview(long userId, long vendorId) {
     ReviewId id = new ReviewId(userId, vendorId);
     return this.reviewRepo.findById(id);
+  }
+
+  /**
+   * Deletes a review from the database if it exists.
+   *
+   * @param userId        the id of the user whose review to delete.
+   * @param bookingSiteId the id of the vendor, of which the review should be
+   *                      deleted for.
+   *
+   * @return true if successful, false otherwise.
+   */
+  public boolean deleteReview(long userId, long bookingSiteId) {
+    ReviewId id = new ReviewId(userId, bookingSiteId);
+    if (this.reviewRepo.existsById(id)) {
+      this.reviewRepo.deleteById(id);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Updates the values of the existing review (if it exists) with the provided
+   * review's contents.
+   *
+   * @param updateReview Review holding the updated values.
+   * @return true if the update succeeded, false otherwise.
+   */
+  public boolean updateReview(Review updateReview) {
+    Optional<Review> oldReview = this.reviewRepo.findById(updateReview.getId());
+    if (oldReview.isPresent()) {
+      Review review = oldReview.get();
+      if (updateReview.getReviewContent() != null) {
+        review.setReviewContent(updateReview.getReviewContent());
+      }
+      if (updateReview.getScore() != null) {
+        review.setScore(updateReview.getScore());
+      }
+      this.reviewRepo.save(review);
+      return true;
+    }
+    return false;
   }
 
   /**
