@@ -40,7 +40,7 @@ public class UserInterestController {
    */
   @GetMapping("/{userId}/interests")
   public ResponseEntity<List<UserInterestScoreDTO>> getUserInterestsByPercentageSorted(@PathVariable long userId) {
-    List<UserInterestScoreDTO> interests = this.userInterestService.getAllCategoriesInterestScoreByUser(userId);
+    List<UserInterestScoreDTO> interests = this.userInterestService.getAllCategoriesInterestScoreByUserSorted(userId);
     if (!interests.isEmpty()) {
       return ResponseEntity.ok(interests);
     } else {
