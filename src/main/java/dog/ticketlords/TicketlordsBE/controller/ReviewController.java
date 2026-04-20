@@ -32,7 +32,6 @@ public class ReviewController {
     this.reviewService = reviewService;
   }
 
-
   @PostMapping("/review")
   public ResponseEntity<Void> addReviewToDatabase(@Valid @RequestBody Review review) {
     if (this.reviewService.insertReviewToDatabase(review)) {
@@ -47,7 +46,8 @@ public class ReviewController {
    *
    * @param userId   the ID of the user
    * @param vendorId the ID of the ticket vendor
-   * @return ResponseEntity containing the review, or not found if review does not exist
+   * @return ResponseEntity containing the review, or not found if review does not
+   *         exist
    */
   @GetMapping("/user/{userId}/vendor/{vendorId}")
   public ResponseEntity<Review> getReview(@PathVariable long userId, @PathVariable long vendorId) {
@@ -70,13 +70,9 @@ public class ReviewController {
     return ResponseEntity.ok(this.reviewService.getAllReviewsByUserId(userId));
   }
 
-  //TODO: add missing reviewService method: getAverageRatingForVendor
-
-  //TODO: Remove comment when service is fully operational
-  /*
   @DeleteMapping("/user/{userId}/bookingSite/{bookingSiteId}")
-  public ResponseEntity<Void> removeReview(@PathVariable int userId, @PathVariable int bookingSiteId) {
-    boolean removed = this.reviewService.removeReview(userId, bookingSiteId);
+  public ResponseEntity<Void> deleteReview(@PathVariable int userId, @PathVariable int bookingSiteId) {
+    boolean removed = this.reviewService.deleteReview(userId, bookingSiteId);
     if (!removed) {
       return ResponseEntity.notFound().build();
     }
@@ -84,18 +80,21 @@ public class ReviewController {
   }
 
   @PutMapping("/review/{reviewId}")
-  public ResponseEntity<Void> updateReviewInDatabase(@PathVariable int reviewId, @Valid @ResponseBody Review review) {
-    if (this.reviewService.updateReview(reviewId, review)) {
+  public ResponseEntity<Void> updateReviewInDatabase(@Valid @RequestBody Review review) {
+    if (this.reviewService.updateReview(review)) {
       return ResponseEntity.noContent().build();
     } else {
       return ResponseEntity.notFound().build();
     }
   }
-  
-  @GetMapping("/")
-  public ResponseEntity<List<Review>> getAllReviews() {
-    return ResponseEntity.ok(this.reviewService.getAllReviews());
+
+  @GetMapping("/bookingSite/{vendorId}")
+  public ResponseEntity<List<Review>> getReviewsForBookingSite(long vendorId) {
+    List<Review> reviews = this.reviewService.getReviewsForBookingSite(vendorId);
+    if (reviews.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(reviews);
   }
-  */
 
 }
