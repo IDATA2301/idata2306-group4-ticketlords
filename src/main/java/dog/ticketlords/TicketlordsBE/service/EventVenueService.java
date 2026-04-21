@@ -44,13 +44,17 @@ public class EventVenueService {
   }
 
   /**
-   * Adds an {@link EventVenue} to the database.
+   * Adds an {@link EventVenue} to the database, if the database doesnt already
+   * contain an entry like
+   * the one that is being added.
    *
    * @param an {@link EventVenue} object to insert to the database.
    * @return true if successfully added. False otherwise.
    */
-  public boolean addEventVenueToDatabase(long venueId, EventVenue eventVenue) {
-    if (!this.eventVenueRepo.existsById(venueId)) {
+  public boolean addEventVenueToDatabase(EventVenue eventVenue) {
+    boolean exists = this.eventVenueRepo.findByAddressIgnoreCaseAndArenaIgnoreCaseAndCityIgnoreCaseAndCountryIgnoreCase(
+        eventVenue.getAddress(), eventVenue.getArena(), eventVenue.getCity(), eventVenue.getCountry()).isPresent();
+    if (!exists) {
       this.eventVenueRepo.save(eventVenue);
       return true;
     } else {
