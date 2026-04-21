@@ -63,7 +63,7 @@ public class UserService {
    * @return the saved UnregisteredUser with generated id
    */
   public UnregisteredUser insertUnregisteredUserToDatabase() {
-    return this.unregUserRepo.save(UnregisteredUser.create());
+    return this.unregUserRepo.save(new UnregisteredUser());
   }
 
   /**
