@@ -49,9 +49,8 @@ public class EventVenueService {
    * @param an {@link EventVenue} object to insert to the database.
    * @return true if successfully added. False otherwise.
    */
-  public boolean addEventVenueToDatabase(EventVenue eventVenue) {
-    Example<EventVenue> example = Example.of(eventVenue);
-    if (!this.eventVenueRepo.exists(example)) {
+  public boolean addEventVenueToDatabase(long venueId, EventVenue eventVenue) {
+    if (!this.eventVenueRepo.existsById(venueId)) {
       this.eventVenueRepo.save(eventVenue);
       return true;
     } else {
@@ -80,7 +79,7 @@ public class EventVenueService {
    * @param updatedEVenue the EventVenue to update the database instance with.
    * @return true if successfully updated, false otherwise.
    */
-  public boolean updateEventVenue(EventVenue updatedEVenue) {
+  public boolean updateEventVenue(long venueId, EventVenue updatedEVenue) {
     if (this.eventVenueRepo.existsById(updatedEVenue.getVenueId())) {
       EventVenue databaseEVenue = this.eventVenueRepo.getReferenceById(updatedEVenue.getVenueId());
       if (updatedEVenue.getAddress() != null) {
@@ -95,6 +94,7 @@ public class EventVenueService {
       if (updatedEVenue.getCountry() != null) {
         databaseEVenue.setCountry(updatedEVenue.getCountry());
       }
+      this.eventVenueRepo.save(databaseEVenue);
       return true;
     } else {
       return false;
@@ -117,7 +117,7 @@ public class EventVenueService {
   }
 
   /**
-   * Counts the amount of {@link EventVenue} collumns in the database.
+   * Counts the amount of {@link EventVenue} columns in the database.
    *
    * @return long representing the amount of EventVenue's in the database.
    */
