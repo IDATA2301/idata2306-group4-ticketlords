@@ -59,7 +59,6 @@ public class Ticket {
   /**
    * Constructs a ticket object.
    * 
-   * @param ticketId          The id of an individual Ticket.
    * @param event             the event a ticket is for.
    * @param ticketType        The type of ticket; Normal, VIP etc...
    * @param price             The price of the ticket.
@@ -69,10 +68,8 @@ public class Ticket {
    *                          purchased.
    * @param ticketDescription A description of the ticket.
    */
-  public Ticket(int ticketId, Event event, String ticketType, BigDecimal price, int amountAvailable,
+  public Ticket(Event event, String ticketType, BigDecimal price, int amountAvailable,
       BookingSite bookingSite, String ticketLink, String ticketDescription) {
-
-    this.ticketId = ticketId;
     this.event = event;
     this.ticketType = ticketType;
     this.price = price;
