@@ -49,13 +49,4 @@ public class UnregisteredUser {
     return Long.hashCode(uId);
   }
 
-  /**
-   * Factory method to create a new UnregisteredUser instance.
-   * Use this instead of calling the constructor directly.
-   * 
-   * @return a new UnregisteredUser instance
-   */
-  public static UnregisteredUser create() {
-    return new UnregisteredUser();
-  }
 }
