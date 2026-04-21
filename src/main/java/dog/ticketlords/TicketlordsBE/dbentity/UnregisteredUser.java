@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
  * Represents any arbitrary user without a registered account in the system.
  */
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Entity
 @Table(name = "unregistered_user")
 public class UnregisteredUser {
