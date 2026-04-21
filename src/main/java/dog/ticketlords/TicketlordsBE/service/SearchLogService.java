@@ -3,6 +3,7 @@ package dog.ticketlords.TicketlordsBE.service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -10,27 +11,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import dog.ticketlords.TicketlordsBE.dbentity.SearchLog;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
+import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.SearchLogRepository;
 
 @Service
 public class SearchLogService {
 
   private SearchLogRepository searchLogRepository;
+  private UnregisteredUserRepository unregisteredUserRepository;
 
-  public SearchLogService(SearchLogRepository searchLogRepository) {
+  public SearchLogService(SearchLogRepository searchLogRepository,
+      UnregisteredUserRepository unregisteredUserRepository) {
     this.searchLogRepository = searchLogRepository;
+    this.unregisteredUserRepository = unregisteredUserRepository;
   }
 
   /**
    * Saves a search entry to the database.
    *
-   * @param user       any user registered or not's searches are saved.
-   * @param query      the query they entered into the search field.
-   * @param searcherAt the date and time the search happened.
+   * @param userId the id of the unregisteredUser who is doing the search.
+   * @param query  the query they entered into the search field.
+   * @return true if successful, false otherwise
    */
-  public void saveSearchLog(UnregisteredUser user, String query, LocalDateTime searcherAt) {
-    SearchLog log = new SearchLog(user, query, searcherAt);
-    this.searchLogRepository.save(log);
+  public boolean saveSearchLog(long userId, String query) {
+    Optional<UnregisteredUser> unregUser = this.unregisteredUserRepository.findById(userId);
+    if (unregUser.isPresent()) {
+      SearchLog log = new SearchLog(unregUser.get(), query);
+      this.searchLogRepository.save(log);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -39,8 +49,8 @@ public class SearchLogService {
    * @param user any user, registered or not.
    * @return List of all search log entries.
    */
-  public List<SearchLog> getAllUsersSearches(UnregisteredUser user) {
-    return this.searchLogRepository.findAllById(Collections.singleton(user.getUId()));
+  public List<SearchLog> getAllUsersSearches(long userId) {
+    return this.searchLogRepository.findAllByUser_UId(userId);
   }
 
   /**
