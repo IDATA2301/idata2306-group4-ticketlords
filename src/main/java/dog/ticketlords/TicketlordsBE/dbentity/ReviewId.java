@@ -26,8 +26,8 @@ public class ReviewId implements Serializable {
   /**
    * Constructs a ReviewId.
    * 
-   * @param userId       the user ID.
-   * @param ticketVendor the ticket vendor name.
+   * @param userId         the user ID.
+   * @param ticketVendorId the ticket vendor's id.
    */
   public ReviewId(long userId, long ticketVendorId) {
     this.userId = userId;

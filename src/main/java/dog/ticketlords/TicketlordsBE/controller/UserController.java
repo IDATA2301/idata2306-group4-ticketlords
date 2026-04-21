@@ -21,7 +21,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
-
 public class UserController {
 
   private final UserService userService;
@@ -47,13 +46,13 @@ public class UserController {
   }
 
   @GetMapping("/user/{id}")
-  public ResponseEntity<RegisteredUser> getRegisteredUserById(@PathVariable int id) {
+  public ResponseEntity<RegisteredUser> getRegisteredUserById(@PathVariable long id) {
     Optional<RegisteredUser> user = this.userService.getRegUser(id);
     return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @DeleteMapping("/user/{id}")
-  public ResponseEntity<Void> deleteRegisteredUserById(@PathVariable int id) {
+  public ResponseEntity<Void> deleteRegisteredUserById(@PathVariable long id) {
     if (this.userService.getRegUser(id).isPresent()) {
       this.userService.deleteRegisteredUserFromDatabase(id);
       return ResponseEntity.noContent().build();
@@ -62,4 +61,11 @@ public class UserController {
     }
   }
 
-}
+  @GetMapping("/unregistered/{id}")
+  public ResponseEntity<UnregisteredUser> getUnregisteredUserById(@PathVariable long id){
+    Optional<UnregisteredUser> unregisteredUser = this.userService.getUnregUser(id);
+    return unregisteredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+  }
+
+

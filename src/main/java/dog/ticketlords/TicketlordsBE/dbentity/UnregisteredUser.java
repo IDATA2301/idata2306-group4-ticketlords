@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
  * Represents any arbitrary user without a registered account in the system.
  */
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Entity
 @Table(name = "unregistered_user")
 public class UnregisteredUser {
@@ -49,13 +49,4 @@ public class UnregisteredUser {
     return Long.hashCode(uId);
   }
 
-  /**
-   * Factory method to create a new UnregisteredUser instance.
-   * Use this instead of calling the constructor directly.
-   * 
-   * @return a new UnregisteredUser instance
-   */
-  public static UnregisteredUser create() {
-    return new UnregisteredUser();
-  }
 }

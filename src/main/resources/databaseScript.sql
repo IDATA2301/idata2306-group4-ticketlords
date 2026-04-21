@@ -91,11 +91,12 @@ CREATE TABLE "price_alert" (
   "is_active" boolean DEFAULT true
 );
 
+
 CREATE TABLE "user_interest" (
-  "user_id" bigint REFERENCES "registered_user"("user_id") ON DELETE CASCADE,
-  "category_name" varchar(100), 
-  "interest_score" int not null DEFAULT 0,
-  PRIMARY KEY ("user_id", "category_name")
+  "user_interest_id" bigserial PRIMARY KEY,
+  "user_id" bigint REFERENCES "registered_user" ("user_id") ON DELETE CASCADE,
+  "category_id" bigint REFERENCES "category" ("category_id"),
+  "clicked_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 create table "search_log" (
@@ -105,21 +106,20 @@ create table "search_log" (
 "searched_at" TIMESTAMP default NOW()
 );
 
+-- calls update_event_click_count() when a event_clicks gets a new insert or is updated
+CREATE TRIGGER after_click_inserted_or_updated
+AFTER INSERT OR UPDATE ON "event_clicks"
+FOR EACH ROW 
+EXECUTE FUNCTION update_event_click_count();
 
 CREATE OR REPLACE FUNCTION update_event_click_count()
 RETURNS TRIGGER AS $$
-BEGIN
-    -- Increment the total_clicks in the events table
-    UPDATE "event"
-    SET "total_clicks" = "total_clicks" + 1
-    WHERE "event_id" = NEW."event_id";
-    
-    RETURN NEW;
+BEGIN 
+  UPDATE "event"
+  SET "total_clicks" = "total_clicks" + 1
+  WHERE "event_id" = NEW."event_id";
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- calls update_event_click_count() when a event_clicks gets a new insert
-CREATE TRIGGER after_click_inserted
-AFTER INSERT ON "event_clicks"
-FOR EACH ROW
-EXECUTE FUNCTION update_event_click_count();
+

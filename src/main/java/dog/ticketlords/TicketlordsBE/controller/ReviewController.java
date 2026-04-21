@@ -24,14 +24,13 @@ public class ReviewController {
   private final ReviewService reviewService;
 
   /**
- * Constructs a ReviewController with the provided ReviewService.
- * 
- * @param reviewService the review service to be used
- */
+   * Constructs a ReviewController with the provided ReviewService.
+   *
+   * @param reviewService the review service to be used
+   */
   public ReviewController(ReviewService reviewService) {
     this.reviewService = reviewService;
   }
-
 
   @PostMapping("/review")
   public ResponseEntity<Void> addReviewToDatabase(@Valid @RequestBody Review review) {
@@ -41,13 +40,14 @@ public class ReviewController {
       return ResponseEntity.badRequest().build();
     }
   }
-  
+
   /**
    * Retrieves a specific review by user ID and ticket vendor ID.
-   * 
-   * @param userId the ID of the user
+   *
+   * @param userId   the ID of the user
    * @param vendorId the ID of the ticket vendor
-   * @return ResponseEntity containing the review, or not found if review does not exist
+   * @return ResponseEntity containing the review, or not found if review does not
+   *         exist
    */
   @GetMapping("/user/{userId}/vendor/{vendorId}")
   public ResponseEntity<Review> getReview(@PathVariable long userId, @PathVariable long vendorId) {
@@ -61,7 +61,7 @@ public class ReviewController {
 
   /**
    * Retrieves all reviews written by a specific user.
-   * 
+   *
    * @param userId the ID of the user
    * @return ResponseEntity containing a list of all reviews by the user
    */
@@ -70,13 +70,9 @@ public class ReviewController {
     return ResponseEntity.ok(this.reviewService.getAllReviewsByUserId(userId));
   }
 
-  //TODO: add missing reviewService method: getAverageRatingForVendor
-
-  //TODO: Remove comment when service is fully operational
-  /*
   @DeleteMapping("/user/{userId}/bookingSite/{bookingSiteId}")
-  public ResponseEntity<Void> removeReview(@PathVariable int userId, @PathVariable int bookingSiteId) {
-    boolean removed = this.reviewService.removeReview(userId, bookingSiteId);
+  public ResponseEntity<Void> deleteReview(@PathVariable int userId, @PathVariable int bookingSiteId) {
+    boolean removed = this.reviewService.deleteReview(userId, bookingSiteId);
     if (!removed) {
       return ResponseEntity.notFound().build();
     }
@@ -84,18 +80,21 @@ public class ReviewController {
   }
 
   @PutMapping("/review/{reviewId}")
-  public ResponseEntity<Void> updateReviewInDatabase(@PathVariable int reviewId, @Valid @ResponseBody Review review) {
-    if (this.reviewService.updateReview(reviewId, review)) {
+  public ResponseEntity<Void> updateReviewInDatabase(@Valid @RequestBody Review review) {
+    if (this.reviewService.updateReview(review)) {
       return ResponseEntity.noContent().build();
     } else {
       return ResponseEntity.notFound().build();
     }
   }
-  
-  @GetMapping("/")
-  public ResponseEntity<List<Review>> getAllReviews() {
-    return ResponseEntity.ok(this.reviewService.getAllReviews());
+
+  @GetMapping("/bookingSite/{vendorId}")
+  public ResponseEntity<List<Review>> getReviewsForBookingSite(long vendorId) {
+    List<Review> reviews = this.reviewService.getReviewsForBookingSite(vendorId);
+    if (reviews.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(reviews);
   }
-  */
 
 }

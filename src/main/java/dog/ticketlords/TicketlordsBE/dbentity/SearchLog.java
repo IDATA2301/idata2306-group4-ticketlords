@@ -53,11 +53,9 @@ public class SearchLog {
    *
    * @param user        the {@link UnregisteredUser} who performed the search.
    * @param searchQuery the search query text.
-   * @param searchedAt  the timestamp of the search.
    */
-  public SearchLog(UnregisteredUser user, String searchQuery, LocalDateTime searchedAt) {
+  public SearchLog(UnregisteredUser user, String searchQuery) {
     this.user = user;
     this.searchQuery = searchQuery;
-    this.searchedAt = searchedAt;
   }
 }

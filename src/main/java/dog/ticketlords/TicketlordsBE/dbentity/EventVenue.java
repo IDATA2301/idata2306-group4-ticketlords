@@ -42,14 +42,12 @@ public class EventVenue {
   /**
    * Constructs an EventVenue object.
    *
-   * @param venueId The id of the venue.
    * @param arena   the arena of the venue.
    * @param city    the city the venue is held.
    * @param country The country the venue is held in.
    * @param address The address of the venue.
    */
-  public EventVenue(int venueId, String arena, String city, String country, String address) {
-    this.venueId = venueId;
+  public EventVenue(String arena, String city, String country, String address) {
     this.address = address;
     this.arena = arena;
     this.country = country;

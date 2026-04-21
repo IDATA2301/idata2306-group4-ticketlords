@@ -11,4 +11,6 @@ public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
 
   List<SearchLog> findTopNByUser_UIdOrderBySearchedAtDesc(long userId, Pageable pageable);
 
+  List<SearchLog> findAllByUser_UId(long userId);
+
 }
