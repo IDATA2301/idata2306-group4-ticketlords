@@ -128,7 +128,7 @@ public class EventService {
   public List<Event> searchEvents(String searchTerm) {
     return this.eventRepo
         .findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
-            searchTerm);
+            searchTerm, searchTerm, searchTerm);
   }
 
   /**
