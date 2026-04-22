@@ -11,7 +11,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByCategory_CategoryNameIgnoreCase(String categoryName);
 
   List<Event> findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
-      String searchTerm);
+      String search1, String search2, String search3);
 
   long countByCategory_CategoryNameContainingIgnoreCase(String categoryNameSubstring);
 
