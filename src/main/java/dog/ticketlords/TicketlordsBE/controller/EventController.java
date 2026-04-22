@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
@@ -20,8 +21,10 @@ import jakarta.validation.Valid;
 /**
  * REST controller for event management operations.
  * 
- * Handles GET, POST, PUT, and DELETE requests for managing events in the database.
- * Provides endpoints to retrieve events by various criteria (ID, name, host, category)
+ * Handles GET, POST, PUT, and DELETE requests for managing events in the
+ * database.
+ * Provides endpoints to retrieve events by various criteria (ID, name, host,
+ * category)
  * and to create, update, or delete events.
  */
 @RestController
@@ -42,7 +45,8 @@ public class EventController {
   /**
    * Retrieves all events from the database.
    * 
-   * @return ResponseEntity containing a list of all events, or not found if no events exist
+   * @return ResponseEntity containing a list of all events, or not found if no
+   *         events exist
    */
   @GetMapping("/")
   public ResponseEntity<List<Event>> getAllEvents() {
@@ -53,11 +57,22 @@ public class EventController {
     }
   }
 
+  @GetMapping("/search")
+  public ResponseEntity<List<Event>> searchEvents(@RequestParam String query) {
+    List<Event> events = this.eventService.searchEvents(query);
+    if (events.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(events);
+    }
+  }
+
   /**
    * Retrieves a specific event using its ID.
    * 
    * @param eventId the ID of the event to retrieve
-   * @return ResponseEntity containing the event, or not found if event does not exist
+   * @return ResponseEntity containing the event, or not found if event does not
+   *         exist
    */
   @GetMapping("/event/{eventId}")
   public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
@@ -72,7 +87,8 @@ public class EventController {
    * Retrieves all events hosted by a specific host.
    * 
    * @param hostName the name of the host
-   * @return ResponseEntity containing a list of events hosted by the provided host name
+   * @return ResponseEntity containing a list of events hosted by the provided
+   *         host name
    */
   @GetMapping("host/{hostName}")
   public ResponseEntity<List<Event>> getEventsByHostName(@PathVariable String hostName) {
@@ -120,7 +136,8 @@ public class EventController {
    * Inserts a new event into the database.
    * 
    * @param event the event to be inserted
-   * @return ResponseEntity with created status and location URI, or bad request if insertion fails
+   * @return ResponseEntity with created status and location URI, or bad request
+   *         if insertion fails
    */
   @PostMapping("/event/")
   public ResponseEntity<Void> insertEventIntoDatabase(@Valid @RequestBody Event event) {
@@ -135,7 +152,8 @@ public class EventController {
    * Removes an event from the database.
    * 
    * @param eventId the ID of the event to be removed
-   * @return ResponseEntity with no content status if successful, or not found if event does not exist
+   * @return ResponseEntity with no content status if successful, or not found if
+   *         event does not exist
    */
   @DeleteMapping("/event/{eventId}")
   public ResponseEntity<Void> removeEvent(@PathVariable int eventId) {
@@ -145,13 +163,14 @@ public class EventController {
     }
     return ResponseEntity.noContent().build();
   }
-  
+
   /**
    * Updates an existing event in the database.
    * 
    * @param eventId the ID of the event to be updated
-   * @param event the updated event object
-   * @return ResponseEntity with no content status if successful, or not found if event does not exist
+   * @param event   the updated event object
+   * @return ResponseEntity with no content status if successful, or not found if
+   *         event does not exist
    */
   @PutMapping("/event/{eventId}")
   public ResponseEntity<Void> updateEventInDatabase(@PathVariable int eventId, @Valid @RequestBody Event event) {
@@ -161,5 +180,5 @@ public class EventController {
       return ResponseEntity.notFound().build();
     }
   }
-  
+
 }
