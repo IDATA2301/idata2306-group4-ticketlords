@@ -36,9 +36,8 @@ public class Category {
    * @param categoryId   the unique category id.
    * @param categoryName the name of the category.
    */
-  public Category(int categoryId, String categoryName) {
+  public Category(String categoryName) {
     this.categoryName = categoryName;
-    this.categoryId = categoryId;
 
   }
 }
