@@ -53,10 +53,9 @@ public class CategoryService {
    * @param category the category object to add.
    * @return true if successfully added, false otherwise.
    */
-  public boolean addCategory(Category category) {
-    Example<Category> example = Example.of(category);
-    if (!this.categoryRepository.exists(example)) {
-      this.categoryRepository.save(category);
+  public boolean addCategory(String categoryName) {
+    if (!this.categoryRepository.existsByCategoryNameIgnoreCase(categoryName)) {
+      this.categoryRepository.save(new Category(categoryName));
       return true;
     } else {
       return false;
