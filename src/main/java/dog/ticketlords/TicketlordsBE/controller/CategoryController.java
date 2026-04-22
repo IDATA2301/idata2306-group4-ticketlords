@@ -12,7 +12,8 @@ import java.util.List;
 /**
  * REST controller for category management operations.
  * <p>
- * Handles GET, POST, and DELETE requests for managing categories in the database.
+ * Handles GET, POST, and DELETE requests for managing categories in the
+ * database.
  * Provides endpoints to retrieve categories...
  */
 @RestController
@@ -28,7 +29,8 @@ public class CategoryController {
   /**
    * Retrieves all categories from the database.
    *
-   * @return ResponseEntity containing a list of all categories, or not found if no categories exist.
+   * @return ResponseEntity containing a list of all categories, or not found if
+   *         no categories exist.
    */
   @GetMapping("/")
   public ResponseEntity<List<Category>> getAllCategories() {
@@ -43,7 +45,8 @@ public class CategoryController {
    * Retrieves a specific category using event ID.
    *
    * @param categoryId the ID of the event to retrieve
-   * @return ResponseEntity containing the category, or not found if event does not exist
+   * @return ResponseEntity containing the category, or not found if event does
+   *         not exist
    */
   @GetMapping("/{categoryId}")
   public ResponseEntity<Category> getCategory(@PathVariable long categoryId) {
@@ -58,40 +61,39 @@ public class CategoryController {
    * Retrieves a category by its name.
    *
    * @param categoryName the category name to look up
-   * @return {@link ResponseEntity} containing the {@link Category} if found; otherwise 404 \(Not Found\)
+   * @return {@link ResponseEntity} containing the {@link Category} if found;
+   *         otherwise 404 \(Not Found\)
    */
-    @GetMapping("/name/{categoryName}")
-    public ResponseEntity<Category> getCategoryByName(@PathVariable String categoryName) {
-      return categoryService.getCategoryByCategoryName(categoryName)
-              .map(ResponseEntity::ok)
-              .orElseGet(() -> ResponseEntity.notFound().build());
+  @GetMapping("/name/{categoryName}")
+  public ResponseEntity<Category> getCategoryByName(@PathVariable String categoryName) {
+    return categoryService.getCategoryByCategoryName(categoryName)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @GetMapping("/search")
   public ResponseEntity<List<Category>> search(@RequestParam String name) {
-      List<Category> matches = categoryService.findAllCategoriesMatchingSubstringName(name);
-      return matches.isEmpty()
-              ? ResponseEntity.notFound().build()
-              : ResponseEntity.ok(matches);
+    List<Category> matches = categoryService.findAllCategoriesMatchingSubstringName(name);
+    return matches.isEmpty()
+        ? ResponseEntity.notFound().build()
+        : ResponseEntity.ok(matches);
   }
-
 
   /**
    * Adds a category if an identical category does not already exist.
    *
    * @param category the category object to add.
-   * @return ResponseEntity with created status and location URI, or bad request if insertion fails
+   * @return ResponseEntity with created status and location URI, or bad request
+   *         if insertion fails
    */
   @PostMapping("/category")
   public ResponseEntity<Void> addCategory(@Valid @RequestBody Category category) {
-      if (this.categoryService.addCategory(category)) {
-        return ResponseEntity.created(URI.create("/categories/category" + category.getCategoryId())).build();
-      } else {
-        return ResponseEntity.badRequest().build();
-      }
+    if (this.categoryService.addCategory(category.getCategoryName())) {
+      return ResponseEntity.created(URI.create("/categories/" + category.getCategoryName())).build();
+    } else {
+      return ResponseEntity.badRequest().build();
+    }
   }
-
-
 
   @DeleteMapping("/category/{categoryId}")
   public ResponseEntity<Void> deleteCategoryById(@PathVariable int categoryId) {
@@ -102,6 +104,4 @@ public class CategoryController {
     return ResponseEntity.noContent().build();
   }
 
-
-  }
-
+}
