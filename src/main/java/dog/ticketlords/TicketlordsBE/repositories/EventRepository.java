@@ -10,6 +10,9 @@ import dog.ticketlords.TicketlordsBE.dbentity.Event;
 public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByCategory_CategoryNameIgnoreCase(String categoryName);
 
+  List<Event> findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
+      String searchTerm);
+
   long countByCategory_CategoryNameContainingIgnoreCase(String categoryNameSubstring);
 
   List<Event> findByHostIgnoreCase(String host);
