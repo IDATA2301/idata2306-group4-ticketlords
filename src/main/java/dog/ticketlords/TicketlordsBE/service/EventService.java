@@ -119,6 +119,19 @@ public class EventService {
   }
 
   /**
+   * Searches the database for events, where the event itself, it's host, or its
+   * category matches the param.
+   *
+   * @param searchTerm the string to search for an event by.
+   * @return a {@link List} of all {@link Event} matching the search.
+   */
+  public List<Event> searchEvents(String searchTerm) {
+    return this.eventRepo
+        .findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
+            searchTerm);
+  }
+
+  /**
    * Finds all events by a category's non-case sensitive name.
    * 
    * @param categoryName the name of the category to find events from.
