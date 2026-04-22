@@ -139,7 +139,7 @@ public class EventController {
    * @return ResponseEntity with created status and location URI, or bad request
    *         if insertion fails
    */
-  @PostMapping("/event/")
+  @PostMapping("/event")
   public ResponseEntity<Void> insertEventIntoDatabase(@Valid @RequestBody Event event) {
     if (this.eventService.insertEventIntoDatabase(event)) {
       return ResponseEntity.created(URI.create("/events/event/" + event.getEventId())).build();
