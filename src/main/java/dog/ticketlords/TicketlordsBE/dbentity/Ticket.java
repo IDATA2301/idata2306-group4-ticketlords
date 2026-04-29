@@ -50,9 +50,6 @@ public class Ticket {
   @JoinColumn(name = "ticket_vendor_id", referencedColumnName = "ticket_vendor_id")
   private BookingSite bookingSite;
   @Setter
-  @Column(name = "ticket_link")
-  private String ticketLink;
-  @Setter
   @Column(name = "ticket_description")
   private String ticketDescription;
 

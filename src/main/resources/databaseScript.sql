@@ -39,7 +39,6 @@ CREATE TABLE "ticket" (
   --"currency" varchar(10) default 'NOK',
   "amount_available" int,
   "ticket_type" varchar(100),
-  "ticket_link" varchar,
   "ticket_description" text
 );
 
