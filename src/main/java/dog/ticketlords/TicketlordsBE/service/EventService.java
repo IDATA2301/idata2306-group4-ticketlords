@@ -1,5 +1,9 @@
 package dog.ticketlords.TicketlordsBE.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -140,6 +144,19 @@ public class EventService {
     return this.eventRepo
         .findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
             searchTerm, searchTerm, searchTerm);
+  }
+
+  /**
+   * Retrieves an image from the image folder based on the image's name.
+   *
+   * @param filename the name of the image file.
+   * @return an image at the specified URI.
+   */
+  public byte[] getEventImage(long eventId) throws IOException {
+
+    Path imagePath = Paths.get("images/" + this.eventRepo.findUrlById(eventId));
+    return Files.readAllBytes(imagePath);
+
   }
 
   /**

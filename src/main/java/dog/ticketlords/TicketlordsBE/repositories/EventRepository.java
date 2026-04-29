@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
 
@@ -29,4 +31,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByEventDateEndBefore(LocalDateTime date);
 
   List<Event> findAllByOrderByTotalClicksDesc(Pageable pageable);
+
+  @Query("SELECT e.imgPathUrl FROM Event e WHERE e.id = :id")
+  String findUrlById(@Param("id") long id);
 }

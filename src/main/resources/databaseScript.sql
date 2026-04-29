@@ -34,12 +34,10 @@ CREATE TABLE "booking_site" (
 CREATE TABLE "ticket" (
   "ticket_id" bigserial primary key,
   "event_id" bigint REFERENCES "event" ("event_id") on delete cascade,
-  "ticket_vendor_id" bigint references "booking_site" ("ticket_vendor_id") on delete cascade,
   "price" decimal (10, 2) check (price >= 0),
   --"currency" varchar(10) default 'NOK',
   "amount_available" int,
   "ticket_type" varchar(100),
-  "ticket_link" varchar,
   "ticket_description" text
 );
 
@@ -71,7 +69,7 @@ CREATE TABLE "event_clicks" (
     "event_id" bigint REFERENCES "event"("event_id") ON DELETE CASCADE,
     "user_id" bigint REFERENCES "unregistered_user"("user_id") ON DELETE CASCADE,
     "clicked_at" TIMESTAMP DEFAULT NOW(),
-    
+    "relative_path_url" VARCHAR(255),
     -- This prevents the same user clicking the same event twice
     PRIMARY KEY ("event_id", "user_id")
 );
