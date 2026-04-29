@@ -55,18 +55,16 @@ public class Ticket {
    * @param ticketType        The type of ticket; Normal, VIP etc...
    * @param price             The price of the ticket.
    * @param amountAvailable   The amount of tickets available.
-   * @param bookingSite       the site at which said ticket can be purchased.
    * @param ticketLink        A link to the site where the ticket can be
    *                          purchased.
    * @param ticketDescription A description of the ticket.
    */
   public Ticket(Event event, String ticketType, BigDecimal price, int amountAvailable,
-      BookingSite bookingSite, String ticketDescription) {
+      String ticketDescription) {
     this.event = event;
     this.ticketType = ticketType;
     this.price = price;
     this.amountAvailable = amountAvailable;
-    this.bookingSite = bookingSite;
     this.ticketDescription = ticketDescription;
   }
 
