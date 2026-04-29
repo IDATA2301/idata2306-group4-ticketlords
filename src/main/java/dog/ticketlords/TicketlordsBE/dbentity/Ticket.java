@@ -66,13 +66,12 @@ public class Ticket {
    * @param ticketDescription A description of the ticket.
    */
   public Ticket(Event event, String ticketType, BigDecimal price, int amountAvailable,
-      BookingSite bookingSite, String ticketLink, String ticketDescription) {
+      BookingSite bookingSite, String ticketDescription) {
     this.event = event;
     this.ticketType = ticketType;
     this.price = price;
     this.amountAvailable = amountAvailable;
     this.bookingSite = bookingSite;
-    this.ticketLink = ticketLink;
     this.ticketDescription = ticketDescription;
   }
 
