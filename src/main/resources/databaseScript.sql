@@ -34,7 +34,6 @@ CREATE TABLE "booking_site" (
 CREATE TABLE "ticket" (
   "ticket_id" bigserial primary key,
   "event_id" bigint REFERENCES "event" ("event_id") on delete cascade,
-  "ticket_vendor_id" bigint references "booking_site" ("ticket_vendor_id") on delete cascade,
   "price" decimal (10, 2) check (price >= 0),
   --"currency" varchar(10) default 'NOK',
   "amount_available" int,

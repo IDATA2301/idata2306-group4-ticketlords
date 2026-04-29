@@ -44,11 +44,6 @@ public class Ticket {
   @Column(name = "amount_available", nullable = false)
   private int amountAvailable;
 
-  // A booking site can have multiple tickets.
-  @Setter
-  @ManyToOne
-  @JoinColumn(name = "ticket_vendor_id", referencedColumnName = "ticket_vendor_id")
-  private BookingSite bookingSite;
   @Setter
   @Column(name = "ticket_description")
   private String ticketDescription;
