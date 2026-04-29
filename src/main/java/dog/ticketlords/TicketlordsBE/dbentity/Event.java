@@ -54,6 +54,11 @@ public class Event {
   @Column(name = "total_clicks", nullable = false)
   private long totalClicks;
 
+  // Of form: images/imgName.jpg
+  @Setter
+  @Column(name = "image_url", nullable = true)
+  private String imgPathUrl;
+
   /**
    * Constructs an Event with all fields.
    *
@@ -68,7 +73,7 @@ public class Event {
    * @param end              the end date of the event.
    */
   public Event(String eventName, long eventId, String host, Category category, EventVenue eVenue,
-      String eventDescription, long totalClicks, LocalDate start, LocalDate end) {
+      String eventDescription, long totalClicks, LocalDate start, LocalDate end, String imgPathUrl) {
     this.eventName = eventName;
     this.eventId = eventId;
     this.host = host;
@@ -78,6 +83,7 @@ public class Event {
     this.eventVenue = eVenue;
     this.eventDescription = eventDescription;
     this.totalClicks = totalClicks;
+    this.imgPathUrl = imgPathUrl;
 
   }// TODO: Consider using builder pattern
 }
