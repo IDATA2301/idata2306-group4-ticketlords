@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
-import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
+import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 
 /**
  * Service to handle operations directly with database concerning
@@ -96,7 +96,7 @@ public class UserService {
         || user.getHashedPassword() == null) {
       return false;
     }
-    if (this.getUnregUser(user.getUnregisteredUser().getUId()).isEmpty()) {
+    if (this.getUnregUser(user.getUnregisteredUser().getUId()).isEmpty()) { //checks database if unreg user exists
       return false;
     }
     user.setHashedPassword(this.passwordEncoder.encode(user.getHashedPassword()));
@@ -130,6 +130,37 @@ public class UserService {
       return false;
     }
     this.regUserRepo.delete(user.get());
+    return true;
+  }
+
+  /**
+   * Updates an existing RegisteredUser in the database.
+   * 
+   * @param userId the id of the user to update
+   * @param updatedUser the updated user data
+   * @return true if the user was successfully updated, false if user not found
+   */
+  public boolean updateRegisteredUser(long userId, RegisteredUser updatedUser) {
+    Optional<RegisteredUser> existingUser = getRegUser(userId);
+    if (existingUser.isEmpty()) {
+      return false;
+    }
+    
+    RegisteredUser user = existingUser.get();
+    if (updatedUser.getEmail() != null) {
+      user.setEmail(updatedUser.getEmail());
+    }
+    if (updatedUser.getHashedPassword() != null) {
+      user.setHashedPassword(this.passwordEncoder.encode(updatedUser.getHashedPassword()));
+    }
+    if (updatedUser.getFirstName() != null) {
+      user.setFirstName(updatedUser.getFirstName());
+    }
+    if (updatedUser.getLastName() != null) {
+      user.setLastName(updatedUser.getLastName());
+    }
+    
+    this.regUserRepo.save(user);
     return true;
   }
 
