@@ -1,8 +1,11 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +61,22 @@ public class EventController {
   }
 
   /**
+   * Finds an event's related image.
+   *
+   * @param eventId the id of the event to find image from.
+   * @return Http message with image, or NOT FOUND if the image wasnt found.
+   */
+  @GetMapping("/{eventId}/image")
+  public ResponseEntity<byte[]> getImage(@PathVariable long eventId) {
+    try {
+      byte[] image = this.eventService.getEventImage(eventId);
+      return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(image);
+    } catch (IOException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+  }
+
+  /**
    * Retrieves popular events from the database.
    *
    * @return ResponseEntity containing a list of all events, or not found if no
@@ -77,7 +96,8 @@ public class EventController {
    * Retrieves events based on substring in the search field from the database.
    *
    * @param query substring of the events to retrieve
-   * @return ResponseEntity containing a list of all events matching the substring, or not
+   * @return ResponseEntity containing a list of all events matching the
+   *         substring, or not
    *         found if no events match
    */
   @GetMapping("/search")
