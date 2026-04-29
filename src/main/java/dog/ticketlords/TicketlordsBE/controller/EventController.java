@@ -57,6 +57,29 @@ public class EventController {
     }
   }
 
+  /**
+   * Retrieves popular events from the database.
+   *
+   * @return ResponseEntity containing a list of all events, or not found if no
+   *         events exist
+   */
+  @GetMapping("/popular")
+  public ResponseEntity<List<Event>> getPopularEvents() {
+    List<Event> popularEvents = this.eventService.getPopularEvents();
+    if (popularEvents.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(popularEvents);
+    }
+  }
+
+  /**
+   * Retrieves events based on substring in the search field from the database.
+   *
+   * @param query substring of the events to retrieve
+   * @return ResponseEntity containing a list of all events matching the substring, or not
+   *         found if no events match
+   */
   @GetMapping("/search")
   public ResponseEntity<List<Event>> searchEvents(@RequestParam String query) {
     List<Event> events = this.eventService.searchEvents(query);

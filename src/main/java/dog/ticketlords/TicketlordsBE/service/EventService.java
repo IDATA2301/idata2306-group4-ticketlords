@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
@@ -57,6 +58,16 @@ public class EventService {
    */
   public List<Event> getAllEvents() {
     return this.eventRepo.findAll();
+  }
+
+  /**
+   * Finds the top 10 events based on the most clicks.
+   *
+   * @return A list containing the top 10 events
+   */
+  public List<Event> getPopularEvents() {
+    Pageable pageable = PageRequest.of(0, 10);
+    return this.eventRepo.findAllByOrderByTotalClicksDesc(pageable);
   }
 
   /**

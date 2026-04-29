@@ -3,6 +3,7 @@ package dog.ticketlords.TicketlordsBE.repositories;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
@@ -26,4 +27,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByEventDateStartAfter(LocalDateTime date);
 
   List<Event> findByEventDateEndBefore(LocalDateTime date);
+
+  List<Event> findAllByOrderByTotalClicksDesc(Pageable pageable);
 }
