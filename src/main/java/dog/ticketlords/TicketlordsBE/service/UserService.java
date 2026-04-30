@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
+import dog.ticketlords.TicketlordsBE.dbentity.UserRole;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 
@@ -91,16 +92,28 @@ public class UserService {
    * @throws IllegalArgumentException if the associated UnregisteredUser is not
    *                                  found
    */
-  public boolean insertRegisteredUserToDatabase(RegisteredUser user) {
-    if (user == null || user.getUnregisteredUser().getUId() == null || user.getEmail() == null
+  public boolean insertRegisteredUserToDatabase(RegisteredUser user, long unregId) {
+    if (user == null || unregId < 0 || user.getEmail() == null
         || user.getHashedPassword() == null) {
       return false;
     }
-    if (this.getUnregUser(user.getUnregisteredUser().getUId()).isEmpty()) { //checks database if unreg user exists
+    Optional<UnregisteredUser> unregUser = this.getUnregUser(unregId);
+    if (unregUser.isEmpty()) { //checks database if unreg user exists
       return false;
     }
+    RegisteredUser newUser = new RegisteredUser(
+        unregUser.get(),
+        user.getEmail(),
+        user.getDisplayName(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getHashedPassword(),
+        user.getPhoneNumber(),
+        UserRole.USER
+    );
+
     user.setHashedPassword(this.passwordEncoder.encode(user.getHashedPassword()));
-    this.regUserRepo.save(user);
+    this.regUserRepo.save(newUser);
     return true;
   }
 

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
@@ -31,8 +32,8 @@ public class UserController {
   }
 
   @PostMapping("/user/register")
-  public ResponseEntity<Void> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user) {
-    if (this.userService.insertRegisteredUserToDatabase(user)) {
+  public ResponseEntity<Void> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user, @RequestParam long uregId) {
+    if (this.userService.insertRegisteredUserToDatabase(user, uregId)) {
       return ResponseEntity.created(URI.create("/users/user/" + user.getUserId())).build();
     } else {
       return ResponseEntity.badRequest().build();
