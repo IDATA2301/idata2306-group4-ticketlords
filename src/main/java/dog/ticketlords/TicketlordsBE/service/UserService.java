@@ -107,12 +107,10 @@ public class UserService {
         user.getDisplayName(),
         user.getFirstName(),
         user.getLastName(),
-        user.getHashedPassword(),
+        this.passwordEncoder.encode(user.getHashedPassword()),
         user.getPhoneNumber(),
-        UserRole.USER
-    );
+        UserRole.USER);
 
-    user.setHashedPassword(this.passwordEncoder.encode(user.getHashedPassword()));
     this.regUserRepo.save(newUser);
     return unregId;
   }
@@ -149,7 +147,7 @@ public class UserService {
   /**
    * Updates an existing RegisteredUser in the database.
    * 
-   * @param userId the id of the user to update
+   * @param userId      the id of the user to update
    * @param updatedUser the updated user data
    * @return true if the user was successfully updated, false if user not found
    */
@@ -158,7 +156,7 @@ public class UserService {
     if (existingUser.isEmpty()) {
       return false;
     }
-    
+
     RegisteredUser user = existingUser.get();
     if (updatedUser.getEmail() != null) {
       user.setEmail(updatedUser.getEmail());
@@ -172,7 +170,7 @@ public class UserService {
     if (updatedUser.getLastName() != null) {
       user.setLastName(updatedUser.getLastName());
     }
-    
+
     this.regUserRepo.save(user);
     return true;
   }
