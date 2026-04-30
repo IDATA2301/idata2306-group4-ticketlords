@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -32,19 +33,18 @@ public class UserController {
   }
 
   @PostMapping("/user/register")
-  public ResponseEntity<Void> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user, @RequestParam long uregId) {
-    if (this.userService.insertRegisteredUserToDatabase(user, uregId)) {
-      return ResponseEntity.created(URI.create("/users/user/" + user.getUserId())).build();
-    } else {
-      return ResponseEntity.badRequest().build();
-    }
+  public ResponseEntity<Long> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user, @RequestParam long uregId) {
+    long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
+    
+    return ResponseEntity.status(HttpStatus.CREATED)
+      .body(newUserId);
   }
 
   @PostMapping("/user")
-  public ResponseEntity<?> insertUnregUserIntoDatabase() {
-    UnregisteredUser user = this.userService.insertUnregisteredUserToDatabase();
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(Map.of("unregisteredUserId", user.getUId()));
+  public ResponseEntity<Long> insertUnregUserIntoDatabase() {
+  UnregisteredUser user = this.userService.insertUnregisteredUserToDatabase();
+  return ResponseEntity.status(HttpStatus.CREATED)
+    .body(user.getUId());
   }
 
   @GetMapping("/user/{id}")
