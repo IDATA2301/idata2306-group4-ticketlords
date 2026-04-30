@@ -13,6 +13,7 @@ import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UserRole;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 /**
  * Service to handle operations directly with database concerning
@@ -92,15 +93,14 @@ public class UserService {
    * @throws IllegalArgumentException if the associated UnregisteredUser is not
    *                                  found
    */
-  public boolean insertRegisteredUserToDatabase(RegisteredUser user, long unregId) {
-    if (user == null || unregId < 0 || user.getEmail() == null
-        || user.getHashedPassword() == null) {
-      return false;
+  public long insertRegisteredUserToDatabase(RegisteredUser user, long unregId) {
+    if (this.regUserRepo.existsById(unregId) || unregId < 0) {
+      UnregisteredUser newUnregUser = this.insertUnregisteredUserToDatabase();
+      unregId = newUnregUser.getUId();
     }
+
     Optional<UnregisteredUser> unregUser = this.getUnregUser(unregId);
-    if (unregUser.isEmpty()) { //checks database if unreg user exists
-      return false;
-    }
+
     RegisteredUser newUser = new RegisteredUser(
         unregUser.get(),
         user.getEmail(),
@@ -114,7 +114,7 @@ public class UserService {
 
     user.setHashedPassword(this.passwordEncoder.encode(user.getHashedPassword()));
     this.regUserRepo.save(newUser);
-    return true;
+    return unregId;
   }
 
   /**
