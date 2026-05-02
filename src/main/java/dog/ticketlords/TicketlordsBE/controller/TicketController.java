@@ -14,14 +14,14 @@ import java.util.List;
 /**
  * REST controller for ticket management operations.
  * <p>
- * Handles GET, POST, PUT and DELETE requests for managing tickets in the database.
+ * Handles GET, POST, PUT and DELETE requests for managing tickets in the
+ * database.
  * Provides endpoints to retrieve events by various criteria (ID,....)
  * and to create, update or delete tickets.
  */
 @RestController
 @RequestMapping("/tickets")
 public class TicketController {
-
 
   private final TicketService ticketService;
 
@@ -33,25 +33,28 @@ public class TicketController {
   public TicketController(TicketService ticketService) {
     this.ticketService = ticketService;
   }
-//TODO finne ut hvilken lenke som skal brukes, og om nødvendig
+  // TODO finne ut hvilken lenke som skal brukes, og om nødvendig
 
   /**
    * Retrieves a single {@link Ticket} by its id.
    *
    * @param ticketId the ticket id
-   * @return {@code 200 OK} with the ticket if found; otherwise {@code 404 Not Found}
+   * @return {@code 200 OK} with the ticket if found; otherwise
+   *         {@code 404 Not Found}
    */
- @GetMapping("/{ticketId}")
- public ResponseEntity<Ticket> getTicket(@PathVariable long ticketId) {
-   return ticketService.getTicket(ticketId)
-       .map(ResponseEntity::ok)
-       .orElseGet(() -> ResponseEntity.notFound().build());
- }
+  @GetMapping("/{ticketId}")
+  public ResponseEntity<Ticket> getTicket(@PathVariable long ticketId) {
+    return ticketService.getTicket(ticketId)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
 
   /**
-   * Retrieves all tickets with the given ticket type (case-insensitive exact match)
+   * Retrieves all tickets with the given ticket type (case-insensitive exact
+   * match)
    *
-   * <p>Example: {@code GET /tickets/type/VIP}
+   * <p>
+   * Example: {@code GET /tickets/type/VIP}
    *
    * @param ticketType the ticket type to match (e.g., {@code VIP})
    * @return {@code 200 OK} with matching tickets; otherwise {@code 404 Not Found}
@@ -67,21 +70,22 @@ public class TicketController {
   }
 
   /**
-   * Retrieves all tickets relating to an event using event ID.
+   * Retrieves all variations of a ticket type, by the given event's id.
    *
    * @param eventId the id of the event
-   * @return List of all the tickets relating to the event
+   * @return List of all types of tickets relating to the event
    */
   @GetMapping("/by-event/{eventId}")
-  public ResponseEntity<List<Ticket>> getTicketByEventId(@PathVariable long eventId) {
-   List<Ticket> tickets = ticketService.getTicketByEventId(eventId);
-   return tickets.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tickets);
+  public ResponseEntity<List<Ticket>> getTicketsByEventId(@PathVariable long eventId) {
+    List<Ticket> tickets = ticketService.getTicketByEventId(eventId);
+    return tickets.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tickets);
   }
 
   /**
    * Searches for tickets by event name (case-insensitive substring match).
    *
-   * <p>Example: {@code GET /tickets/search/by-event-name?name=rock}
+   * <p>
+   * Example: {@code GET /tickets/search/by-event-name?name=rock}
    *
    * @param name substring to search for in the event name
    * @return {@code 200 OK} with matching tickets; otherwise {@code 404 Not Found}
@@ -104,12 +108,12 @@ public class TicketController {
    */
   @GetMapping("/search/price")
   public ResponseEntity<List<Ticket>> getTicketsCheaperThan(@RequestParam BigDecimal max) {
-   List<Ticket> tickets = ticketService.getTicketsCheaperThan(max);
-   if (tickets.isEmpty()) {
-     return ResponseEntity.notFound().build();
-   } else {
-     return ResponseEntity.ok(tickets);
-   }
+    List<Ticket> tickets = ticketService.getTicketsCheaperThan(max);
+    if (tickets.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(tickets);
+    }
   }
 
   /**
@@ -129,12 +133,12 @@ public class TicketController {
     }
   }
 
-
   /**
    * Inserts a new ticket into the database.
    *
    * @param ticket the ticket to be inserted
-   * @return ResponseEntity with created status and location URI, or bad request if insertion fails
+   * @return ResponseEntity with created status and location URI, or bad request
+   *         if insertion fails
    */
   @PostMapping("/ticket")
   public ResponseEntity<Void> insertTicketIntoDatabase(@Valid @RequestBody Ticket ticket) {
@@ -142,12 +146,12 @@ public class TicketController {
     return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
   }
 
-
   /**
    * Removes a ticket from the database.
    *
    * @param ticketId the ID of the ticket to be removed
-   * @return ResponseEntity with no content status if successful, or not found if ticket does not exist
+   * @return ResponseEntity with no content status if successful, or not found if
+   *         ticket does not exist
    */
   @DeleteMapping("/ticket/{ticketId}")
   public ResponseEntity<Void> removeTicket(@PathVariable long ticketId) {
@@ -157,6 +161,5 @@ public class TicketController {
     }
     return ResponseEntity.noContent().build();
   }
-
 
 }
