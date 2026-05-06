@@ -65,7 +65,7 @@ public class UserService {
    */
   @Transactional(readOnly = true)
   public Optional<RegisteredUser> getRegUserByEmail(String email) {
-    return Optional.of(this.regUserRepo.findByEmail(email));
+    return this.regUserRepo.findByEmail(email);
   }
 
   /**
