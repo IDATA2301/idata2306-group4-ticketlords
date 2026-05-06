@@ -13,7 +13,6 @@ import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UserRole;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
-import jakarta.persistence.EntityNotFoundException;
 
 /**
  * Service to handle operations directly with database concerning
@@ -43,7 +42,7 @@ public class UserService {
   }
 
   /**
-   * Returns an RegisteredUser from database.
+   * Returns an RegisteredUser from database using userId.
    * 
    * @param userId the id of the user
    * @return an RegisteredUser from database as Optional
@@ -56,6 +55,17 @@ public class UserService {
   @Transactional(readOnly = true)
   public Optional<UnregisteredUser> getUnregUser(long userId) {
     return this.unregUserRepo.findById(userId);
+  }
+
+  /**
+   * Returns an RegisteredUser from database using email.
+   * 
+   * @param userEmail the email of the user
+   * @return an RegisteredUser from database as Optional
+   */
+  @Transactional(readOnly = true)
+  public Optional<RegisteredUser> getRegUserByEmail(String email) {
+    return Optional.of(this.regUserRepo.findByEmail(email));
   }
 
   /**
