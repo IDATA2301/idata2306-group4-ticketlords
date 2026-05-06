@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.DTO.LoginRequest;
+import dog.ticketlords.TicketlordsBE.DTO.LoginResponse;
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.service.UserService;
@@ -72,7 +73,7 @@ public class UserController {
   }
 
 @PostMapping("/user/login")
-public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
   Optional<RegisteredUser> actualUser = this.userService.getRegUserByEmail(request.getEmail());
   if (actualUser.isEmpty()) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -81,7 +82,7 @@ public ResponseEntity<String> login(@RequestBody LoginRequest request) {
   
   if (isValid) {
     String token = jwtService.generateToken(request.getEmail());
-    return ResponseEntity.ok(token);
+    return ResponseEntity.ok(new LoginResponse(token));
   }
   return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 }
