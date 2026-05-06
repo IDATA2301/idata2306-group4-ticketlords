@@ -40,6 +40,10 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
   implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("io.github.cdimascio:dotenv-java:3.0.0")
+  implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+  runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+  runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 }
 
 dependencyManagement {
