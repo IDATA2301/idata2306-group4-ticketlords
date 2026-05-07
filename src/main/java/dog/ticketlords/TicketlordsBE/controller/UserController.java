@@ -1,6 +1,5 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dog.ticketlords.TicketlordsBE.DTO.LoginRequest;
+import dog.ticketlords.TicketlordsBE.DTO.LoginResponse;
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.service.UserService;
+import dog.ticketlords.TicketlordsBE.utility.JwtService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -26,9 +28,11 @@ import jakarta.validation.Valid;
 public class UserController {
 
   private final UserService userService;
+  private final JwtService jwtService;
 
-  public UserController(UserService userService) {
+  public UserController(UserService userService, JwtService jwtService) {
     this.userService = userService;
+    this.jwtService = jwtService;
   }
 
   @PostMapping("/user/register")
@@ -67,6 +71,21 @@ public class UserController {
     Optional<UnregisteredUser> unregisteredUser = this.userService.getUnregUser(id);
     return unregisteredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
+
+@PostMapping("/user/login")
+public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+  Optional<RegisteredUser> actualUser = this.userService.getRegUserByEmail(request.getEmail());
+  if (actualUser.isEmpty()) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+  }
+  boolean isValid = userService.checkPassword(request.getPassword(), actualUser.get().getHashedPassword());
+  
+  if (isValid) {
+    String token = jwtService.generateToken(request.getEmail());
+    return ResponseEntity.ok(new LoginResponse(token));
+  }
+  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+}
 
   @PutMapping("/user/{id}")
   public ResponseEntity<?> updateRegisteredUser(
