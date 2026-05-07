@@ -27,12 +27,10 @@ public class DotEnvConfig {
    */
   static {
     Dotenv dotenv = Dotenv.configure()
-      .filename(".env")
-      .ignoreIfMissing()
-      .load();
-    
-    dotenv.entries().forEach(entry -> 
-      System.setProperty(entry.getKey(), entry.getValue())
-    );
+        .filename("secrets.env")
+        .ignoreIfMissing()
+        .load();
+
+    dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
   }
 }
