@@ -37,5 +37,5 @@ out/
 .vscode/
 
 ### Environmental files ###
-.env
-.env.local
+*.env
+*.env.local
