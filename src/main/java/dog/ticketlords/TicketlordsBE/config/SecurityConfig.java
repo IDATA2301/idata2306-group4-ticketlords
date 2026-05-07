@@ -13,20 +13,22 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-  
+
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:*", "http://localhost:5173"));
+    configuration.setAllowedOriginPatterns(
+        Arrays.asList("http://localhost:*", "http://localhost:5173", "https://ticketlords.netlify.app",
+            "https://*.netlify.app"));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
     configuration.setAllowCredentials(true);
-    
+
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
-  
+
   @Bean
   // :TODO Turn csrf back on when finished with development phase.
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
