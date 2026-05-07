@@ -19,7 +19,6 @@ public class CorsConfig {
                 "http://localhost:5173",
                 "http://10.212.25.185:*",
                 "https://ticketlords.netlify.app",
-                "https://ticketlords.netlify.app/*",
                 "https://*.netlify.app")
 
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

@@ -18,10 +18,13 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOriginPatterns(
-        Arrays.asList("http://localhost:*", "http://localhost:5173", "https://ticketlords.netlify.app",
+        Arrays.asList(
+            "http://localhost:*",
+            "http://10.212.25.185:*",
+            "https://ticketlords.netlify.app",
             "https://*.netlify.app"));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
+    configuration.setAllowedHeaders(Arrays.asList("*"));
     configuration.setAllowCredentials(true);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
