@@ -154,7 +154,8 @@ public class EventService {
    */
   public byte[] getEventImage(long eventId) throws IOException {
 
-    Path imagePath = Paths.get("images/" + this.eventRepo.findUrlById(eventId));
+    Path imagePath = Paths
+        .get("src/main/java/dog/ticketlords/TicketlordsBE/resources/images/" + this.eventRepo.findUrlById(eventId));
     return Files.readAllBytes(imagePath);
 
   }

@@ -100,15 +100,15 @@ public class UserInterestServiceTests {
     List<UserInterestScoreDTO> percentageBasedInterests = this.userInterestService
         .getAllCategoriesInterestScoreByUserSorted(1L);
 
-    //Camel riding's score
+    // Camel riding's score
     assertEquals(BigDecimal.valueOf(0.2351), percentageBasedInterests.get(0).getPercentageInterest());
-    //Cultural's score
+    // Cultural's score
     assertEquals(BigDecimal.valueOf(0.0714), percentageBasedInterests.get(1).getPercentageInterest());
-    //Festival's score
+    // Festival's score
     assertEquals(BigDecimal.valueOf(0.1306), percentageBasedInterests.get(2).getPercentageInterest());
-    //Music's score
+    // Music's score
     assertEquals(BigDecimal.valueOf(0.0098), percentageBasedInterests.get(3).getPercentageInterest());
-    //Sport's score
+    // Sport's score
     assertEquals(BigDecimal.valueOf(0.5531), percentageBasedInterests.get(4).getPercentageInterest());
   }
 }
