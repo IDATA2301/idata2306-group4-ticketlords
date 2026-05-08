@@ -5,7 +5,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,16 +61,17 @@ public class EventController {
   }
 
   /**
-   * Finds an event's related image.
+   * Finds an event's related image's name.
    *
-   * @param eventId the id of the event to find image from.
-   * @return Http message with image, or NOT FOUND if the image wasnt found.
+   * @param eventId the id of the event to find image-name from.
+   * @return HTTP redirect to static folder location if found, NOT FOUND
+   *         otherwise.
    */
   @GetMapping("/{eventId}/image")
-  public ResponseEntity<byte[]> getImage(@PathVariable long eventId) {
+  public ResponseEntity<Void> getImageUrl(@PathVariable long eventId) {
     try {
-      byte[] image = this.eventService.getEventImage(eventId);
-      return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(image);
+      String fileName = this.eventService.getEventImageName(eventId);
+      return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/images/" + fileName).build();
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }

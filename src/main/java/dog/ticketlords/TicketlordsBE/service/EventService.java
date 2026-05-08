@@ -147,16 +147,18 @@ public class EventService {
   }
 
   /**
-   * Retrieves an image from the image folder based on the image's name.
+   * Retrieves the image name an eventId is created with.
    *
-   * @param filename the name of the image file.
-   * @return an image at the specified URI.
+   * @param eventId the id of the event to find image from.
+   * @return the image name an event is affiliated with.
    */
-  public byte[] getEventImage(long eventId) throws IOException {
+  public String getEventImageName(long eventId) throws IOException {
 
-    Path imagePath = Paths
-        .get("src/main/resources/images/" + this.eventRepo.findUrlById(eventId));
-    return Files.readAllBytes(imagePath);
+    String filename = eventRepo.findUrlById(eventId);
+    if (filename == null || filename.isBlank()) {
+      throw new IOException("Image not found for event with id: " + eventId);
+    }
+    return filename;
 
   }
 
