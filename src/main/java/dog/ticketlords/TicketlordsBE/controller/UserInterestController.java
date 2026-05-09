@@ -2,6 +2,7 @@ package dog.ticketlords.TicketlordsBE.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dog.ticketlords.TicketlordsBE.DTO.RecommendedEventsDTO;
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.UserInterest;
 import dog.ticketlords.TicketlordsBE.service.UserInterestService;
@@ -61,6 +63,22 @@ public class UserInterestController {
     } else {
       return ResponseEntity.badRequest().build();
     }
+  }
+
+  /**
+   * Gets events to recommend to a user.
+   *
+   * @param userId the id to find events to recommend.
+   * @return the events.
+   */
+  @GetMapping("/{userId}/recommended-events")
+  public ResponseEntity<RecommendedEventsDTO> getUserRecommendations(@PathVariable long userId) {
+    RecommendedEventsDTO events = this.userInterestService.getRecommendedEvents(userId);
+    if (events.recommendedEvents().isEmpty()) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+    return ResponseEntity.ok(events);
+
   }
 
   /**

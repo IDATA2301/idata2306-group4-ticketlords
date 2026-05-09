@@ -32,6 +32,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
   List<Event> findAllByOrderByTotalClicksDesc(Pageable pageable);
 
+  List<Event> findByCategory_CategoryNameOrderByTotalClicksDesc(String categoryName, Pageable pageable);
+
   @Query("SELECT e.imgPathUrl FROM Event e WHERE e.id = :id")
   String findUrlById(@Param("id") long id);
 }
