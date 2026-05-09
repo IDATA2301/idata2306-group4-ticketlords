@@ -21,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.UserInterest;
+import dog.ticketlords.TicketlordsBE.repositories.CategoryRepository;
+import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
 import dog.ticketlords.TicketlordsBE.repositories.UserInterestRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,11 +33,14 @@ public class UserInterestServiceTests {
 
   private UserInterestService userInterestService;
   private Clock testClock;
+  private EventRepository eventRepository;
+  private CategoryRepository categoryRepository;
 
   @BeforeEach
   public void setUp() {
     testClock = Clock.fixed(Instant.parse("2026-04-15T19:05:31Z"), ZoneId.of("Europe/Oslo"));
-    userInterestService = new UserInterestService(userInterestRepository, testClock);
+    userInterestService = new UserInterestService(userInterestRepository, categoryRepository, eventRepository,
+        testClock);
   }
 
   /**
