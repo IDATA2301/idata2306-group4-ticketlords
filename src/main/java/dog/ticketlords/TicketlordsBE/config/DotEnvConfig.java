@@ -27,7 +27,7 @@ public class DotEnvConfig {
    */
   static {
     Dotenv dotenv = Dotenv.configure()
-        .filename("secrets.env")
+        .filename(".env")
         .ignoreIfMissing()
         .load();
 
