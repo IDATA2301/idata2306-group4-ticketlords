@@ -72,20 +72,20 @@ public class UserController {
     return unregisteredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-@PostMapping("/user/login")
-public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-  Optional<RegisteredUser> actualUser = this.userService.getRegUserByEmail(request.getEmail());
-  if (actualUser.isEmpty()) {
+  @PostMapping("/user/login")
+  public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    Optional<RegisteredUser> actualUser = this.userService.getRegUserByEmail(request.getEmail());
+    if (actualUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    boolean isValid = userService.checkPassword(request.getPassword(), actualUser.get().getHashedPassword());
+    
+    if (isValid) {
+      String token = jwtService.generateToken(actualUser.get().getUserId());
+      return ResponseEntity.ok(new LoginResponse(token));
+    }
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
-  boolean isValid = userService.checkPassword(request.getPassword(), actualUser.get().getHashedPassword());
-  
-  if (isValid) {
-    String token = jwtService.generateToken(request.getEmail());
-    return ResponseEntity.ok(new LoginResponse(token));
-  }
-  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-}
 
   @PutMapping("/user/{id}")
   public ResponseEntity<?> updateRegisteredUser(

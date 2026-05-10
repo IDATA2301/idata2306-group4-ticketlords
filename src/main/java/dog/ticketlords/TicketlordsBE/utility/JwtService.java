@@ -19,10 +19,11 @@ public class JwtService {
   @Value("${jwt.expiration:86400000}")
   private long expirationTime;
   
-  public String generateToken(String email) {
+  public String generateToken(long userId) {
     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
     return Jwts.builder()
-      .subject(email)
+      .subject(String.valueOf(userId))
+      .issuer("ticketlords")
       .issuedAt(new Date())
       .expiration(new Date(System.currentTimeMillis() + expirationTime))
       .signWith(key, Jwts.SIG.HS512)
