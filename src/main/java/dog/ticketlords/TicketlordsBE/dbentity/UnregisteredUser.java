@@ -23,7 +23,7 @@ public class UnregisteredUser {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "user_id")
+  @Column(name = "user_id", insertable = false, updatable = false)
   private Long uId;
 
   @Column(name = "first_seen", insertable = false, updatable = false)
