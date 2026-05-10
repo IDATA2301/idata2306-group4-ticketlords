@@ -8,10 +8,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -176,6 +178,8 @@ public class UserInterestService {
    * the user has few categorical interests, it may return multiple events of the
    * same category.
    *
+   * This algorithm does not give the same event multiple times.
+   *
    * @param userId the user to find interests for.
    * @return A {@link RecommendedEventsDTO} holding the {@link Event}s to
    *         recommend the user.
@@ -209,10 +213,12 @@ public class UserInterestService {
     }
 
     List<Event> recommendedEvents = new ArrayList<>();
+    Set<Long> recommendedEventIds = new HashSet<>();
+
     Random random = new Random();
-    int target = 4; // Events to get
+    int target = 6; // Events to get
     int attempts = 0;
-    int maxAttempts = topCategoricalInterests.size() * 3;
+    int maxAttempts = topCategoricalInterests.size() * 20;
 
     while (recommendedEvents.size() < target && attempts < maxAttempts) {
       Category category = topCategoricalInterests.get(attempts % topCategoricalInterests.size());
@@ -222,12 +228,12 @@ public class UserInterestService {
       if (!topCategoryEvents.isEmpty()) {
         Event event = topCategoryEvents.get(random.nextInt(topCategoryEvents.size()));
         int pickAttempts = 0;
-        while (!recommendedEvents.contains(event) && pickAttempts < topCategoryEvents.size()) {
+        while (recommendedEventIds.contains(event.getEventId()) && pickAttempts < topCategoryEvents.size()) {
           event = topCategoryEvents.get(random.nextInt(topCategoryEvents.size()));
           pickAttempts++;
         }
-        if (!recommendedEvents.contains(event)) {
-          recommendedEvents.add(topCategoryEvents.get(random.nextInt(topCategoryEvents.size())));
+        if (recommendedEventIds.add(event.getEventId())) {
+          recommendedEvents.add(event);
         }
       }
       attempts++;
