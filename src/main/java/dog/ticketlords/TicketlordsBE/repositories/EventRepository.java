@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
 
@@ -36,4 +38,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
   @Query("SELECT e.imgPathUrl FROM Event e WHERE e.id = :id")
   String findUrlById(@Param("id") long id);
+
+  @Query("UPDATE Event e SET e.totalClicks = e.totalClicks + 1 WHERE e.eventId = :eventId")
+  @Transactional
+  @Modifying
+  void incrementClickCount(@Param("eventId") long eventId);
 }

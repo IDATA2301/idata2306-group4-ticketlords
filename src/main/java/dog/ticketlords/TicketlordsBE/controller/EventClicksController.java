@@ -45,7 +45,8 @@ public class EventClicksController {
   }
 
   /**
-   * Records a click on an event to the database.
+   * Records a click on an event to the database, and increments the clickCount of
+   * that event.
    *
    * @param eventId     the id of the event to register a click on.
    * @param unregUserId the id of the user that registers the click.
@@ -57,7 +58,10 @@ public class EventClicksController {
     Optional<Event> clickedEvent = this.eventService.getEvent(eventId);
     Optional<UnregisteredUser> user = this.userService.getUnregUser(userId);
     if (clickedEvent.isPresent() && user.isPresent()) {
-      this.eventClicksService.recordClick(clickedEvent.get(), user.get());
+      boolean recorded = this.eventClicksService.recordClick(clickedEvent.get(), user.get());
+      if (recorded) {
+        this.eventService.incrementEventClickCount(eventId);
+      }
       return ResponseEntity.ok().build();
     }
     return ResponseEntity.notFound().build();

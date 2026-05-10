@@ -110,6 +110,15 @@ public class EventService {
   }
 
   /**
+   * Increments the clickCount of an event.
+   * 
+   * @param eventId the id of the event to increment clickcount of.
+   */
+  public void incrementEventClickCount(long eventId) {
+    this.eventRepo.incrementClickCount(eventId);
+  }
+
+  /**
    * Deletes a {@link Event} column in the database if it exists.
    *
    * @param eventId the id of the event to delete.
