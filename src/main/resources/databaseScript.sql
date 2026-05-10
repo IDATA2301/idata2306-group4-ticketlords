@@ -12,7 +12,7 @@ create table "event_venue" (
 );
 
 CREATE TABLE "event" (
-  "event_id" bigint PRIMARY KEY,
+  "event_id" bigserial PRIMARY KEY,
   "event_name" varchar(255) NOT NULL,
   "host" varchar(255),
   "category_id" bigint references "category"("category_id"),
