@@ -21,7 +21,8 @@ CREATE TABLE "event" (
   "venue_id" bigint references "event_venue"("venue_id"),
   --"image_url" text,
   "event_description" text,
-  "total_clicks" bigint default 0 not null
+  "total_clicks" bigint default 0 not null,
+  "image_url" text
 );
 
 CREATE TABLE "booking_site" (
@@ -68,8 +69,7 @@ CREATE TABLE "review" (
 CREATE TABLE "event_clicks" (
     "event_id" bigint REFERENCES "event"("event_id") ON DELETE CASCADE,
     "user_id" bigint REFERENCES "unregistered_user"("user_id") ON DELETE CASCADE,
-    "clicked_at" TIMESTAMP DEFAULT NOW(),
-    "relative_path_url" VARCHAR(255),
+    "last_interaction" TIMESTAMP DEFAULT NOW(),
     -- This prevents the same user clicking the same event twice
     PRIMARY KEY ("event_id", "user_id")
 );
