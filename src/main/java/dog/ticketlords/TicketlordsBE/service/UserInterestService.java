@@ -26,6 +26,8 @@ import dog.ticketlords.TicketlordsBE.repositories.CategoryRepository;
 import dog.ticketlords.TicketlordsBE.repositories.UserInterestRepository;
 import dog.ticketlords.TicketlordsBE.utility.CategoryInterestMath;
 import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
+import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
+import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 
 /**
  * Service class for service logic.
@@ -37,6 +39,7 @@ public class UserInterestService {
   private Clock clock;
   private CategoryRepository categoryRepository;
   private EventRepository eventRepository;
+  private RegisteredUserRepository registeredUserRepository;
 
   /**
    * Creates an instance of UserInterestService. The class takes a clock object,
@@ -49,10 +52,11 @@ public class UserInterestService {
    * @param clock                  clock used mainly for testing purposes.
    */
   public UserInterestService(UserInterestRepository userInterestRepository, CategoryRepository categoryRepository,
-      EventRepository eventRepository, Clock clock) {
+      EventRepository eventRepository, RegisteredUserRepository registeredUserRepository, Clock clock) {
     this.userInterestRepository = userInterestRepository;
     this.categoryRepository = categoryRepository;
     this.eventRepository = eventRepository;
+    this.registeredUserRepository = registeredUserRepository;
     this.clock = clock;
   }
 
@@ -78,18 +82,26 @@ public class UserInterestService {
    * @param userInterest the userInterest object to add.
    * @return true if successful, and false otherwise.
    */
-  public boolean addUserInterestEntry(UserInterest userInterest) {
-    Optional<LocalDateTime> latestInterestEntry = this.userInterestRepository.findMostRecentInterestByUserAndCategory(
-        userInterest.getUser().getUserId(), userInterest.getCategory().getCategoryId());
-    if (latestInterestEntry.isEmpty()) {
-      this.userInterestRepository.save(userInterest);
-      return true;
-    } else if (ChronoUnit.SECONDS.between(latestInterestEntry.get(), LocalDateTime.now(clock)) >= 10) {
-      this.userInterestRepository.save(userInterest);
-      return true;
-    } else {
+  public boolean addUserInterestEntry(long userId, long categoryId) {
+    try {
+      Optional<LocalDateTime> latestInterestEntry = this.userInterestRepository.findMostRecentInterestByUserAndCategory(
+          userId, categoryId);
+      UserInterest userInterest = new UserInterest(this.registeredUserRepository.getReferenceById(userId),
+          this.categoryRepository.getReferenceById(categoryId));
+
+      if (latestInterestEntry.isEmpty()) {
+        this.userInterestRepository.save(userInterest);
+        return true;
+      } else if (ChronoUnit.SECONDS.between(latestInterestEntry.get(), LocalDateTime.now(clock)) >= 10) {
+        this.userInterestRepository.save(userInterest);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (Exception e) {
       return false;
     }
+
   }
 
   /**
@@ -168,13 +180,13 @@ public class UserInterestService {
    * @return A {@link RecommendedEventsDTO} holding the {@link Event}s to
    *         recommend the user.
    */
-  public RecommendedEventsDTO getRecommendedEvents(long userId) {
+  public List<Event> getRecommendedEvents(long userId) {
     List<UserInterestScoreDTO> interests = getAllCategoriesInterestScoreByUserSorted(userId);
     double interestAccumulator = 0.0;
     double interestThreshold = 0.7;
     List<Category> topCategoricalInterests = new ArrayList<>();
     if (interests.isEmpty()) {
-      return new RecommendedEventsDTO(new ArrayList<Event>());
+      return new ArrayList<Event>();
     }
 
     for (UserInterestScoreDTO interest : interests) {
@@ -193,7 +205,7 @@ public class UserInterestService {
     // categorical interests.
 
     if (topCategoricalInterests.isEmpty()) {
-      return new RecommendedEventsDTO(new ArrayList<Event>());
+      return new ArrayList<Event>();
     }
 
     List<Event> recommendedEvents = new ArrayList<>();
@@ -208,10 +220,18 @@ public class UserInterestService {
           .findByCategory_CategoryNameOrderByTotalClicksDesc(category.getCategoryName(), PageRequest.of(0, 20));
 
       if (!topCategoryEvents.isEmpty()) {
-        recommendedEvents.add(topCategoryEvents.get(random.nextInt(topCategoryEvents.size())));
+        Event event = topCategoryEvents.get(random.nextInt(topCategoryEvents.size()));
+        int pickAttempts = 0;
+        while (!recommendedEvents.contains(event) && pickAttempts < topCategoryEvents.size()) {
+          event = topCategoryEvents.get(random.nextInt(topCategoryEvents.size()));
+          pickAttempts++;
+        }
+        if (!recommendedEvents.contains(event)) {
+          recommendedEvents.add(topCategoryEvents.get(random.nextInt(topCategoryEvents.size())));
+        }
       }
       attempts++;
     }
-    return new RecommendedEventsDTO(recommendedEvents);
+    return recommendedEvents;
   }
 }
