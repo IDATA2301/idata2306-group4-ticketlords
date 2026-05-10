@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.DTO.RecommendedEventsDTO;
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.dbentity.UserInterest;
 import dog.ticketlords.TicketlordsBE.service.UserInterestService;
 import jakarta.validation.Valid;
@@ -56,9 +57,9 @@ public class UserInterestController {
    * @param interest A {@link UserInterest} to add to the database.
    * @return
    */
-  @PostMapping("/{userId}/interest/add")
-  public ResponseEntity<Void> registerInterest(@Valid @RequestBody UserInterest interest) {
-    if (this.userInterestService.addUserInterestEntry(interest)) {
+  @PostMapping("/{userId}/{categoryId}/interest/add")
+  public ResponseEntity<Void> registerInterest(@PathVariable long userId, @PathVariable long categoryId) {
+    if (this.userInterestService.addUserInterestEntry(userId, categoryId)) {
       return ResponseEntity.ok().build();
     } else {
       return ResponseEntity.badRequest().build();
@@ -72,9 +73,9 @@ public class UserInterestController {
    * @return the events.
    */
   @GetMapping("/{userId}/recommended-events")
-  public ResponseEntity<RecommendedEventsDTO> getUserRecommendations(@PathVariable long userId) {
-    RecommendedEventsDTO events = this.userInterestService.getRecommendedEvents(userId);
-    if (events.recommendedEvents().isEmpty()) {
+  public ResponseEntity<List<Event>> getUserRecommendations(@PathVariable long userId) {
+    List<Event> events = this.userInterestService.getRecommendedEvents(userId);
+    if (events.isEmpty()) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
     return ResponseEntity.ok(events);
