@@ -75,10 +75,9 @@ public class Event {
    * @param start            the start date of the event.
    * @param end              the end date of the event.
    */
-  public Event(String eventName, long eventId, String host, Category category, EventVenue eVenue,
-      String eventDescription, long totalClicks, LocalDate start, LocalDate end, String imgPathUrl) {
+  public Event(String eventName, String host, Category category, EventVenue eVenue,
+    String eventDescription, long totalClicks, LocalDate start, LocalDate end, String imgPathUrl) {
     this.eventName = eventName;
-    this.eventId = eventId;
     this.host = host;
     this.category = category;
     this.eventDateStart = start;
@@ -87,6 +86,5 @@ public class Event {
     this.eventDescription = eventDescription;
     this.totalClicks = totalClicks;
     this.imgPathUrl = imgPathUrl;
-
-  }// TODO: Consider using builder pattern
+  }
 }
