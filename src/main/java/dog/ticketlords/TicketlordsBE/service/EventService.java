@@ -43,14 +43,17 @@ public class EventService {
   }
 
   /**
-   * Inserts an event into the database, as long as it doesn't already exist.
+   * Inserts an event into the database.
+   *
+   * @param event the event to insert
+   * @return the saved Event wrapped in an Optional, or empty if saving failed
    */
-  public boolean insertEventIntoDatabase(Event event) {
-    if (!this.eventRepo.existsById(event.getEventId())) {
-      this.eventRepo.save(event);
-      return true;
-    } else {
-      return false;
+  public Optional<Event> insertEventIntoDatabase(Event event) {
+    try {
+        Event saved = this.eventRepo.save(event);
+        return Optional.of(saved);
+    } catch (Exception e) {
+        return Optional.empty();
     }
   }
 
