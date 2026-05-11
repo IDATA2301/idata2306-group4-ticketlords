@@ -2,10 +2,14 @@ package dog.ticketlords.TicketlordsBE.controller;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +20,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
+import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
+import dog.ticketlords.TicketlordsBE.service.CategoryService;
 import dog.ticketlords.TicketlordsBE.service.EventService;
+import dog.ticketlords.TicketlordsBE.service.EventVenueService;
+import dog.ticketlords.TicketlordsBE.service.ImageStorageService;
 import jakarta.validation.Valid;
 
 /**
@@ -35,14 +46,24 @@ import jakarta.validation.Valid;
 public class EventController {
 
   private final EventService eventService;
+  private final CategoryService categoryService;
+  private final EventVenueService eventVenueService;
+  private final ImageStorageService imageStorageService;
 
   /**
-   * Constructs an EventController with the provided EventService.
+   * Constructs an EventController with the provided services.
    * 
    * @param eventService the event service to be used
+   * @param categoryService the category service to be used
+   * @param eventVenueService the event venue service to be used
+   * @param imageStorageService the image storage service to be used
    */
-  public EventController(EventService eventService) {
+  public EventController(EventService eventService, CategoryService categoryService,
+          EventVenueService eventVenueService, ImageStorageService imageStorageService) {
     this.eventService = eventService;
+    this.categoryService = categoryService;
+    this.eventVenueService = eventVenueService;
+    this.imageStorageService = imageStorageService;
   }
 
   /**
@@ -177,6 +198,23 @@ public class EventController {
   }
 
   /**
+   * Uploads an image to storage to be used.
+   * 
+   * @return ResponseEntity containing url to the image that was posted
+   */
+  @PostMapping("/upload-image")
+  public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
+    try {
+      String key = imageStorageService.upload(file);
+      String url = "" + key;
+      return ResponseEntity.ok(url);
+    } catch (IOException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Upload failed: " + e.getMessage());
+    }
+  }
+
+  /**
    * Inserts a new event into the database.
    * 
    * @param event the event to be inserted
@@ -184,11 +222,33 @@ public class EventController {
    *         if insertion fails
    */
   @PostMapping("/event")
-  public ResponseEntity<Void> insertEventIntoDatabase(@Valid @RequestBody Event event) {
-    if (this.eventService.insertEventIntoDatabase(event)) {
-      return ResponseEntity.created(URI.create("/events/event/" + event.getEventId())).build();
+  public ResponseEntity<String> insertEventIntoDatabase(@Valid @RequestBody EventRequestDTO eventDTO) {
+    Optional<Category> category = this.categoryService.getCategoryByCategoryId(eventDTO.categoryId());
+    Optional<EventVenue> eventVenue = this.eventVenueService.getEventVenueById(eventDTO.venueId());
+
+    if (category.isEmpty() || eventVenue.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+                  .body("Error adding category and/or eventVenue");
+    }
+
+    // Creating the actual Event
+    Event event = new Event(
+                    eventDTO.eventName(),
+                    eventDTO.host(),
+                    category.get(),
+                    eventVenue.get(),
+                    eventDTO.eventDescription(),
+                    0,
+                    eventDTO.eventDateStart(),
+                    eventDTO.eventDateEnd(),
+                    eventDTO.imgPathUrl()
+    );
+
+    Optional<Event> saved = this.eventService.insertEventIntoDatabase(event);
+    if (saved.isPresent()) {
+      return ResponseEntity.created(URI.create("/events/event/" + saved.get().getEventId())).build();
     } else {
-      return ResponseEntity.badRequest().build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
 
