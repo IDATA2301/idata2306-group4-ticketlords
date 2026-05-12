@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 public record EventRequestDTO(
     String eventName,
     String host,
-    long categoryId,
+    Long categoryId,
     LocalDateTime eventDateStart,
     LocalDateTime eventDateEnd,
-    long venueId,
+    Long venueId,
     String eventDescription,
     String imgPathUrl) {
 }
