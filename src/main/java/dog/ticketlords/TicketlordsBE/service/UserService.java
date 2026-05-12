@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dog.ticketlords.TicketlordsBE.DTO.UpdateUserDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UserRole;
@@ -175,24 +176,30 @@ public class UserService {
    * @param updatedUser the updated user data
    * @return true if the user was successfully updated, false if user not found
    */
-  public boolean updateRegisteredUser(long userId, RegisteredUser updatedUser) {
+  public boolean updateRegisteredUser(long userId, UpdateUserDTO updatedUser) {
     Optional<RegisteredUser> existingUser = getRegUser(userId);
     if (existingUser.isEmpty()) {
       return false;
     }
 
     RegisteredUser user = existingUser.get();
-    if (updatedUser.getEmail() != null) {
-      user.setEmail(updatedUser.getEmail());
+    if (updatedUser.email() != null && !updatedUser.password().isEmpty()) {
+      user.setEmail(updatedUser.email());
     }
-    if (updatedUser.getHashedPassword() != null) {
-      user.setHashedPassword(this.passwordEncoder.encode(updatedUser.getHashedPassword()));
+    if (updatedUser.displayName() != null && !updatedUser.displayName().isEmpty()) {
+      user.setDisplayName(updatedUser.displayName());
     }
-    if (updatedUser.getFirstName() != null) {
-      user.setFirstName(updatedUser.getFirstName());
+    if (updatedUser.password() != null && !updatedUser.password().isEmpty()) {
+      user.setHashedPassword(this.passwordEncoder.encode(updatedUser.password()));
     }
-    if (updatedUser.getLastName() != null) {
-      user.setLastName(updatedUser.getLastName());
+    if (updatedUser.firstName() != null && !updatedUser.firstName().isEmpty()) {
+      user.setFirstName(updatedUser.firstName());
+    }
+    if (updatedUser.lastName() != null && !updatedUser.lastName().isEmpty()) {
+      user.setLastName(updatedUser.lastName());
+    }
+    if (updatedUser.phoneNumber() != null) {
+      user.setPhoneNumber(updatedUser.phoneNumber());
     }
 
     this.regUserRepo.save(user);

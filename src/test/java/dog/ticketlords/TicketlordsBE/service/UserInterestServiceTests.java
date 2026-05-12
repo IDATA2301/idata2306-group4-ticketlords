@@ -1,21 +1,19 @@
 package dog.ticketlords.TicketlordsBE.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Comparator;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
@@ -39,8 +37,7 @@ public class UserInterestServiceTests {
   @BeforeEach
   public void setUp() {
     testClock = Clock.fixed(Instant.parse("2026-04-15T19:05:31Z"), ZoneId.of("Europe/Oslo"));
-    userInterestService = new UserInterestService(userInterestRepository, categoryRepository, eventRepository,
-        testClock);
+    //userInterestService = new UserInterestService(userInterestRepository, categoryRepository, eventRepository, testClock);
   }
 
   /**
