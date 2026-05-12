@@ -58,6 +58,13 @@ public class UserController {
     return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @GetMapping("/user/{id}/is-admin")
+  public ResponseEntity<Map<String, Boolean>> isAdmin(@PathVariable long id) {
+    boolean isAdmin = userService.isAdmin(id);
+    return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
+  }
+
+
   @DeleteMapping("/user/{id}")
   public ResponseEntity<Void> deleteRegisteredUserById(@PathVariable long id) {
     if (this.userService.getRegUser(id).isPresent()) {
