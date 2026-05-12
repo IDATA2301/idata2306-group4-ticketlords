@@ -58,6 +58,21 @@ public class WishlistController {
   }
 
   /**
+   * Checks if the event with eventId in the param is wishlisted of the user with
+   * param userId.
+   *
+   * @param userId  the user we're checking wishlisted event for.
+   * @param eventId the event we're checking if is wishlisted by the user.
+   *
+   * @return true if wishlisted, false if now.
+   */
+  @GetMapping("is-wishlisted/{userId}/{eventId}")
+  public ResponseEntity<Boolean> isEventWishlisted(@PathVariable long userId, @PathVariable long eventId) {
+    boolean isWishlisted = this.wishlistService.isEventInWishlist(userId, eventId);
+    return ResponseEntity.ok(isWishlisted);
+  }
+
+  /**
    * Retrieves all wishlists for a specific user.
    * 
    * @param userId the ID of the user

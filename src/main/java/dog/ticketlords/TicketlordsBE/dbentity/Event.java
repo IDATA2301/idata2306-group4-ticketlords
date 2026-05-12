@@ -1,6 +1,6 @@
 package dog.ticketlords.TicketlordsBE.dbentity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,10 +42,10 @@ public class Event {
   private Category category;
   @Setter
   @Column(name = "event_date_start")
-  private LocalDate eventDateStart;
+  private LocalDateTime eventDateStart;
   @Setter
   @Column(name = "event_date_end")
-  private LocalDate eventDateEnd;
+  private LocalDateTime eventDateEnd;
   @Setter
   @ManyToOne
   @JoinColumn(name = "venue_id", referencedColumnName = "venue_id")
@@ -66,7 +66,6 @@ public class Event {
    * Constructs an Event with all fields.
    *
    * @param eventName        the name of the event.
-   * @param eventId          the unique identifier of the event.
    * @param host             the host of the event.
    * @param category         the {@link Category} the event belongs to.
    * @param eVenue           the {@link EventVenue} where the event takes place.
@@ -76,7 +75,7 @@ public class Event {
    * @param end              the end date of the event.
    */
   public Event(String eventName, String host, Category category, EventVenue eVenue,
-    String eventDescription, long totalClicks, LocalDate start, LocalDate end, String imgPathUrl) {
+      String eventDescription, long totalClicks, LocalDateTime start, LocalDateTime end, String imgPathUrl) {
     this.eventName = eventName;
     this.host = host;
     this.category = category;

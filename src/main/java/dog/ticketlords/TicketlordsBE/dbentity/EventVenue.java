@@ -53,4 +53,11 @@ public class EventVenue {
     this.country = country;
     this.city = city;
   }
+
+  @Override
+  public String toString() {
+    return "EventVenue [venueId=" + venueId + ", arena=" + arena + ", city=" + city + ", country=" + country
+        + ", address=" + address + "]";
+  }
+
 }

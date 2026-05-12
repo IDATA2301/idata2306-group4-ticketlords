@@ -1,14 +1,14 @@
 package dog.ticketlords.TicketlordsBE.DTO;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record EventRequestDTO(
     String eventName,
     String host,
-    long categoryId,
-    LocalDate eventDateStart,
-    LocalDate eventDateEnd,
-    long venueId,
+    Long categoryId,
+    LocalDateTime eventDateStart,
+    LocalDateTime eventDateEnd,
+    Long venueId,
     String eventDescription,
-    String imgPathUrl
-) {}
+    String imgPathUrl) {
+}
