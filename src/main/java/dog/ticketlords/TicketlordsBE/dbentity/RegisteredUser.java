@@ -85,6 +85,13 @@ public class RegisteredUser {
     return Long.hashCode(this.unregisteredUser.getUId());
   }
 
+  @Override
+  public String toString() {
+    return "RegisteredUser [userId=" + userId + ", unregisteredUser=" + unregisteredUser + ", email=" + email
+        + ", displayName=" + displayName + ", firstName=" + firstName + ", lastName=" + lastName
+        + ", hashedPassword=" + hashedPassword + ", phoneNumber=" + phoneNumber + ", role=" + role + "]";
+  }
+
   /**
    * Constructs a RegisteredUser. Should only be used for testing.
    *
