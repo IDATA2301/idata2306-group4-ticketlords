@@ -1,26 +1,26 @@
 package dog.ticketlords.TicketlordsBE.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Comparator;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import dog.ticketlords.TicketlordsBE.DTO.UserInterestScoreDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.UserInterest;
+import dog.ticketlords.TicketlordsBE.repositories.CategoryRepository;
+import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
 import dog.ticketlords.TicketlordsBE.repositories.UserInterestRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,11 +31,13 @@ public class UserInterestServiceTests {
 
   private UserInterestService userInterestService;
   private Clock testClock;
+  private EventRepository eventRepository;
+  private CategoryRepository categoryRepository;
 
   @BeforeEach
   public void setUp() {
     testClock = Clock.fixed(Instant.parse("2026-04-15T19:05:31Z"), ZoneId.of("Europe/Oslo"));
-    userInterestService = new UserInterestService(userInterestRepository, testClock);
+    //userInterestService = new UserInterestService(userInterestRepository, categoryRepository, eventRepository, testClock);
   }
 
   /**
@@ -100,15 +102,15 @@ public class UserInterestServiceTests {
     List<UserInterestScoreDTO> percentageBasedInterests = this.userInterestService
         .getAllCategoriesInterestScoreByUserSorted(1L);
 
-    //Camel riding's score
+    // Camel riding's score
     assertEquals(BigDecimal.valueOf(0.2351), percentageBasedInterests.get(0).getPercentageInterest());
-    //Cultural's score
+    // Cultural's score
     assertEquals(BigDecimal.valueOf(0.0714), percentageBasedInterests.get(1).getPercentageInterest());
-    //Festival's score
+    // Festival's score
     assertEquals(BigDecimal.valueOf(0.1306), percentageBasedInterests.get(2).getPercentageInterest());
-    //Music's score
+    // Music's score
     assertEquals(BigDecimal.valueOf(0.0098), percentageBasedInterests.get(3).getPercentageInterest());
-    //Sport's score
+    // Sport's score
     assertEquals(BigDecimal.valueOf(0.5531), percentageBasedInterests.get(4).getPercentageInterest());
   }
 }

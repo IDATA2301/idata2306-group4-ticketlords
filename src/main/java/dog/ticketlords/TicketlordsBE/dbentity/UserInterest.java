@@ -28,7 +28,7 @@ public class UserInterest {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "user_interest_id")
+  @Column(name = "user_interest_id", insertable = false, nullable = false, updatable = false)
   private long id;
   /** The registered user this interest belongs to. */
   @ManyToOne
@@ -42,7 +42,7 @@ public class UserInterest {
 
   /** The interest score for this category. */
   @Setter
-  @Column(name = "clicked_at", nullable = false)
+  @Column(name = "clicked_at", nullable = false, insertable = false)
   private LocalDateTime clickedAt;
 
   /**

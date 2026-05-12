@@ -12,7 +12,7 @@ create table "event_venue" (
 );
 
 CREATE TABLE "event" (
-  "event_id" bigint PRIMARY KEY,
+  "event_id" bigserial PRIMARY KEY,
   "event_name" varchar(255) NOT NULL,
   "host" varchar(255),
   "category_id" bigint references "category"("category_id"),
@@ -21,7 +21,8 @@ CREATE TABLE "event" (
   "venue_id" bigint references "event_venue"("venue_id"),
   --"image_url" text,
   "event_description" text,
-  "total_clicks" bigint default 0 not null
+  "total_clicks" bigint default 0 not null,
+  "image_url" text
 );
 
 CREATE TABLE "booking_site" (
@@ -34,12 +35,10 @@ CREATE TABLE "booking_site" (
 CREATE TABLE "ticket" (
   "ticket_id" bigserial primary key,
   "event_id" bigint REFERENCES "event" ("event_id") on delete cascade,
-  "ticket_vendor_id" bigint references "booking_site" ("ticket_vendor_id") on delete cascade,
   "price" decimal (10, 2) check (price >= 0),
   --"currency" varchar(10) default 'NOK',
   "amount_available" int,
   "ticket_type" varchar(100),
-  "ticket_link" varchar,
   "ticket_description" text
 );
 
@@ -70,8 +69,7 @@ CREATE TABLE "review" (
 CREATE TABLE "event_clicks" (
     "event_id" bigint REFERENCES "event"("event_id") ON DELETE CASCADE,
     "user_id" bigint REFERENCES "unregistered_user"("user_id") ON DELETE CASCADE,
-    "clicked_at" TIMESTAMP DEFAULT NOW(),
-    
+    "last_interaction" TIMESTAMP DEFAULT NOW(),
     -- This prevents the same user clicking the same event twice
     PRIMARY KEY ("event_id", "user_id")
 );

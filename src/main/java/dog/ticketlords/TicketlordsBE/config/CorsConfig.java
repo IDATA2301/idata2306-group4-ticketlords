@@ -14,10 +14,16 @@ public class CorsConfig {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE") //Consider adding "OPTIONS"
-                .allowedHeaders("*")
-                .allowCredentials(true);
+            .allowedOriginPatterns(
+                "http://localhost:*",
+                "http://localhost:5173",
+                "http://10.212.25.185:*",
+                "https://ticketlords.netlify.app",
+                "https://*.netlify.app")
+
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true);
       }
     };
 

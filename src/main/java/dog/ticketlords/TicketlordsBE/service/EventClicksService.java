@@ -30,10 +30,10 @@ public class EventClicksService {
    * @param event The {@link Event} that was clicked.
    * @param user  the {@link UnregisteredUser} that clicked the event.
    */
-  public void recordClick(Event event, UnregisteredUser user) {
+  public boolean recordClick(Event event, UnregisteredUser user) {
     if (!this.eventClicksRepository.existsById(new EventClicksId(event.getEventId(), user.getUId()))) {
       this.eventClicksRepository.save(new EventClicks(event, user));
-      return;
+      return true;
     }
 
     LocalDateTime now = LocalDateTime.now();
@@ -45,6 +45,9 @@ public class EventClicksService {
           .getReferenceById(new EventClicksId(event.getEventId(), user.getUId()));
       ec.setLastInteraction(now);
       this.eventClicksRepository.save(ec);
+      return true;
+    } else {
+      return false;
     }
   }
 

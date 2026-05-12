@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -25,7 +27,8 @@ import lombok.Setter;
 public class Event {
 
   @Id
-  @Column(name = "event_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "event_id", insertable = false, updatable = false)
   private long eventId;
   @Setter
   @Column(name = "event_name", nullable = false)
@@ -54,6 +57,11 @@ public class Event {
   @Column(name = "total_clicks", nullable = false)
   private long totalClicks;
 
+  // Of form: images/imgName.jpg
+  @Setter
+  @Column(name = "image_url", nullable = true)
+  private String imgPathUrl;
+
   /**
    * Constructs an Event with all fields.
    *
@@ -67,10 +75,9 @@ public class Event {
    * @param start            the start date of the event.
    * @param end              the end date of the event.
    */
-  public Event(String eventName, long eventId, String host, Category category, EventVenue eVenue,
-      String eventDescription, long totalClicks, LocalDate start, LocalDate end) {
+  public Event(String eventName, String host, Category category, EventVenue eVenue,
+    String eventDescription, long totalClicks, LocalDate start, LocalDate end, String imgPathUrl) {
     this.eventName = eventName;
-    this.eventId = eventId;
     this.host = host;
     this.category = category;
     this.eventDateStart = start;
@@ -78,6 +85,6 @@ public class Event {
     this.eventVenue = eVenue;
     this.eventDescription = eventDescription;
     this.totalClicks = totalClicks;
-
-  }// TODO: Consider using builder pattern
+    this.imgPathUrl = imgPathUrl;
+  }
 }

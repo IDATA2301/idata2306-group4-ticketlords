@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+//Not used anymore
+
 /**
  * Entity representation of the database booking_site table.
  * Represents a BookingSite with vendor, website link and site description.

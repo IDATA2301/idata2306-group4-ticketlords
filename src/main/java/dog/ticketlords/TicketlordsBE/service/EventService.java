@@ -1,11 +1,16 @@
 package dog.ticketlords.TicketlordsBE.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
@@ -38,14 +43,17 @@ public class EventService {
   }
 
   /**
-   * Inserts an event into the database, as long as it doesn't already exist.
+   * Inserts an event into the database.
+   *
+   * @param event the event to insert
+   * @return the saved Event wrapped in an Optional, or empty if saving failed
    */
-  public boolean insertEventIntoDatabase(Event event) {
-    if (!this.eventRepo.existsById(event.getEventId())) {
-      this.eventRepo.save(event);
-      return true;
-    } else {
-      return false;
+  public Optional<Event> insertEventIntoDatabase(Event event) {
+    try {
+        Event saved = this.eventRepo.save(event);
+        return Optional.of(saved);
+    } catch (Exception e) {
+        return Optional.empty();
     }
   }
 
@@ -57,6 +65,16 @@ public class EventService {
    */
   public List<Event> getAllEvents() {
     return this.eventRepo.findAll();
+  }
+
+  /**
+   * Finds the top 10 events based on the most clicks.
+   *
+   * @return A list containing the top 10 events
+   */
+  public List<Event> getPopularEvents() {
+    Pageable pageable = PageRequest.of(0, 10);
+    return this.eventRepo.findAllByOrderByTotalClicksDesc(pageable);
   }
 
   /**
@@ -95,6 +113,15 @@ public class EventService {
   }
 
   /**
+   * Increments the clickCount of an event.
+   * 
+   * @param eventId the id of the event to increment clickcount of.
+   */
+  public void incrementEventClickCount(long eventId) {
+    this.eventRepo.incrementClickCount(eventId);
+  }
+
+  /**
    * Deletes a {@link Event} column in the database if it exists.
    *
    * @param eventId the id of the event to delete.
@@ -116,6 +143,35 @@ public class EventService {
    */
   public List<Event> getEventsByCategoryId(long id) {
     return this.eventRepo.findByCategory_CategoryId(id);
+  }
+
+  /**
+   * Searches the database for events, where the event itself, it's host, or its
+   * category matches the param.
+   *
+   * @param searchTerm the string to search for an event by.
+   * @return a {@link List} of all {@link Event} matching the search.
+   */
+  public List<Event> searchEvents(String searchTerm) {
+    return this.eventRepo
+        .findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
+            searchTerm, searchTerm, searchTerm);
+  }
+
+  /**
+   * Retrieves the image name an eventId is created with.
+   *
+   * @param eventId the id of the event to find image from.
+   * @return the image name an event is affiliated with.
+   */
+  public String getEventImageName(long eventId) throws IOException {
+
+    String filename = eventRepo.findUrlById(eventId);
+    if (filename == null || filename.isBlank()) {
+      throw new IOException("Image not found for event with id: " + eventId);
+    }
+    return filename;
+
   }
 
   /**

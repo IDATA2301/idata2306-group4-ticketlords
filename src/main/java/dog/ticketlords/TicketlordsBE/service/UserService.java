@@ -10,8 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
-import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
+import dog.ticketlords.TicketlordsBE.dbentity.UserRole;
 import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
+import dog.ticketlords.TicketlordsBE.repositories.UnregisteredUserRepository;
 
 /**
  * Service to handle operations directly with database concerning
@@ -41,7 +42,7 @@ public class UserService {
   }
 
   /**
-   * Returns an RegisteredUser from database.
+   * Returns an RegisteredUser from database using userId.
    * 
    * @param userId the id of the user
    * @return an RegisteredUser from database as Optional
@@ -54,6 +55,17 @@ public class UserService {
   @Transactional(readOnly = true)
   public Optional<UnregisteredUser> getUnregUser(long userId) {
     return this.unregUserRepo.findById(userId);
+  }
+
+  /**
+   * Returns an RegisteredUser from database using email.
+   * 
+   * @param userEmail the email of the user
+   * @return an RegisteredUser from database as Optional
+   */
+  @Transactional(readOnly = true)
+  public Optional<RegisteredUser> getRegUserByEmail(String email) {
+    return this.regUserRepo.findByEmail(email);
   }
 
   /**
@@ -91,17 +103,26 @@ public class UserService {
    * @throws IllegalArgumentException if the associated UnregisteredUser is not
    *                                  found
    */
-  public boolean insertRegisteredUserToDatabase(RegisteredUser user) {
-    if (user == null || user.getUnregisteredUser().getUId() == null || user.getEmail() == null
-        || user.getHashedPassword() == null) {
-      return false;
+  public long insertRegisteredUserToDatabase(RegisteredUser user, long unregId) {
+    if (this.regUserRepo.existsById(unregId) || unregId < 0) {
+      UnregisteredUser newUnregUser = this.insertUnregisteredUserToDatabase();
+      unregId = newUnregUser.getUId();
     }
-    if (this.getUnregUser(user.getUnregisteredUser().getUId()).isEmpty()) {
-      return false;
-    }
-    user.setHashedPassword(this.passwordEncoder.encode(user.getHashedPassword()));
-    this.regUserRepo.save(user);
-    return true;
+
+    Optional<UnregisteredUser> unregUser = this.getUnregUser(unregId);
+
+    RegisteredUser newUser = new RegisteredUser(
+        unregUser.get(),
+        user.getEmail(),
+        user.getDisplayName(),
+        user.getFirstName(),
+        user.getLastName(),
+        this.passwordEncoder.encode(user.getHashedPassword()),
+        user.getPhoneNumber(),
+        UserRole.USER);
+
+    this.regUserRepo.save(newUser);
+    return unregId;
   }
 
   /**
@@ -130,6 +151,37 @@ public class UserService {
       return false;
     }
     this.regUserRepo.delete(user.get());
+    return true;
+  }
+
+  /**
+   * Updates an existing RegisteredUser in the database.
+   * 
+   * @param userId      the id of the user to update
+   * @param updatedUser the updated user data
+   * @return true if the user was successfully updated, false if user not found
+   */
+  public boolean updateRegisteredUser(long userId, RegisteredUser updatedUser) {
+    Optional<RegisteredUser> existingUser = getRegUser(userId);
+    if (existingUser.isEmpty()) {
+      return false;
+    }
+
+    RegisteredUser user = existingUser.get();
+    if (updatedUser.getEmail() != null) {
+      user.setEmail(updatedUser.getEmail());
+    }
+    if (updatedUser.getHashedPassword() != null) {
+      user.setHashedPassword(this.passwordEncoder.encode(updatedUser.getHashedPassword()));
+    }
+    if (updatedUser.getFirstName() != null) {
+      user.setFirstName(updatedUser.getFirstName());
+    }
+    if (updatedUser.getLastName() != null) {
+      user.setLastName(updatedUser.getLastName());
+    }
+
+    this.regUserRepo.save(user);
     return true;
   }
 

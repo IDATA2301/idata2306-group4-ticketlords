@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,7 @@ public class RegisteredUser {
   private UnregisteredUser unregisteredUser;
 
   @Setter
+  @NotNull(message = "Email cannot be null")
   @Column(name = "email", nullable = false)
   private String email;
   @Setter
@@ -51,6 +53,7 @@ public class RegisteredUser {
   @Column(name = "last_name")
   private String lastName;
   @Setter
+  @NotNull(message = "Password cannot be null")
   @Column(name = "password", nullable = false, unique = true)
   private String hashedPassword;
   @Setter
