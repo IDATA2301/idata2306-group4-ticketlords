@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.DTO.LoginRequest;
 import dog.ticketlords.TicketlordsBE.DTO.LoginResponse;
+import dog.ticketlords.TicketlordsBE.DTO.UpdateUserDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.RegisteredUser;
 import dog.ticketlords.TicketlordsBE.dbentity.UnregisteredUser;
 import dog.ticketlords.TicketlordsBE.service.UserService;
@@ -36,18 +37,19 @@ public class UserController {
   }
 
   @PostMapping("/user/register")
-  public ResponseEntity<Long> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user, @RequestParam long uregId) {
+  public ResponseEntity<Long> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user,
+      @RequestParam long uregId) {
     long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
-    
+
     return ResponseEntity.status(HttpStatus.CREATED)
-      .body(newUserId);
+        .body(newUserId);
   }
 
   @PostMapping("/user")
   public ResponseEntity<Long> insertUnregUserIntoDatabase() {
-  UnregisteredUser user = this.userService.insertUnregisteredUserToDatabase();
-  return ResponseEntity.status(HttpStatus.CREATED)
-    .body(user.getUId());
+    UnregisteredUser user = this.userService.insertUnregisteredUserToDatabase();
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(user.getUId());
   }
 
   @GetMapping("/user/{id}")
@@ -67,7 +69,7 @@ public class UserController {
   }
 
   @GetMapping("/unregistered/{id}")
-  public ResponseEntity<UnregisteredUser> getUnregisteredUserById(@PathVariable long id){
+  public ResponseEntity<UnregisteredUser> getUnregisteredUserById(@PathVariable long id) {
     Optional<UnregisteredUser> unregisteredUser = this.userService.getUnregUser(id);
     return unregisteredUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
@@ -79,7 +81,7 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
     boolean isValid = userService.checkPassword(request.getPassword(), actualUser.get().getHashedPassword());
-    
+
     if (isValid) {
       String token = jwtService.generateToken(actualUser.get().getUserId());
       return ResponseEntity.ok(new LoginResponse(token));
@@ -88,15 +90,13 @@ public class UserController {
   }
 
   @PutMapping("/user/{id}")
-  public ResponseEntity<?> updateRegisteredUser(
+  public ResponseEntity<UpdateUserDTO> updateRegisteredUser(
       @PathVariable long id,
-      @Valid @RequestBody RegisteredUser updatedUser) {
+      @RequestBody UpdateUserDTO updatedUser) {
     if (this.userService.updateRegisteredUser(id, updatedUser)) {
-      return ResponseEntity.ok(Map.of("success", true));
+      return ResponseEntity.ok(updatedUser);
     } else {
       return ResponseEntity.notFound().build();
     }
   }
 }
-
-
