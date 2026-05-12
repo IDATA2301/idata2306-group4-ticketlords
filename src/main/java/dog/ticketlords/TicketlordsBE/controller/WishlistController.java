@@ -19,8 +19,10 @@ import dog.ticketlords.TicketlordsBE.service.WishlistService;
 /**
  * REST controller for wishlist management operations.
  * 
- * Handles GET, POST, and DELETE requests for managing wishlists in the database.
- * Provides endpoints to retrieve wishlists by user and event, add or remove items from wishlists,
+ * Handles GET, POST, and DELETE requests for managing wishlists in the
+ * database.
+ * Provides endpoints to retrieve wishlists by user and event, add or remove
+ * items from wishlists,
  * and retrieve wishlist statistics.
  */
 @RestController
@@ -43,7 +45,8 @@ public class WishlistController {
   /**
    * Retrieves all wishlists from the database.
    * 
-   * @return ResponseEntity containing a list of all wishlists, or not found if no wishlists exist
+   * @return ResponseEntity containing a list of all wishlists, or not found if no
+   *         wishlists exist
    */
   @GetMapping("/")
   public ResponseEntity<List<Wishlist>> getAll() {
@@ -58,7 +61,8 @@ public class WishlistController {
    * Retrieves all wishlists for a specific user.
    * 
    * @param userId the ID of the user
-   * @return ResponseEntity containing a list of all wishes for the user, or not found if no wishes exist
+   * @return ResponseEntity containing a list of all wishes for the user, or not
+   *         found if no wishes exist
    */
   @GetMapping("/user/{userId}")
   public ResponseEntity<List<Wishlist>> getAllUsersWishes(@PathVariable long userId) {
@@ -74,7 +78,7 @@ public class WishlistController {
    * Retrieves paginated wishlists for a specific user.
    * 
    * @param userId the ID of the user
-   * @param page the page number to retrieve
+   * @param page   the page number to retrieve
    * @return ResponseEntity containing a paginated list of wishes for the user
    */
   @GetMapping("/users/{userId}/{page}")
@@ -86,11 +90,12 @@ public class WishlistController {
   /**
    * Retrieves a specific wish for a user by user ID and event ID.
    * 
-   * @param userId the ID of the user
+   * @param userId  the ID of the user
    * @param eventId the ID of the event
-   * @return ResponseEntity containing the wish, or not found if wish does not exist
+   * @return ResponseEntity containing the wish, or not found if wish does not
+   *         exist
    */
-  @GetMapping("/users/{userId}/events/{eventId}")
+  @GetMapping("/users/{userId}/event/{eventId}")
   public ResponseEntity<Wishlist> getWish(@PathVariable int userId, @PathVariable int eventId) {
     Optional<Wishlist> wish = this.wishlistService.getWish(userId, eventId);
     if (wish.isPresent()) {
@@ -99,7 +104,7 @@ public class WishlistController {
       return ResponseEntity.notFound().build();
     }
   }
-  
+
   /**
    * Retrieves the number of wishlists for a specific event.
    * 
@@ -125,11 +130,12 @@ public class WishlistController {
   /**
    * Adds an event to a user's wishlist.
    * 
-   * @param userId the ID of the user
+   * @param userId  the ID of the user
    * @param eventId the ID of the event to add
-   * @return ResponseEntity with ok status if successful, or not found if user or event does not exist
+   * @return ResponseEntity with ok status if successful, or not found if user or
+   *         event does not exist
    */
-  @PostMapping("/user/{userId}/events/{eventId}")
+  @PostMapping("/user/{userId}/event/{eventId}")
   public ResponseEntity<Void> insertOneIntoDatabase(@PathVariable int userId, @PathVariable int eventId) {
     boolean inserted = wishlistService.insertOneIntoDatabase(userId, eventId);
     if (inserted) {
@@ -137,17 +143,17 @@ public class WishlistController {
     } else {
       return ResponseEntity.notFound().build();
     }
-
   }
 
   /**
    * Removes an event from a user's wishlist.
    * 
-   * @param userId the ID of the user
+   * @param userId  the ID of the user
    * @param eventId the ID of the event to remove
-   * @return ResponseEntity with no content status if successful, or not found if wish does not exist
+   * @return ResponseEntity with no content status if successful, or not found if
+   *         wish does not exist
    */
-  @DeleteMapping("/user/{userId}/events/{eventId}")
+  @DeleteMapping("/user/{userId}/event/{eventId}")
   public ResponseEntity<Void> remove(@PathVariable long userId, @PathVariable long eventId) {
     boolean removed = wishlistService.removeWishlist(userId, eventId);
     if (!removed) {
