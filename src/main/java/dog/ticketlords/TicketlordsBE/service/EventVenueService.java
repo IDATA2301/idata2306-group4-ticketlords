@@ -1,9 +1,11 @@
 package dog.ticketlords.TicketlordsBE.service;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
@@ -12,11 +14,47 @@ import dog.ticketlords.TicketlordsBE.repositories.EventVenueRepository;
 @Service
 public class EventVenueService {
 
-  private EventVenueRepository eventVenueRepo;
+  private final EventVenueRepository eventVenueRepo;
 
   public EventVenueService(EventVenueRepository eventVenueRepo) {
     this.eventVenueRepo = eventVenueRepo;
   }
+
+  /**
+   * Gets a list of event venues by any subset of address, arena, city or country.
+   * It is ordered in said order.
+   * 
+   * @param address the address of the venue
+   * @param arena the arena of the venue
+   * @param city the city of the venue
+   * @param country the country of the venue
+   * @return a list of event venues sorted
+   */
+  public List<EventVenue> getEventVenueByAnySubset(String address, String arena, String city, String country) {
+
+    boolean hasAddress = address != null && !address.isBlank();
+    boolean hasArena   = arena   != null && !arena.isBlank();
+    boolean hasCity    = city    != null && !city.isBlank();
+    boolean hasCountry = country != null && !country.isBlank();
+
+    if (!hasAddress && !hasArena && !hasCity && !hasCountry) {
+        return List.of();
+    }
+
+    Set<EventVenue> results = new LinkedHashSet<>();
+
+    if (hasAddress) results.addAll(eventVenueRepo.findByAddressIgnoreCase(address));
+    if (hasArena)   results.addAll(eventVenueRepo.findByArenaIgnoreCase(arena));
+    if (hasCity)    results.addAll(eventVenueRepo.findByCityIgnoreCase(city));
+    if (hasCountry) results.addAll(eventVenueRepo.findByCountryIgnoreCase(country));
+
+    return results.stream()
+            .sorted(Comparator.comparing(EventVenue::getAddress)
+                .thenComparing(EventVenue::getArena)
+                .thenComparing(EventVenue::getCity)
+                .thenComparing(EventVenue::getCountry))
+            .toList();
+}
 
   /**
    * Gets an optional of an event venue based on its id.
@@ -69,7 +107,7 @@ public class EventVenueService {
    * @return An optional containing the EventVenue if it exists, optional
    *         containing null otherwise.
    */
-  public Optional<EventVenue> getVenueByAddress(String venueAddress) {
+  public List<EventVenue> getVenueByAddress(String venueAddress) {
     return this.eventVenueRepo.findByAddressIgnoreCase(venueAddress);
   }
 
