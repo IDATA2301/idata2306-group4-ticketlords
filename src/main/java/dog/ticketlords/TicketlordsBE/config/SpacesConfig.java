@@ -12,6 +12,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /**
  * Configuration for DigitalOcean Spaces (S3-compatible) client.
@@ -61,5 +62,24 @@ public class SpacesConfig {
                         .build())
                 .build();
     }
+  
+  @Bean(destroyMethod = "close")
+  S3Presigner s3Presigner(
+      @Value("${spaces.endpoint}") String endpoint,
+      @Value("${spaces.region}") String region,
+      @Value("${spaces.access-key}") String accessKey,
+      @Value("${spaces.secret-key}") String secretKey
+  ) {
+    return S3Presigner.builder()
+        .endpointOverride(URI.create(endpoint))
+        .region(Region.of(region))
+        .credentialsProvider(StaticCredentialsProvider.create(
+            AwsBasicCredentials.create(accessKey, secretKey)
+        ))
+        .serviceConfiguration(S3Configuration.builder()
+            .pathStyleAccessEnabled(true)
+            .build())
+        .build();
+  }
 
 }
