@@ -56,6 +56,32 @@ public class EventVenueController {
   }
 
   /**
+   * Searches event venues by any subset of address, arena, city and country.
+   *
+   * All parameters are optional. Null/blank parameters are ignored.
+   *
+   * @param address the address of the venue
+   * @param arena   the arena of the venue
+   * @param city    the city of the venue
+   * @param country the country of the venue
+   * @return a list of matching venues, or 204 if none
+   */
+  @GetMapping("/search")
+  public ResponseEntity<List<EventVenue>> searchVenues(
+      @RequestParam(required = false) String address,
+      @RequestParam(required = false) String arena,
+      @RequestParam(required = false) String city,
+      @RequestParam(required = false) String country) {
+
+    List<EventVenue> venues = this.eventVenueService.getEventVenueByAnySubset(address, arena, city, country);
+    if (venues.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(venues);
+  }
+
+
+  /**
    * Adds a new venue to the database.
    *
    * @param eventVenue the EventVenue object to add
@@ -79,9 +105,8 @@ public class EventVenueController {
    *         found
    */
   @GetMapping("/address")
-  public ResponseEntity<EventVenue> getVenueByAddress(@RequestParam String address) {
-    Optional<EventVenue> venue = this.eventVenueService.getVenueByAddress(address);
-    return venue.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+  public ResponseEntity<List<EventVenue>> getVenueByAddress(@RequestParam String address) {
+    return ResponseEntity.ok(this.eventVenueService.getVenueByAddress(address));
   }
 
   /**
