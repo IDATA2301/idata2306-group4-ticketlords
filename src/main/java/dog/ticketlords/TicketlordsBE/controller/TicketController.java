@@ -179,7 +179,6 @@ public class TicketController {
   @PutMapping("/payload/purchase")
   public ResponseEntity<Map<Long, Long>> purchaseMultipleTicketsCount(
       @RequestBody List<TicketPurchasePayload> allPurchases) {
-    allPurchases.forEach((payload) -> System.out.println(payload.ticketId() + payload.quantity()));
     if (allPurchases.isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
