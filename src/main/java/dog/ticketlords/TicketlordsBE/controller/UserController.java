@@ -39,6 +39,9 @@ public class UserController {
   @PostMapping("/user/register")
   public ResponseEntity<Long> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user,
       @RequestParam long uregId) {
+    if (this.userService.emailExists(user.getEmail())) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
     long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
 
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -105,5 +108,19 @@ public class UserController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  /**
+   * Checks whether an email is already registered.
+   *
+   * @param email the email address to check
+   * @return {@code true} if the email exists, otherwise {@code false}
+   */
+  @GetMapping("/email-exists")
+  public ResponseEntity<Boolean> emailExists(@RequestParam String email) {
+    if (email == null || email.isBlank()) {
+      return ResponseEntity.badRequest().build();
+    }
+    return ResponseEntity.ok(userService.emailExists(email));
   }
 }
