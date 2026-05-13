@@ -11,9 +11,11 @@ public interface EventVenueRepository extends JpaRepository<EventVenue, Long> {
 
   List<EventVenue> findAllByCountryIgnoreCaseAndCityIgnoreCase(String country, String city);
 
-  Optional<EventVenue> findByAddressIgnoreCase(String venueAddress);
+  List<EventVenue> findByAddressIgnoreCase(String address);
+  List<EventVenue> findByArenaIgnoreCase(String arena);
+  List<EventVenue> findByCityIgnoreCase(String city);
+  List<EventVenue> findByCountryIgnoreCase(String country);
 
   Optional<EventVenue> findByAddressIgnoreCaseAndArenaIgnoreCaseAndCityIgnoreCaseAndCountryIgnoreCase(String address,
       String arena, String city, String country);
-
 }
