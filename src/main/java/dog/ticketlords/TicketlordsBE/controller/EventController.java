@@ -2,9 +2,6 @@ package dog.ticketlords.TicketlordsBE.controller;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,14 +82,16 @@ public class EventController {
    * Finds an event's related image's name.
    *
    * @param eventId the id of the event to find image-name from.
-   * @return HTTP redirect to static folder location if found, NOT FOUND
-   *         otherwise.
+   * @return HTTP redirect to a short-lived presigned URL if found, NOT FOUND otherwise.
    */
   @GetMapping("/{eventId}/image")
   public ResponseEntity<Void> getImageUrl(@PathVariable long eventId) {
     try {
-      String fileName = this.eventService.getEventImageName(eventId);
-      return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/images/" + fileName).build();
+      String objectKey = this.eventService.getEventImageName(eventId);
+      String presignedUrl = this.imageStorageService.getPresignedUrl(objectKey);
+      return ResponseEntity.status(HttpStatus.FOUND)
+          .header(HttpHeaders.LOCATION, presignedUrl)
+          .build();
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
