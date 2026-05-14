@@ -84,7 +84,7 @@ public class UserController {
 
   /**
    * Gets the registered user with the specified id.
-   * 
+   *
    * @param id the id of the registered user to retrieve
    * @return ResponseEntity containing the registered user if found, or a 404
    *         status if not found.
@@ -100,9 +100,16 @@ public class UserController {
     return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @GetMapping("/user/{id}/is-admin")
+  public ResponseEntity<Map<String, Boolean>> isAdmin(@PathVariable long id) {
+    boolean isAdmin = userService.isAdmin(id);
+    return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
+  }
+
+
   /**
    * Deletes the registered user with the specified id.
-   * 
+   *
    * @param id the id of the registered user to delete
    * @return ResponseEntity with a 204 status if the user was deleted, or a 404
    *         status if the user was not found.

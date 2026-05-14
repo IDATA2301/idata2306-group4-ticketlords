@@ -140,6 +140,20 @@ public class UserService {
   }
 
   /**
+   * Checks whether the given user is an admin.
+   * <p>
+   * If the user does not exist, this returns {@code false}.
+   *
+   * @param userId the id of the {@link RegisteredUser} to check
+   * @return {@code true} if the user exists and has role {@link UserRole#ADMIN},
+   *         {@code false} otherwise
+   */
+  @Transactional(readOnly = true)
+  public boolean isAdmin(long userId) {
+    return regUserRepo.findById(userId).map(u -> u.getRole() == UserRole.ADMIN).orElse(false);
+  }
+
+  /**
    * Delete a user from the database.
    * 
    * @param userId the id of the user
