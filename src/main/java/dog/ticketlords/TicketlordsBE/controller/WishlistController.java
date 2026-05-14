@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Wishlist;
 import dog.ticketlords.TicketlordsBE.service.WishlistService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * REST controller for wishlist management operations.
@@ -27,6 +31,7 @@ import dog.ticketlords.TicketlordsBE.service.WishlistService;
  */
 @RestController
 @RequestMapping("/wishlists")
+@Tag(name = "Wishlist Controller", description = "APIs for managing wishlists, including retrieval, addition, and removal of wishlist items, as well as checks related to wishlists.")
 public class WishlistController {
 
   @Value("${wishlist.page-size:8}")
@@ -48,6 +53,11 @@ public class WishlistController {
    * @return ResponseEntity containing a list of all wishlists, or not found if no
    *         wishlists exist
    */
+  @Operation(summary = "Get all wishlists", description = "Retrieves a list of all wishlists in the database.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved all wishlists."),
+      @ApiResponse(responseCode = "404", description = "No wishlists found in the database.")
+  })
   @GetMapping("/")
   public ResponseEntity<List<Wishlist>> getAll() {
     if (wishlistService.getAllWishlists().size() >= 1) {
@@ -66,6 +76,11 @@ public class WishlistController {
    *
    * @return true if wishlisted, false if now.
    */
+  @Operation(summary = "Check if event is wishlisted by user", description = "Checks if the event with eventId in the param is wishlisted of the user with param userId.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully checked if event is wishlisted by user."),
+      @ApiResponse(responseCode = "404", description = "User or event not found.")
+  })
   @GetMapping("is-wishlisted/{userId}/{eventId}")
   public ResponseEntity<Boolean> isEventWishlisted(@PathVariable long userId, @PathVariable long eventId) {
     boolean isWishlisted = this.wishlistService.isEventInWishlist(userId, eventId);
@@ -79,6 +94,11 @@ public class WishlistController {
    * @return ResponseEntity containing a list of all wishes for the user, or not
    *         found if no wishes exist
    */
+  @Operation(summary = "Get all wishlists for a user", description = "Retrieves a list of all wishlists for a specific user based on the provided user ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved all wishlists for the user."),
+      @ApiResponse(responseCode = "404", description = "No wishlists found for the user with the specified ID.")
+  })
   @GetMapping("/user/{userId}")
   public ResponseEntity<List<Wishlist>> getAllUsersWishes(@PathVariable long userId) {
     List<Wishlist> wishes = this.wishlistService.getAllUsersWishes(userId);
@@ -96,6 +116,11 @@ public class WishlistController {
    * @param page   the page number to retrieve
    * @return ResponseEntity containing a paginated list of wishes for the user
    */
+  @Operation(summary = "Get paginated wishlists for a user", description = "Retrieves a paginated list of wishlists for a specific user based on the provided user ID and page number.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated wishlists for the user."),
+      @ApiResponse(responseCode = "404", description = "No wishlists found for the user with the specified ID and page number.")
+  })
   @GetMapping("/users/{userId}/{page}")
   public ResponseEntity<List<Wishlist>> getUserWishlistingsPaged(@PathVariable long userId, @PathVariable int page) {
     Page<Wishlist> wishes = this.wishlistService.getUsersWishlistingsPaged(userId, page, this.pageSize);
@@ -110,6 +135,11 @@ public class WishlistController {
    * @return ResponseEntity containing the wish, or not found if wish does not
    *         exist
    */
+  @Operation(summary = "Get a specific wish for a user", description = "Retrieves a specific wish for a user based on the provided user ID and event ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved the wish for the user."),
+      @ApiResponse(responseCode = "404", description = "Wish not found for the user with the specified user ID and event ID.")
+  })
   @GetMapping("/users/{userId}/event/{eventId}")
   public ResponseEntity<Wishlist> getWish(@PathVariable int userId, @PathVariable int eventId) {
     Optional<Wishlist> wish = this.wishlistService.getWish(userId, eventId);
@@ -126,6 +156,11 @@ public class WishlistController {
    * @param eventId the ID of the event
    * @return ResponseEntity containing the count of wishlists for the event
    */
+  @Operation(summary = "Get wishlist count for an event", description = "Retrieves the number of wishlists for a specific event based on the provided event ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved the wishlist count for the event."),
+      @ApiResponse(responseCode = "404", description = "Event not found.")
+  })
   @GetMapping("/event/{eventId}")
   public ResponseEntity<Long> getWishListingAmountForEventById(@PathVariable long eventId) {
     return ResponseEntity.ok(this.wishlistService.getWishlistingAmountForEventById(eventId));
@@ -137,6 +172,11 @@ public class WishlistController {
    * @param userId the ID of the user
    * @return ResponseEntity containing the count of wishes for the user
    */
+  @Operation(summary = "Get total wish count for a user", description = "Retrieves the total number of wishes for a specific user based on the provided user ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved the total wish count for the user."),
+      @ApiResponse(responseCode = "404", description = "User not found.")
+  })
   @GetMapping("/user/{userId}/amount")
   public ResponseEntity<Long> getUserAmountOfWishes(@PathVariable long userId) {
     return ResponseEntity.ok(this.wishlistService.countWishesByUser(userId));
@@ -150,6 +190,11 @@ public class WishlistController {
    * @return ResponseEntity with ok status if successful, or not found if user or
    *         event does not exist
    */
+  @Operation(summary = "Add event to user's wishlist", description = "Adds an event to a user's wishlist based on the provided user ID and event ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully added the event to the user's wishlist."),
+      @ApiResponse(responseCode = "404", description = "User or event not found.")
+  })
   @PostMapping("/user/{userId}/event/{eventId}")
   public ResponseEntity<Void> insertOneIntoDatabase(@PathVariable int userId, @PathVariable int eventId) {
     boolean inserted = wishlistService.insertOneIntoDatabase(userId, eventId);
@@ -168,6 +213,11 @@ public class WishlistController {
    * @return ResponseEntity with no content status if successful, or not found if
    *         wish does not exist
    */
+  @Operation(summary = "Remove event from user's wishlist", description = "Removes an event from a user's wishlist based on the provided user ID and event ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Successfully removed the event from the user's wishlist."),
+      @ApiResponse(responseCode = "404", description = "Wish not found for the user with the specified user ID and event ID.")
+  })
   @DeleteMapping("/user/{userId}/event/{eventId}")
   public ResponseEntity<Void> remove(@PathVariable long userId, @PathVariable long eventId) {
     boolean removed = wishlistService.removeWishlist(userId, eventId);
