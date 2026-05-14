@@ -1,15 +1,19 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
+import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import dog.ticketlords.TicketlordsBE.service.TicketService;
+import io.micrometer.core.ipc.http.HttpSender.Response;
 
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for ticket management operations.
@@ -160,6 +164,31 @@ public class TicketController {
       return ResponseEntity.notFound().build();
     }
     return ResponseEntity.noContent().build();
+  }
+
+  @PutMapping("/ticket/{ticketId}/quantity/{quantity}/purchase")
+  public ResponseEntity<Map<Long, Long>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
+    if (this.ticketService.decreaseAvailableTickets(ticketId, quantity)) {
+      return ResponseEntity.ok(Map.of(ticketId, this.ticketService.getAvailableTickets(ticketId)));
+    } else {
+      return ResponseEntity.internalServerError().build();
+    }
+
+  }
+
+  @PutMapping("/payload/purchase")
+  public ResponseEntity<Map<Long, Long>> purchaseMultipleTicketsCount(
+      @RequestBody List<TicketPurchasePayload> allPurchases) {
+    if (allPurchases.isEmpty()) {
+      return ResponseEntity.badRequest().build();
+    }
+    if (this.ticketService.decreaseAvailableTicketsByPayload(allPurchases)) {
+      return ResponseEntity.ok(allPurchases.stream().collect(Collectors.toMap(
+          TicketPurchasePayload::ticketId, payload -> ticketService.getAvailableTickets(payload.ticketId()))));
+    } else {
+      return ResponseEntity.internalServerError().build();
+    }
+
   }
 
 }

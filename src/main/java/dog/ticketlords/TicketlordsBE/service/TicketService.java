@@ -1,8 +1,10 @@
 package dog.ticketlords.TicketlordsBE.service;
 
+import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -38,10 +40,12 @@ public class TicketService {
   }
 
   /**
-   *Inserts the given {@link Ticket} into the database if no ticket with the same id exists already.
+   * Inserts the given {@link Ticket} into the database if no ticket with the same
+   * id exists already.
    *
    * @param ticket the ticket to insert
-   * @return {@code true} if the ticket was inserted, {@code false} if a ticket with the same id already exists
+   * @return {@code true} if the ticket was inserted, {@code false} if a ticket
+   *         with the same id already exists
    */
   public Ticket insertTicketIntoDatabase(Ticket ticket) {
     return ticketRepo.save(ticket);
@@ -76,9 +80,9 @@ public class TicketService {
     return ticketRepo.findAllByEvent_EventNameContainingIgnoreCase(eventName);
   }
 
-
   /**
-   * Retrieves all {@link Ticket}s with a price less than or equal to the given maximum value
+   * Retrieves all {@link Ticket}s with a price less than or equal to the given
+   * maximum value
    *
    * @param maxPrice the maximum price (inclusive)
    * @return a list of tickets priced at most {@code maxPrice} (may be empty)
@@ -90,14 +94,90 @@ public class TicketService {
   /**
    * Retrieves all {@link Ticket}s with a price within the given range.
    *
-   * <p>The bounds are inclusive.
+   * <p>
+   * The bounds are inclusive.
    *
    * @param min the minimum price (inclusive)
    * @param max the maximum price (inclusive)
-   * @return a list of tickets priced between {@code min} and {@code max} (may be empty)
+   * @return a list of tickets priced between {@code min} and {@code max} (may be
+   *         empty)
    */
   public List<Ticket> getTicketsInPriceRange(BigDecimal min, BigDecimal max) {
     return ticketRepo.findByPriceBetween(min, max);
+  }
+
+  /**
+   * Increases the available amount of tickets for the specified ticket's id.
+   *
+   * @param ticketId the id to increase ticket amount for.
+   * @param quantity the amount to increase.
+   *
+   * @return true if successful
+   */
+  @Transactional
+  public boolean increaseAvailableTickets(long ticketId, int quantity) {
+    boolean updatedRows = this.ticketRepo.increaseTicketCount(ticketId, quantity) == 1;
+    if (!updatedRows) {
+      throw new IllegalStateException(
+          "Failed to increase quantity for ticket: ticketId=" + ticketId + ", quantity=" + quantity);
+    }
+    return true;
+  }
+
+  /**
+   * Decrements the ticket's quantity in the database, if there are enough
+   * available.
+   *
+   * @param ticketId the id to reduce ticket amount for.
+   * @param quantity the amount to reduce.
+   *
+   * @return true if all went well.
+   */
+
+  @Transactional
+  public boolean decreaseAvailableTickets(long ticketId, int quantity) {
+    boolean updatedRows = this.ticketRepo.reduceTicketCountIfEnough(ticketId, quantity) == 1;
+    if (updatedRows) {
+      throw new IllegalStateException(
+          "Failed to decrement tickets: ticketId=" + ticketId + ", quantity=" + quantity);
+    }
+    return true;
+  }
+
+  /**
+   * Decrements a list of multiple purchase payloads in the database. If there's
+   * not enough ticket-quantity for any of the tickets that were bought,
+   * all prior changed will be rollbacked.
+   *
+   * @param payloadList a list of transaction payloads.
+   * @return true as long as all happened according to plan.
+   */
+  @Transactional
+  public boolean decreaseAvailableTicketsByPayload(List<TicketPurchasePayload> payloadList)
+      throws IllegalStateException {
+    for (TicketPurchasePayload payload : payloadList) {
+      boolean updatedRows = ticketRepo.reduceTicketCountIfEnough(payload.ticketId(), payload.quantity()) == 1;
+      if (!updatedRows) {
+        throw new IllegalStateException(
+            "Failed to decrement tickets: ticketId=" + payload.ticketId() + ", quantity=" + payload.quantity());
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Finds the amount available for a specific ticket.
+   * If no ticket was found by the param there are no tickets available.
+   *
+   * @param ticketId the id of the ticket.
+   * @return the amount available, or 0.
+   */
+  public long getAvailableTickets(long ticketId) {
+    Optional<Ticket> ticket = this.ticketRepo.findById(ticketId);
+    if (ticket.isPresent()) {
+      return ticket.get().getAmountAvailable();
+    }
+    return 0;
   }
 
 }

@@ -50,13 +50,13 @@ public class EventController {
   /**
    * Constructs an EventController with the provided services.
    * 
-   * @param eventService the event service to be used
-   * @param categoryService the category service to be used
-   * @param eventVenueService the event venue service to be used
+   * @param eventService        the event service to be used
+   * @param categoryService     the category service to be used
+   * @param eventVenueService   the event venue service to be used
    * @param imageStorageService the image storage service to be used
    */
   public EventController(EventService eventService, CategoryService categoryService,
-          EventVenueService eventVenueService, ImageStorageService imageStorageService) {
+      EventVenueService eventVenueService, ImageStorageService imageStorageService) {
     this.eventService = eventService;
     this.categoryService = categoryService;
     this.eventVenueService = eventVenueService;
@@ -209,7 +209,7 @@ public class EventController {
       return ResponseEntity.ok(url);
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Upload failed: " + e.getMessage());
+          .body("Upload failed: " + e.getMessage());
     }
   }
 
@@ -227,21 +227,20 @@ public class EventController {
 
     if (category.isEmpty() || eventVenue.isEmpty()) {
       return ResponseEntity.status(HttpStatus.CONFLICT)
-                  .body("Error adding category and/or eventVenue");
+          .body("Error adding category and/or eventVenue");
     }
 
     // Creating the actual Event
     Event event = new Event(
-                    eventDTO.eventName(),
-                    eventDTO.host(),
-                    category.get(),
-                    eventVenue.get(),
-                    eventDTO.eventDescription(),
-                    0,
-                    eventDTO.eventDateStart(),
-                    eventDTO.eventDateEnd(),
-                    eventDTO.imgPathUrl()
-    );
+        eventDTO.eventName(),
+        eventDTO.host(),
+        category.get(),
+        eventVenue.get(),
+        eventDTO.eventDescription(),
+        0,
+        eventDTO.eventDateStart(),
+        eventDTO.eventDateEnd(),
+        eventDTO.imgPathUrl());
 
     Optional<Event> saved = this.eventService.insertEventIntoDatabase(event);
     if (saved.isPresent()) {
