@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 
@@ -19,5 +22,15 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
   List<Ticket> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
-}
+  @Modifying
+  @Query("UPDATE Ticket t " +
+      "SET t.amountAvailable = t.amountAvailable - :ticketAmount " +
+      "WHERE t.ticketId = :ticketId AND t.amountAvailable >= :ticketAmount")
+  int reduceTicketCountIfEnough(@Param("ticketId") long ticketId, @Param("ticketAmount") int ticketAmount);
 
+  @Modifying
+  @Query("UPDATE Ticket t " +
+      "SET t.amountAvailable = t.amountAvailable + :ticketAmount " +
+      "WHERE t.ticketId = :ticketId")
+  int increaseTicketCount(@Param("ticketId") long ticketId, @Param("ticketAmount") int ticketAmount);
+}

@@ -8,6 +8,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import dog.ticketlords.TicketlordsBE.repositories.RegisteredUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,13 +33,17 @@ public class UserInterestServiceTests {
 
   private UserInterestService userInterestService;
   private Clock testClock;
+  @Mock
   private EventRepository eventRepository;
+  @Mock
   private CategoryRepository categoryRepository;
+  @Mock
+  private RegisteredUserRepository registeredUserRepository;
 
   @BeforeEach
   public void setUp() {
     testClock = Clock.fixed(Instant.parse("2026-04-15T19:05:31Z"), ZoneId.of("Europe/Oslo"));
-    //userInterestService = new UserInterestService(userInterestRepository, categoryRepository, eventRepository, testClock);
+    userInterestService = new UserInterestService(userInterestRepository, categoryRepository, eventRepository, registeredUserRepository, testClock);
   }
 
   /**
