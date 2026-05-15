@@ -2,6 +2,8 @@ package dog.ticketlords.TicketlordsBE.dbentity;
 
 import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,6 +33,7 @@ import lombok.Setter;
 public class RegisteredUser {
 
   @Id
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   @Column(name = "user_id")
   private Long userId;
 
