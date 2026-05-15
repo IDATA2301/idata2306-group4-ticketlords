@@ -301,6 +301,13 @@ public class TicketController {
    * @param ticketId the ticket id to reduce availability for
   * @param quantity the amount to reduce (must be >= 0)
    */
+  @Operation(summary = "Change ticket availability amount", description = "Allows admins to set the available quantity for a specific ticket.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Ticket quantity updated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid quantity provided (must be >= 0)"),
+      @ApiResponse(responseCode = "404", description = "Ticket not found with the given ID"),
+      @ApiResponse(responseCode = "409", description = "Conflict - failed to update ticket quantity")
+  })
   @PutMapping("/ticket/reduceAmount")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> changeAmountOfAvailableTickets(
