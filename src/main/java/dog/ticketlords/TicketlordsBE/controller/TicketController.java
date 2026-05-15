@@ -1,19 +1,29 @@
 package dog.ticketlords.TicketlordsBE.controller;
 
-import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
-import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import dog.ticketlords.TicketlordsBE.service.TicketService;
-import io.micrometer.core.ipc.http.HttpSender.Response;
-
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
+import dog.ticketlords.TicketlordsBE.DTO.TicketRequestDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
+import dog.ticketlords.TicketlordsBE.service.TicketService;
+import jakarta.validation.Valid;
 
 /**
  * REST controller for ticket management operations.
@@ -145,8 +155,8 @@ public class TicketController {
    *         if insertion fails
    */
   @PostMapping("/ticket")
-  public ResponseEntity<Void> insertTicketIntoDatabase(@Valid @RequestBody Ticket ticket) {
-    Ticket saved = this.ticketService.insertTicketIntoDatabase(ticket);
+  public ResponseEntity<Void> insertTicketIntoDatabase(@Valid @RequestBody TicketRequestDTO ticketDTO) {
+    Ticket saved = this.ticketService.insertTicketIntoDatabase(ticketDTO);
     return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
   }
 
@@ -158,6 +168,7 @@ public class TicketController {
    *         ticket does not exist
    */
   @DeleteMapping("/ticket/{ticketId}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> removeTicket(@PathVariable long ticketId) {
     boolean removed = this.ticketService.deleteTicket(ticketId);
     if (!removed) {
@@ -166,9 +177,18 @@ public class TicketController {
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * Purchases tickets by reducing the available quantity for a specific ticket.
+   *
+   * @param ticketId the id of the ticket to purchase
+   * @param quantity the number of tickets to purchase
+   * @return {@code 200 OK} with a map of ticket id to new available quantity if successful;
+   *         otherwise {@code 500 Internal Server Error}
+   */
   @PutMapping("/ticket/{ticketId}/quantity/{quantity}/purchase")
-  public ResponseEntity<Map<Long, Long>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
-    if (this.ticketService.decreaseAvailableTickets(ticketId, quantity)) {
+  public ResponseEntity<Map<Long, Integer>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
+    int newAmount = this.ticketService.getAvailableTickets(ticketId) - quantity;
+    if (this.ticketService.setAmountOfAvailableTickets(ticketId, newAmount)) {
       return ResponseEntity.ok(Map.of(ticketId, this.ticketService.getAvailableTickets(ticketId)));
     } else {
       return ResponseEntity.internalServerError().build();
@@ -176,8 +196,16 @@ public class TicketController {
 
   }
 
+  /**
+   * Purchases multiple tickets at once using a list of purchase payloads.
+   *
+   * @param allPurchases a list of {@link TicketPurchasePayload} objects specifying tickets and quantities to purchase
+   * @return {@code 200 OK} with a map of ticket ids to their new available quantities if successful;
+   *         {@code 400 Bad Request} if the list is empty;
+   *         otherwise {@code 500 Internal Server Error}
+   */
   @PutMapping("/payload/purchase")
-  public ResponseEntity<Map<Long, Long>> purchaseMultipleTicketsCount(
+  public ResponseEntity<Map<Long, Integer>> purchaseMultipleTicketsCount(
       @RequestBody List<TicketPurchasePayload> allPurchases) {
     if (allPurchases.isEmpty()) {
       return ResponseEntity.badRequest().build();
@@ -189,6 +217,39 @@ public class TicketController {
       return ResponseEntity.internalServerError().build();
     }
 
+  }
+
+  /**
+   * For use by admins to change amount of available tickets.
+   *
+   * <p>
+  * Example: {@code PUT /tickets/ticket/reduceAmount?ticketId=1&amp;quantity=5}
+   *
+   * @param ticketId the ticket id to reduce availability for
+  * @param quantity the amount to reduce (must be >= 0)
+   */
+  @PutMapping("/ticket/reduceAmount")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<Void> changeAmountOfAvailableTickets(
+      @RequestParam long ticketId,
+      @RequestParam int quantity) {
+    if (quantity < 0) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    if (ticketService.getTicket(ticketId).isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+    try {
+      ticketService.setAmountOfAvailableTickets(ticketId, quantity);
+
+      return ResponseEntity.noContent().build();
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.badRequest().build();
+    } catch (IllegalStateException ex) {
+      // Not enough tickets available (or other failure to update)
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
   }
 
 }
