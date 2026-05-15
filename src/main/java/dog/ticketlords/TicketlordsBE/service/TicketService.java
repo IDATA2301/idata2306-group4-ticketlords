@@ -1,22 +1,26 @@
 package dog.ticketlords.TicketlordsBE.service;
 
-import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
-import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
-import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
+import dog.ticketlords.TicketlordsBE.DTO.TicketRequestDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
+import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
 
 @Service
 public class TicketService {
 
   private final TicketRepository ticketRepo;
+  private final EventService eventService;
 
-  public TicketService(TicketRepository ticketRepo) {
+  public TicketService(TicketRepository ticketRepo, EventService eventService) {
     this.ticketRepo = ticketRepo;
+    this.eventService = eventService;
   }
 
   /**
@@ -47,7 +51,14 @@ public class TicketService {
    * @return {@code true} if the ticket was inserted, {@code false} if a ticket
    *         with the same id already exists
    */
-  public Ticket insertTicketIntoDatabase(Ticket ticket) {
+  public Ticket insertTicketIntoDatabase(TicketRequestDTO ticketDTO) {
+    Ticket ticket = new Ticket(
+        this.eventService.getEvent(ticketDTO.eventId()).get(),
+        ticketDTO.ticketType(),
+        ticketDTO.price(),
+        ticketDTO.amountAvailable(),
+        ticketDTO.ticketDescription()
+    );
     return ticketRepo.save(ticket);
   }
 
@@ -76,6 +87,12 @@ public class TicketService {
     return ticketRepo.findAllByEvent_EventId(eventId);
   }
 
+  /**
+   * Retrieves all {@link Ticket}s belonging to events with names containing the given string (case-insensitive).
+   *
+   * @param eventName the event name substring to search for
+   * @return a list of tickets for events matching the search (may be empty)
+   */
   public List<Ticket> getTicketsByEventName(String eventName) {
     return ticketRepo.findAllByEvent_EventNameContainingIgnoreCase(eventName);
   }
@@ -125,23 +142,20 @@ public class TicketService {
   }
 
   /**
-   * Decrements the ticket's quantity in the database, if there are enough
-   * available.
-   *
-   * @param ticketId the id to reduce ticket amount for.
-   * @param quantity the amount to reduce.
+   * Set a ticket's quantity in the database.
+   * To be used by admins only.
+   * 
+   * @param ticketId the id of the ticket to change amount.
+   * @param quantity the new quantity of the ticket.
    *
    * @return true if all went well.
    */
-
   @Transactional
-  public boolean decreaseAvailableTickets(long ticketId, int quantity) {
-    boolean updatedRows = this.ticketRepo.reduceTicketCountIfEnough(ticketId, quantity) == 1;
-    if (updatedRows) {
-      throw new IllegalStateException(
-          "Failed to decrement tickets: ticketId=" + ticketId + ", quantity=" + quantity);
+  public boolean setAmountOfAvailableTickets(long ticketId, int quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("Amount available cannot be negative: " + quantity);
     }
-    return true;
+    return this.ticketRepo.setTicketAmount(ticketId, quantity) == 1;
   }
 
   /**
@@ -156,10 +170,10 @@ public class TicketService {
   public boolean decreaseAvailableTicketsByPayload(List<TicketPurchasePayload> payloadList)
       throws IllegalStateException {
     for (TicketPurchasePayload payload : payloadList) {
-      boolean updatedRows = ticketRepo.reduceTicketCountIfEnough(payload.ticketId(), payload.quantity()) == 1;
+      boolean updatedRows = ticketRepo.reduceTicketCountIfEnough(payload.ticketId(), payload.amount()) == 1;
       if (!updatedRows) {
         throw new IllegalStateException(
-            "Failed to decrement tickets: ticketId=" + payload.ticketId() + ", quantity=" + payload.quantity());
+            "Failed to decrement tickets: ticketId=" + payload.ticketId() + ", quantity=" + payload.amount());
       }
     }
     return true;
@@ -172,7 +186,7 @@ public class TicketService {
    * @param ticketId the id of the ticket.
    * @return the amount available, or 0.
    */
-  public long getAvailableTickets(long ticketId) {
+  public int getAvailableTickets(long ticketId) {
     Optional<Ticket> ticket = this.ticketRepo.findById(ticketId);
     if (ticket.isPresent()) {
       return ticket.get().getAmountAvailable();
