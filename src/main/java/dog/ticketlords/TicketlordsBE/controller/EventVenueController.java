@@ -85,6 +85,11 @@ public class EventVenueController {
    * @param country the country of the venue
    * @return a list of matching venues, or 204 if none
    */
+  @Operation(summary = "Search venues by location details", description = "Retrieves venues by any combination of address, arena, city, and country. All parameters are optional.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Venues found and returned successfully"),
+      @ApiResponse(responseCode = "204", description = "No venues found matching the search criteria")
+  })
   @GetMapping("/search")
   public ResponseEntity<List<EventVenue>> searchVenues(
       @RequestParam(required = false) String address,
