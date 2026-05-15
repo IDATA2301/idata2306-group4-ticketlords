@@ -45,13 +45,17 @@ public class TicketService {
 
   /**
    * Inserts the given {@link Ticket} into the database if no ticket with the same
-   * id exists already.
+   * type already exists for the event.
    *
-   * @param ticket the ticket to insert
-   * @return {@code true} if the ticket was inserted, {@code false} if a ticket
-   *         with the same id already exists
+   * @param ticketDTO the ticket data to insert
+   * @return the saved ticket
+   * @throws IllegalArgumentException if a ticket with the same type already exists for this event
    */
   public Ticket insertTicketIntoDatabase(TicketRequestDTO ticketDTO) {
+    if (ticketTypeExistsForEvent(ticketDTO.ticketType(), ticketDTO.eventId())) {
+      throw new IllegalArgumentException(
+          "A ticket with type '" + ticketDTO.ticketType() + "' already exists for event id: " + ticketDTO.eventId());
+    }
     Ticket ticket = new Ticket(
         this.eventService.getEvent(ticketDTO.eventId()).get(),
         ticketDTO.ticketType(),
@@ -85,6 +89,17 @@ public class TicketService {
    */
   public List<Ticket> getTicketByEventId(long eventId) {
     return ticketRepo.findAllByEvent_EventId(eventId);
+  }
+
+  /**
+   * Checks if a ticket type already exists for the specified event.
+   *
+   * @param ticketType the ticket type to check (case-insensitive)
+   * @param eventId the event id to check
+   * @return {@code true} if a ticket with the given type exists for the event, {@code false} otherwise
+   */
+  public boolean ticketTypeExistsForEvent(String ticketType, long eventId) {
+    return ticketRepo.existsByTicketTypeIgnoreCaseAndEvent_EventId(ticketType, eventId);
   }
 
   /**

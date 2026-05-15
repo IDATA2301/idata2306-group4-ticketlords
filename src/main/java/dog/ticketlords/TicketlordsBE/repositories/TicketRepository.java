@@ -22,6 +22,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
   List<Ticket> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
+  boolean existsByTicketTypeIgnoreCaseAndEvent_EventId(String ticketType, long eventId);
 
   @Modifying
   @Query("UPDATE Ticket t " +

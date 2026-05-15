@@ -150,14 +150,19 @@ public class TicketController {
   /**
    * Inserts a new ticket into the database.
    *
-   * @param ticket the ticket to be inserted
-   * @return ResponseEntity with created status and location URI, or bad request
-   *         if insertion fails
+   * @param ticketDTO the ticket data to be inserted
+   * @return ResponseEntity with created status and location URI if successful;
+   *         {@code 409 Conflict} if a ticket with the same type already exists for the event;
+   *         {@code 400 Bad Request} if validation fails
    */
   @PostMapping("/ticket")
   public ResponseEntity<Void> insertTicketIntoDatabase(@Valid @RequestBody TicketRequestDTO ticketDTO) {
-    Ticket saved = this.ticketService.insertTicketIntoDatabase(ticketDTO);
-    return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
+    try {
+      Ticket saved = this.ticketService.insertTicketIntoDatabase(ticketDTO);
+      return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
   }
 
   /**
