@@ -2,6 +2,9 @@ package dog.ticketlords.TicketlordsBE.controller;
 
 import dog.ticketlords.TicketlordsBE.dbentity.PriceAlert;
 import dog.ticketlords.TicketlordsBE.service.PriceAlertService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("")
+@Tag(name = "Price Alert Controller", description = "!!! Deprecated !!!")
 public class PriceAlertController {
   private final PriceAlertService priceAlertService;
 
@@ -24,8 +28,7 @@ public class PriceAlertController {
     this.priceAlertService = priceAlertService;
   }
 
-//TODO fix mapping link
-  
+  @Operation(summary = "Get all price alerts for a user", description = "Returns a list of price alerts for the specified user ID.", deprecated = true)
   @GetMapping("/")
   public ResponseEntity<List<PriceAlert>> getAllPriceAlertsByUserId(@PathVariable long userId) {
     return ResponseEntity.ok(this.priceAlertService.getAllPriceAlertsByUserId(userId));

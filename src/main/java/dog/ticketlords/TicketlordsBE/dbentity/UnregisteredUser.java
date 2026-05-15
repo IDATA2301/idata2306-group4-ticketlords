@@ -2,6 +2,8 @@ package dog.ticketlords.TicketlordsBE.dbentity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +26,8 @@ public class UnregisteredUser {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id", insertable = false, updatable = false)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long uId;
 
   @Column(name = "first_seen", insertable = false, updatable = false)

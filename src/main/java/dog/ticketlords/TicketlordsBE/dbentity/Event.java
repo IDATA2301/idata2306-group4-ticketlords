@@ -2,6 +2,8 @@ package dog.ticketlords.TicketlordsBE.dbentity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +31,8 @@ public class Event {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "event_id", insertable = false, updatable = false)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private long eventId;
   @Setter
   @Column(name = "event_name", nullable = false)

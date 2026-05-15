@@ -11,6 +11,7 @@ import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
 import dog.ticketlords.TicketlordsBE.DTO.TicketRequestDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
+import jakarta.persistence.EntityExistsException;
 
 @Service
 public class TicketService {
@@ -49,11 +50,11 @@ public class TicketService {
    *
    * @param ticketDTO the ticket data to insert
    * @return the saved ticket
-   * @throws IllegalArgumentException if a ticket with the same type already exists for this event
+   * @throws EntityExistsException if a ticket with the same type already exists for this event
    */
   public Ticket insertTicketIntoDatabase(TicketRequestDTO ticketDTO) {
     if (ticketTypeExistsForEvent(ticketDTO.ticketType(), ticketDTO.eventId())) {
-      throw new IllegalArgumentException(
+      throw new EntityExistsException (
           "A ticket with type '" + ticketDTO.ticketType() + "' already exists for event id: " + ticketDTO.eventId());
     }
     Ticket ticket = new Ticket(

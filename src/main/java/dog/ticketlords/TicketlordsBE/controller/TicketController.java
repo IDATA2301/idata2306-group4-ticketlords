@@ -23,6 +23,15 @@ import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
 import dog.ticketlords.TicketlordsBE.DTO.TicketRequestDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import dog.ticketlords.TicketlordsBE.service.TicketService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityExistsException;
 import jakarta.validation.Valid;
 
 /**
@@ -35,6 +44,7 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping("/tickets")
+@Tag(name = "Tickets", description = "Ticket management APIs")
 public class TicketController {
 
   private final TicketService ticketService;
@@ -47,7 +57,6 @@ public class TicketController {
   public TicketController(TicketService ticketService) {
     this.ticketService = ticketService;
   }
-  // TODO finne ut hvilken lenke som skal brukes, og om nødvendig
 
   /**
    * Retrieves a single {@link Ticket} by its id.
@@ -56,6 +65,11 @@ public class TicketController {
    * @return {@code 200 OK} with the ticket if found; otherwise
    *         {@code 404 Not Found}
    */
+  @Operation(summary = "Get ticket by ID", description = "Returns a single ticket by its ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Ticket found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Ticket.class))),
+      @ApiResponse(responseCode = "404", description = "Ticket not found")
+  })
   @GetMapping("/{ticketId}")
   public ResponseEntity<Ticket> getTicket(@PathVariable long ticketId) {
     return ticketService.getTicket(ticketId)
@@ -73,8 +87,14 @@ public class TicketController {
    * @param ticketType the ticket type to match (e.g., {@code VIP})
    * @return {@code 200 OK} with matching tickets; otherwise {@code 404 Not Found}
    */
+  @Operation(summary = "Get tickets by type", description = "Returns all tickets of a specific type.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Ticket.class)))),
+      @ApiResponse(responseCode = "404", description = "No tickets found for the given type")
+  })
   @GetMapping("/type/{ticketType}")
-  public ResponseEntity<List<Ticket>> getTicketsByType(@PathVariable String ticketType) {
+  public ResponseEntity<List<Ticket>> getTicketsByType(
+      @Parameter(description = "Ticket type", required = true, example = "Ticket type can be: Normal - VIP or other.") @PathVariable String ticketType) {
     List<Ticket> matches = ticketService.getTicketsByType(ticketType);
     if (matches.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -89,6 +109,11 @@ public class TicketController {
    * @param eventId the id of the event
    * @return List of all types of tickets relating to the event
    */
+  @Operation(summary = "Get tickets by event ID", description = "Returns all tickets for a specific event ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Ticket.class)))),
+      @ApiResponse(responseCode = "404", description = "No tickets found for the given event ID")
+  })
   @GetMapping("/by-event/{eventId}")
   public ResponseEntity<List<Ticket>> getTicketsByEventId(@PathVariable long eventId) {
     List<Ticket> tickets = ticketService.getTicketByEventId(eventId);
@@ -104,6 +129,11 @@ public class TicketController {
    * @param name substring to search for in the event name
    * @return {@code 200 OK} with matching tickets; otherwise {@code 404 Not Found}
    */
+  @Operation(summary = "Search tickets by event name", description = "Returns all tickets for events whose name contains the given substring (case-insensitive).")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Ticket.class)))),
+      @ApiResponse(responseCode = "404", description = "No tickets found for events matching the given name substring")
+  })
   @GetMapping("/search/by-event-name")
   public ResponseEntity<List<Ticket>> getTicketsByEventName(@RequestParam String name) {
     List<Ticket> tickets = ticketService.getTicketsByEventName(name);
@@ -120,8 +150,14 @@ public class TicketController {
    * @param max the price to filter the tickets by
    * @return a list of the tickets in the specified range
    */
+  @Operation(summary = "Get tickets cheaper than a specified price", description = "Returns")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Ticket.class)))),
+      @ApiResponse(responseCode = "404", description = "No tickets found cheaper than the specified price")
+  })
   @GetMapping("/search/price")
-  public ResponseEntity<List<Ticket>> getTicketsCheaperThan(@RequestParam BigDecimal max) {
+  public ResponseEntity<List<Ticket>> getTicketsCheaperThan(
+      @Parameter(description = "Price") @RequestParam BigDecimal max) {
     List<Ticket> tickets = ticketService.getTicketsCheaperThan(max);
     if (tickets.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -137,6 +173,11 @@ public class TicketController {
    * @param max maximum range
    * @return a list of the tickets in the specified range
    */
+  @Operation(summary = "Get tickets in a specified price range", description = "Returns all tickets with price between the specified minimum and maximum values.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Ticket.class)))),
+      @ApiResponse(responseCode = "404", description = "No tickets found in the specified price range")
+  })
   @GetMapping("/search/price-range")
   public ResponseEntity<List<Ticket>> getTicketsInRange(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
     List<Ticket> tickets = ticketService.getTicketsInPriceRange(min, max);
@@ -155,13 +196,18 @@ public class TicketController {
    *         {@code 409 Conflict} with error message if a ticket with the same type already exists for the event;
    *         {@code 400 Bad Request} if validation fails
    */
+  @Operation(summary = "Create a new ticket", description = "Inserts a new ticket into the database.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "Ticket created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Ticket.class))),
+      @ApiResponse(responseCode = "400", description = "Invalid ticket data provided")
+  })
   @PostMapping("/ticket")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<String> insertTicketIntoDatabase(@Valid @RequestBody TicketRequestDTO ticketDTO) {
     try {
       Ticket saved = this.ticketService.insertTicketIntoDatabase(ticketDTO);
       return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
-    } catch (IllegalArgumentException e) {
+    } catch (EntityExistsException e) {
       return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
   }
@@ -173,6 +219,11 @@ public class TicketController {
    * @return ResponseEntity with no content status if successful, or not found if
    *         ticket does not exist
    */
+  @Operation(summary = "Delete a ticket", description = "Removes a ticket from the database by its ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Ticket deleted successfully"),
+      @ApiResponse(responseCode = "404", description = "Ticket not found with the given ID")
+  })
   @DeleteMapping("/ticket/{ticketId}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> removeTicket(@PathVariable long ticketId) {
@@ -184,13 +235,19 @@ public class TicketController {
   }
 
   /**
-   * Purchases tickets by reducing the available quantity for a specific ticket.
+   * Reduces the available ticket count for a specific ticket by the given
+   * quantity if sufficient tickets are available.
    *
-   * @param ticketId the id of the ticket to purchase
+   * @param ticketId the ID of the ticket to purchase
    * @param quantity the number of tickets to purchase
-   * @return {@code 200 OK} with a map of ticket id to new available quantity if successful;
-   *         otherwise {@code 500 Internal Server Error}
+   * @return ResponseEntity with the updated available ticket count if purchase is
+   *         successful; otherwise, an internal server error response.
    */
+  @Operation(summary = "Purchase tickets", description = "Reduces the available ticket count for a specific ticket by the given quantity if sufficient tickets are available.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets purchased successfully", content = @Content(mediaType = "application/json")),
+      @ApiResponse(responseCode = "500", description = "Failed to purchase tickets due to insufficient availability or other server error")
+  })
   @PutMapping("/ticket/{ticketId}/quantity/{quantity}/purchase")
   public ResponseEntity<Map<Long, Integer>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
     int newAmount = this.ticketService.getAvailableTickets(ticketId) - quantity;
@@ -203,13 +260,23 @@ public class TicketController {
   }
 
   /**
-   * Purchases multiple tickets at once using a list of purchase payloads.
+   * Reduces the available ticket count for multiple tickets based on the provided
+   * payload. All purchases must be successful for the operation to succeed;
+   * otherwise, no changes will be made.
    *
-   * @param allPurchases a list of {@link TicketPurchasePayload} objects specifying tickets and quantities to purchase
-   * @return {@code 200 OK} with a map of ticket ids to their new available quantities if successful;
-   *         {@code 400 Bad Request} if the list is empty;
-   *         otherwise {@code 500 Internal Server Error}
+   * @param allPurchases a list of TicketPurchasePayload objects, each containing
+   *                     a ticket ID and the quantity to purchase
+   * @return ResponseEntity with a map of ticket IDs to their updated available
+   *         ticket counts if all purchases are successful; otherwise, an internal
+   *         server error response. If the input list is empty, a bad request
+   *         response will be returned.
    */
+  @Operation(summary = "Purchase multiple tickets", description = "Reduces the available ticket count for multiple tickets based on the provided payload. All purchases must be successful for the operation to succeed; otherwise, no changes will be made.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tickets purchased successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketPurchasePayload.class))),
+      @ApiResponse(responseCode = "400", description = "Invalid purchase payload provided"),
+      @ApiResponse(responseCode = "500", description = "Failed to purchase tickets due to insufficient availability or other server error")
+  })
   @PutMapping("/payload/purchase")
   public ResponseEntity<Map<Long, Integer>> purchaseMultipleTicketsCount(
       @RequestBody List<TicketPurchasePayload> allPurchases) {
