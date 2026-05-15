@@ -60,14 +60,22 @@ public class UserController {
    *         status of 201 if successful.
    */
   @Operation(summary = "Register a new user", description = "Registers a new user by inserting their details into the database. The registered user's id is set based on the unregisteredUser id.")
-  @ApiResponse(responseCode = "201", description = "User registered successfully, returns the id of the newly registered user.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "201", description = "User registered successfully, returns the id of the newly registered user."),
+      @ApiResponse(responseCode = "400", description = "Bad Request - invalid user details or unregistered user ID.")
+  })
   @PostMapping("/user/register")
   public ResponseEntity<Long> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user,
       @RequestParam long uregId) {
-    long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
+    try {
+      long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(newUserId);
+      return ResponseEntity.status(HttpStatus.CREATED)
+          .body(newUserId);
+
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
   }
 
   /**
@@ -105,7 +113,6 @@ public class UserController {
     boolean isAdmin = userService.isAdmin(id);
     return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
   }
-
 
   /**
    * Deletes the registered user with the specified id.
