@@ -156,10 +156,10 @@ public class TicketService {
   public boolean decreaseAvailableTicketsByPayload(List<TicketPurchasePayload> payloadList)
       throws IllegalStateException {
     for (TicketPurchasePayload payload : payloadList) {
-      boolean updatedRows = ticketRepo.reduceTicketCountIfEnough(payload.ticketId(), payload.quantity()) == 1;
+      boolean updatedRows = ticketRepo.reduceTicketCountIfEnough(payload.ticketId(), payload.amount()) == 1;
       if (!updatedRows) {
         throw new IllegalStateException(
-            "Failed to decrement tickets: ticketId=" + payload.ticketId() + ", quantity=" + payload.quantity());
+            "Failed to decrement tickets: ticketId=" + payload.ticketId() + ", quantity=" + payload.amount());
       }
     }
     return true;
