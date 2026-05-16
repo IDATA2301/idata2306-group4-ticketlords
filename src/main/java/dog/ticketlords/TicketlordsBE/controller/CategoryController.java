@@ -103,6 +103,14 @@ public class CategoryController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  /**
+   * Search for a category by the category's name. The search is non case
+   * sensitive, and looks for any category that
+   * the param is a substring of.
+   *
+   * @param name substring of a category to look for.
+   * @return status code 200 OK with all category matches, or 404 NOT FOUND.
+   */
   @Operation(summary = "Search categories by name substring", description = "Returns categories whose name contains the provided substring. The substring is not case sensitive. Returns 404 if no matches")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Categories found", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Category.class)))),
@@ -139,6 +147,14 @@ public class CategoryController {
     }
   }
 
+  /**
+   * Deletes a category by the category's id.
+   *
+   * @param categoryId the id of the category.
+   *
+   * @return 404 NOT FOUND if there's not category with that id, or 204 No Content
+   *         if the deletion was successful
+   */
   @Operation(summary = "Delete category by ID", description = "Deletes the category with the given ID. Returns 204 if deleted, or 404 if no category with the given ID exists.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Category deleted"),
