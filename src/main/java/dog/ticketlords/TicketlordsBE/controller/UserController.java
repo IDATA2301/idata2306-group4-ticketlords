@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,28 +63,29 @@ public class UserController {
   @Operation(summary = "Register a new user", description = "Registers a new user by inserting their details into the database. The registered user's id is set based on the unregisteredUser id.")
   @ApiResponses({
       @ApiResponse(responseCode = "201", description = "User registered successfully, returns the id of the newly registered user."),
-      @ApiResponse(responseCode = "400", description = "Bad Request - invalid user details or unregistered user ID.")
+      @ApiResponse(responseCode = "400", description = "Invalid user data provided or validation failed."),
+      @ApiResponse(responseCode = "409", description = "Conflict - email address already registered.")
   })
   @PostMapping("/user/register")
   public ResponseEntity<Long> insertOneRegisteredUserIntoDatabase(@Valid @RequestBody RegisteredUser user,
       @RequestParam long uregId) {
-    try {
-      long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
-
-      return ResponseEntity.status(HttpStatus.CREATED)
-          .body(newUserId);
-
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    if (this.userService.emailExists(user.getEmail())) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+    long newUserId = this.userService.insertRegisteredUserToDatabase(user, uregId);
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(newUserId);
   }
 
   /**
    * Inserts an {@link UnregisteredUser} into the database.
    */
-  @PostMapping("/user")
+@PostMapping("/user")
   @Operation(summary = "Insert an unregistered user into the database", description = "Inserts an unregistered user into the database and returns the id of the newly created unregistered user.")
-  @ApiResponse(responseCode = "201", description = "Unregistered user inserted successfully, returns the id of the newly created unregistered user.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "201", description = "Unregistered user inserted successfully, returns the id of the newly created unregistered user.")
+  })
   public ResponseEntity<Long> insertUnregUserIntoDatabase() {
     UnregisteredUser user = this.userService.insertUnregisteredUserToDatabase();
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -108,11 +110,23 @@ public class UserController {
     return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  /**
+   * Checks if a user with the specified id has admin privileges.
+   *
+   * @param id the id of the user to check
+   * @return ResponseEntity containing a map with the isAdmin boolean value
+   */
+  @Operation(summary = "Check if user is admin", description = "Checks whether a user with the specified ID has admin privileges.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Admin status retrieved successfully."),
+      @ApiResponse(responseCode = "404", description = "User with the specified ID not found.")
+  })
   @GetMapping("/user/{id}/is-admin")
   public ResponseEntity<Map<String, Boolean>> isAdmin(@PathVariable long id) {
     boolean isAdmin = userService.isAdmin(id);
     return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
   }
+
 
   /**
    * Deletes the registered user with the specified id.
@@ -198,6 +212,7 @@ public class UserController {
       @ApiResponse(responseCode = "200", description = "Registered user updated successfully, returns the updated user details."),
       @ApiResponse(responseCode = "404", description = "Registered user with the specified ID not found in the database.")
   })
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @PutMapping("/user/{id}")
   public ResponseEntity<UpdateUserDTO> updateRegisteredUser(
       @PathVariable long id,
@@ -207,5 +222,24 @@ public class UserController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  /**
+   * Checks whether an email is already registered.
+   *
+   * @param email the email address to check
+   * @return {@code true} if the email exists, otherwise {@code false}
+   */
+  @Operation(summary = "Check if email is registered", description = "Checks whether an email address is already registered in the system.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Email check completed successfully, returns true if email exists, false otherwise."),
+      @ApiResponse(responseCode = "400", description = "Bad request - email parameter is null or blank.")
+  })
+  @GetMapping("/email-exists")
+  public ResponseEntity<Boolean> emailExists(@RequestParam String email) {
+    if (email == null || email.isBlank()) {
+      return ResponseEntity.badRequest().build();
+    }
+    return ResponseEntity.ok(userService.emailExists(email));
   }
 }

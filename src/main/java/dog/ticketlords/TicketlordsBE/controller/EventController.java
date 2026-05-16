@@ -52,8 +52,6 @@ import jakarta.validation.Valid;
 public class EventController {
 
   private final EventService eventService;
-  private final CategoryService categoryService;
-  private final EventVenueService eventVenueService;
   private final ImageStorageService imageStorageService;
 
   /**
@@ -64,11 +62,8 @@ public class EventController {
    * @param eventVenueService   the event venue service to be used
    * @param imageStorageService the image storage service to be used
    */
-  public EventController(EventService eventService, CategoryService categoryService,
-      EventVenueService eventVenueService, ImageStorageService imageStorageService) {
+  public EventController(EventService eventService, ImageStorageService imageStorageService) {
     this.eventService = eventService;
-    this.categoryService = categoryService;
-    this.eventVenueService = eventVenueService;
     this.imageStorageService = imageStorageService;
   }
 
@@ -96,8 +91,7 @@ public class EventController {
    * Finds an event's related image's name.
    *
    * @param eventId the id of the event to find image-name from.
-   * @return HTTP redirect to static folder location if found, NOT FOUND
-   *         otherwise.
+   * @return HTTP redirect to a short-lived presigned URL if found, NOT FOUND otherwise.
    */
   @Operation(summary = "Get event image URL", description = "Retrieves the URL of the image associated with a specific event.")
   @ApiResponses({
@@ -107,8 +101,11 @@ public class EventController {
   @GetMapping("/{eventId}/image")
   public ResponseEntity<Void> getImageUrl(@PathVariable long eventId) {
     try {
-      String fileName = this.eventService.getEventImageName(eventId);
-      return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/images/" + fileName).build();
+      String objectKey = this.eventService.getEventImageName(eventId);
+      String presignedUrl = this.imageStorageService.getPresignedUrl(objectKey);
+      return ResponseEntity.status(HttpStatus.FOUND)
+          .header(HttpHeaders.LOCATION, presignedUrl)
+          .build();
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
@@ -280,27 +277,8 @@ public class EventController {
   })
   @PostMapping("/event")
   public ResponseEntity<String> insertEventIntoDatabase(@Valid @RequestBody EventRequestDTO eventDTO) {
-    Optional<Category> category = this.categoryService.getCategoryByCategoryId(eventDTO.categoryId());
-    Optional<EventVenue> eventVenue = this.eventVenueService.getEventVenueById(eventDTO.venueId());
 
-    if (category.isEmpty() || eventVenue.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.CONFLICT)
-          .body("Error adding category and/or eventVenue");
-    }
-
-    // Creating the actual Event
-    Event event = new Event(
-        eventDTO.eventName(),
-        eventDTO.host(),
-        category.get(),
-        eventVenue.get(),
-        eventDTO.eventDescription(),
-        0,
-        eventDTO.eventDateStart(),
-        eventDTO.eventDateEnd(),
-        eventDTO.imgPathUrl());
-
-    Optional<Event> saved = this.eventService.insertEventIntoDatabase(event);
+    Optional<Event> saved = this.eventService.insertEventIntoDatabase(eventDTO);
     if (saved.isPresent()) {
       return ResponseEntity.created(URI.create("/events/event/" + saved.get().getEventId())).build();
     } else {

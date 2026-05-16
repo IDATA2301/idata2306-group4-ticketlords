@@ -1,22 +1,27 @@
 package dog.ticketlords.TicketlordsBE.service;
 
-import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
-import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
-import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
+import dog.ticketlords.TicketlordsBE.DTO.TicketRequestDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
+import dog.ticketlords.TicketlordsBE.repositories.TicketRepository;
+import jakarta.persistence.EntityExistsException;
 
 @Service
 public class TicketService {
 
   private final TicketRepository ticketRepo;
+  private final EventService eventService;
 
-  public TicketService(TicketRepository ticketRepo) {
+  public TicketService(TicketRepository ticketRepo, EventService eventService) {
     this.ticketRepo = ticketRepo;
+    this.eventService = eventService;
   }
 
   /**
@@ -41,13 +46,24 @@ public class TicketService {
 
   /**
    * Inserts the given {@link Ticket} into the database if no ticket with the same
-   * id exists already.
+   * type already exists for the event.
    *
-   * @param ticket the ticket to insert
-   * @return {@code true} if the ticket was inserted, {@code false} if a ticket
-   *         with the same id already exists
+   * @param ticketDTO the ticket data to insert
+   * @return the saved ticket
+   * @throws EntityExistsException if a ticket with the same type already exists for this event
    */
-  public Ticket insertTicketIntoDatabase(Ticket ticket) {
+  public Ticket insertTicketIntoDatabase(TicketRequestDTO ticketDTO) {
+    if (ticketTypeExistsForEvent(ticketDTO.ticketType(), ticketDTO.eventId())) {
+      throw new EntityExistsException (
+          "A ticket with type '" + ticketDTO.ticketType() + "' already exists for event id: " + ticketDTO.eventId());
+    }
+    Ticket ticket = new Ticket(
+        this.eventService.getEvent(ticketDTO.eventId()).get(),
+        ticketDTO.ticketType(),
+        ticketDTO.price(),
+        ticketDTO.amountAvailable(),
+        ticketDTO.ticketDescription()
+    );
     return ticketRepo.save(ticket);
   }
 
@@ -76,6 +92,23 @@ public class TicketService {
     return ticketRepo.findAllByEvent_EventId(eventId);
   }
 
+  /**
+   * Checks if a ticket type already exists for the specified event.
+   *
+   * @param ticketType the ticket type to check (case-insensitive)
+   * @param eventId the event id to check
+   * @return {@code true} if a ticket with the given type exists for the event, {@code false} otherwise
+   */
+  public boolean ticketTypeExistsForEvent(String ticketType, long eventId) {
+    return ticketRepo.existsByTicketTypeIgnoreCaseAndEvent_EventId(ticketType, eventId);
+  }
+
+  /**
+   * Retrieves all {@link Ticket}s belonging to events with names containing the given string (case-insensitive).
+   *
+   * @param eventName the event name substring to search for
+   * @return a list of tickets for events matching the search (may be empty)
+   */
   public List<Ticket> getTicketsByEventName(String eventName) {
     return ticketRepo.findAllByEvent_EventNameContainingIgnoreCase(eventName);
   }
@@ -125,23 +158,20 @@ public class TicketService {
   }
 
   /**
-   * Decrements the ticket's quantity in the database, if there are enough
-   * available.
-   *
-   * @param ticketId the id to reduce ticket amount for.
-   * @param quantity the amount to reduce.
+   * Set a ticket's quantity in the database.
+   * To be used by admins only.
+   * 
+   * @param ticketId the id of the ticket to change amount.
+   * @param quantity the new quantity of the ticket.
    *
    * @return true if all went well.
    */
-
   @Transactional
-  public boolean decreaseAvailableTickets(long ticketId, int quantity) {
-    boolean updatedRows = this.ticketRepo.reduceTicketCountIfEnough(ticketId, quantity) == 1;
-    if (updatedRows) {
-      throw new IllegalStateException(
-          "Failed to decrement tickets: ticketId=" + ticketId + ", quantity=" + quantity);
+  public boolean setAmountOfAvailableTickets(long ticketId, int quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("Amount available cannot be negative: " + quantity);
     }
-    return true;
+    return this.ticketRepo.setTicketAmount(ticketId, quantity) == 1;
   }
 
   /**
@@ -172,7 +202,7 @@ public class TicketService {
    * @param ticketId the id of the ticket.
    * @return the amount available, or 0.
    */
-  public long getAvailableTickets(long ticketId) {
+  public int getAvailableTickets(long ticketId) {
     Optional<Ticket> ticket = this.ticketRepo.findById(ticketId);
     if (ticket.isPresent()) {
       return ticket.get().getAmountAvailable();

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dog.ticketlords.TicketlordsBE.DTO.TicketPurchasePayload;
+import dog.ticketlords.TicketlordsBE.DTO.TicketRequestDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Ticket;
 import dog.ticketlords.TicketlordsBE.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +31,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityExistsException;
 import jakarta.validation.Valid;
 
 /**
@@ -187,9 +191,10 @@ public class TicketController {
   /**
    * Inserts a new ticket into the database.
    *
-   * @param ticket the ticket to be inserted
-   * @return ResponseEntity with created status and location URI, or bad request
-   *         if insertion fails
+   * @param ticketDTO the ticket data to be inserted
+   * @return ResponseEntity with created status and location URI if successful;
+   *         {@code 409 Conflict} with error message if a ticket with the same type already exists for the event;
+   *         {@code 400 Bad Request} if validation fails
    */
   @Operation(summary = "Create a new ticket", description = "Inserts a new ticket into the database.")
   @ApiResponses(value = {
@@ -197,9 +202,14 @@ public class TicketController {
       @ApiResponse(responseCode = "400", description = "Invalid ticket data provided")
   })
   @PostMapping("/ticket")
-  public ResponseEntity<Void> insertTicketIntoDatabase(@Valid @RequestBody Ticket ticket) {
-    Ticket saved = this.ticketService.insertTicketIntoDatabase(ticket);
-    return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<String> insertTicketIntoDatabase(@Valid @RequestBody TicketRequestDTO ticketDTO) {
+    try {
+      Ticket saved = this.ticketService.insertTicketIntoDatabase(ticketDTO);
+      return ResponseEntity.created(URI.create("/tickets/" + saved.getTicketId())).build();
+    } catch (EntityExistsException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
   }
 
   /**
@@ -215,6 +225,7 @@ public class TicketController {
       @ApiResponse(responseCode = "404", description = "Ticket not found with the given ID")
   })
   @DeleteMapping("/ticket/{ticketId}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> removeTicket(@PathVariable long ticketId) {
     boolean removed = this.ticketService.deleteTicket(ticketId);
     if (!removed) {
@@ -238,8 +249,9 @@ public class TicketController {
       @ApiResponse(responseCode = "500", description = "Failed to purchase tickets due to insufficient availability or other server error")
   })
   @PutMapping("/ticket/{ticketId}/quantity/{quantity}/purchase")
-  public ResponseEntity<Map<Long, Long>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
-    if (this.ticketService.decreaseAvailableTickets(ticketId, quantity)) {
+  public ResponseEntity<Map<Long, Integer>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
+    int newAmount = this.ticketService.getAvailableTickets(ticketId) - quantity;
+    if (this.ticketService.setAmountOfAvailableTickets(ticketId, newAmount)) {
       return ResponseEntity.ok(Map.of(ticketId, this.ticketService.getAvailableTickets(ticketId)));
     } else {
       return ResponseEntity.internalServerError().build();
@@ -266,7 +278,7 @@ public class TicketController {
       @ApiResponse(responseCode = "500", description = "Failed to purchase tickets due to insufficient availability or other server error")
   })
   @PutMapping("/payload/purchase")
-  public ResponseEntity<Map<Long, Long>> purchaseMultipleTicketsCount(
+  public ResponseEntity<Map<Long, Integer>> purchaseMultipleTicketsCount(
       @RequestBody List<TicketPurchasePayload> allPurchases) {
     if (allPurchases.isEmpty()) {
       return ResponseEntity.badRequest().build();
@@ -278,6 +290,46 @@ public class TicketController {
       return ResponseEntity.internalServerError().build();
     }
 
+  }
+
+  /**
+   * For use by admins to change amount of available tickets.
+   *
+   * <p>
+  * Example: {@code PUT /tickets/ticket/reduceAmount?ticketId=1&amp;quantity=5}
+   *
+   * @param ticketId the ticket id to reduce availability for
+  * @param quantity the amount to reduce (must be >= 0)
+   */
+  @Operation(summary = "Change ticket availability amount", description = "Allows admins to set the available quantity for a specific ticket.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Ticket quantity updated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid quantity provided (must be >= 0)"),
+      @ApiResponse(responseCode = "404", description = "Ticket not found with the given ID"),
+      @ApiResponse(responseCode = "409", description = "Conflict - failed to update ticket quantity")
+  })
+  @PutMapping("/ticket/reduceAmount")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<Void> changeAmountOfAvailableTickets(
+      @RequestParam long ticketId,
+      @RequestParam int quantity) {
+    if (quantity < 0) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    if (ticketService.getTicket(ticketId).isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+    try {
+      ticketService.setAmountOfAvailableTickets(ticketId, quantity);
+
+      return ResponseEntity.noContent().build();
+    } catch (IllegalArgumentException ex) {
+      return ResponseEntity.badRequest().build();
+    } catch (IllegalStateException ex) {
+      // Not enough tickets available (or other failure to update)
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
   }
 
 }

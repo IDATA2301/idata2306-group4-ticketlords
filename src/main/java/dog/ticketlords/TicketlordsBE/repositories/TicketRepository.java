@@ -22,6 +22,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
   List<Ticket> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
+  boolean existsByTicketTypeIgnoreCaseAndEvent_EventId(String ticketType, long eventId);
+
   @Modifying
   @Query("UPDATE Ticket t " +
       "SET t.amountAvailable = t.amountAvailable - :ticketAmount " +
@@ -33,4 +35,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
       "SET t.amountAvailable = t.amountAvailable + :ticketAmount " +
       "WHERE t.ticketId = :ticketId")
   int increaseTicketCount(@Param("ticketId") long ticketId, @Param("ticketAmount") int ticketAmount);
+
+  @Modifying
+  @Query("UPDATE Ticket t " +
+      "SET t.amountAvailable = :amount " +
+      "WHERE t.ticketId = :ticketId")
+  int setTicketAmount(@Param("ticketId") long ticketId, @Param("amount") int ticketAmount);
 }
