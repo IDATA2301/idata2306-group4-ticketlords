@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 /**
@@ -342,12 +343,18 @@ public class EventController {
       @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no update performed.", content = @Content)
   })
   @PutMapping("/event/{eventId}")
-  public ResponseEntity<Void> updateEventInDatabase(@PathVariable int eventId, @Valid @RequestBody Event event) {
-    if (this.eventService.updateEvent(eventId, event)) {
+  public ResponseEntity<?> updateEventInDatabase(@PathVariable int eventId,
+      @Valid @RequestBody EventRequestDTO event) {
+    try {
+      this.eventService.updateEvent(eventId, event);
       return ResponseEntity.noContent().build();
-    } else {
-      return ResponseEntity.notFound().build();
-    }
-  }
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
 
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+
+    }
+
+  }
 }
