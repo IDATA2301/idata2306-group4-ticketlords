@@ -68,8 +68,8 @@ public class EventVenueController {
   })
   @GetMapping("/location")
   public ResponseEntity<List<EventVenue>> getVenuesByLocation(
-      @Parameter(description = "Name of the country", required = true, example = "/venues/location?country='country name") @RequestParam String country,
-      @Parameter(description = "Name of the city", required = true, example = "/venues/location?country='country name&city='city name'") @RequestParam String city) {
+      @Parameter(description = "Name of the country", required = true, example = "/venues/location?country=country%20name") @RequestParam String country,
+      @Parameter(description = "Name of the city", required = true, example = "/venues/location?country=country%20name&city=city%20name") @RequestParam String city) {
     List<EventVenue> venues = this.eventVenueService.getEventVenueByLocation(country, city);
     return ResponseEntity.ok(venues);
   }
@@ -89,7 +89,7 @@ public class EventVenueController {
   public ResponseEntity<String> addVenue(@RequestBody EventVenue eventVenue) {
     boolean added = this.eventVenueService.addEventVenueToDatabase(eventVenue);
     if (added) {
-      return ResponseEntity.status(HttpStatus.CREATED).body("Venue added successfully");
+      return ResponseEntity.status(HttpStatus.CREATED).build();
     } else {
       return ResponseEntity.status(HttpStatus.CONFLICT).body("Venue already exists");
     }
@@ -120,14 +120,14 @@ public class EventVenueController {
    * @param updatedVenue the updated EventVenue object
    * @return ResponseEntity with status 200 if updated, 404 if not found
    */
-
   @Operation(summary = "Update an existing venue", description = "Updates an existing venue by its id")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Venue updated successfully"),
       @ApiResponse(responseCode = "404", description = "Venue not found")
   })
-  @PutMapping("/update/{id}")
-  public ResponseEntity<String> updateVenue(@PathVariable long venueId, @RequestBody EventVenue updatedVenue) {
+  @PutMapping("/update/{venueId}")
+  public ResponseEntity<String> updateVenue(@PathVariable("venueId") long venueId,
+      @RequestBody EventVenue updatedVenue) {
     boolean updated = this.eventVenueService.updateEventVenue(venueId, updatedVenue);
     if (updated) {
       return ResponseEntity.ok("Venue updated successfully");
