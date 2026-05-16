@@ -121,7 +121,7 @@ public class WishlistController {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated wishlists for the user."),
       @ApiResponse(responseCode = "404", description = "No wishlists found for the user with the specified ID and page number.")
   })
-  @GetMapping("/users/{userId}/{page}")
+  @GetMapping("/user/{userId}/{page}")
   public ResponseEntity<List<Wishlist>> getUserWishlistingsPaged(@PathVariable long userId, @PathVariable int page) {
     Page<Wishlist> wishes = this.wishlistService.getUsersWishlistingsPaged(userId, page, this.pageSize);
     return ResponseEntity.ok(wishes.toList());
@@ -140,7 +140,7 @@ public class WishlistController {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved the wish for the user."),
       @ApiResponse(responseCode = "404", description = "Wish not found for the user with the specified user ID and event ID.")
   })
-  @GetMapping("/users/{userId}/event/{eventId}")
+  @GetMapping("/user/{userId}/event/{eventId}")
   public ResponseEntity<Wishlist> getWish(@PathVariable int userId, @PathVariable int eventId) {
     Optional<Wishlist> wish = this.wishlistService.getWish(userId, eventId);
     if (wish.isPresent()) {
