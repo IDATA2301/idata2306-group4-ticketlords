@@ -2,6 +2,8 @@ package dog.ticketlords.TicketlordsBE.dbentity;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +29,8 @@ public class Ticket {
   @Id
   @Column(name = "ticket_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private long ticketId;
 
   // An event can have many tickets.
@@ -55,8 +59,6 @@ public class Ticket {
    * @param ticketType        The type of ticket; Normal, VIP etc...
    * @param price             The price of the ticket.
    * @param amountAvailable   The amount of tickets available.
-   * @param ticketLink        A link to the site where the ticket can be
-   *                          purchased.
    * @param ticketDescription A description of the ticket.
    */
   public Ticket(Event event, String ticketType, BigDecimal price, int amountAvailable,

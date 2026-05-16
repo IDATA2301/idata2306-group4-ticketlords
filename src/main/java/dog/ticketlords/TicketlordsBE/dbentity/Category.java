@@ -1,5 +1,7 @@
 package dog.ticketlords.TicketlordsBE.dbentity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,8 @@ public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "category_id")
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private long categoryId;
   @Setter
   @Column(name = "category_name", nullable = false, unique = true)
@@ -32,8 +36,7 @@ public class Category {
 
   /**
    * Creates an instance of Category.
-   * 
-   * @param categoryId   the unique category id.
+   *
    * @param categoryName the name of the category.
    */
   public Category(String categoryName) {

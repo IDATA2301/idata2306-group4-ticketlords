@@ -27,6 +27,12 @@ import dog.ticketlords.TicketlordsBE.service.CategoryService;
 import dog.ticketlords.TicketlordsBE.service.EventService;
 import dog.ticketlords.TicketlordsBE.service.EventVenueService;
 import dog.ticketlords.TicketlordsBE.service.ImageStorageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
@@ -38,8 +44,10 @@ import jakarta.validation.Valid;
  * category)
  * and to create, update, or delete events.
  */
+
 @RestController
 @RequestMapping("/events")
+@Tag(name = "Events", description = "Event management APIs")
 public class EventController {
 
   private final EventService eventService;
@@ -69,6 +77,11 @@ public class EventController {
    * @return ResponseEntity containing a list of all events, or not found if no
    *         events exist
    */
+  @Operation(summary = "Get all events", description = "Retrieves a list of all events available in the database.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Events retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events retrieved from the database."))),
+      @ApiResponse(responseCode = "404", description = "No events found in the database", content = @Content)
+  })
   @GetMapping("/")
   public ResponseEntity<List<Event>> getAllEvents() {
     if (this.eventService.countAllEvents() >= 1) {
@@ -82,14 +95,21 @@ public class EventController {
    * Finds an event's related image's name.
    *
    * @param eventId the id of the event to find image-name from.
-   * @return HTTP redirect to static folder location if found, NOT FOUND
-   *         otherwise.
+   * @return HTTP redirect to a short-lived presigned URL if found, NOT FOUND otherwise.
    */
+  @Operation(summary = "Get event image URL", description = "Retrieves the URL of the image associated with a specific event.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "302", description = "Image URL retrieved successfully, redirecting to the image location.", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string", format = "uri", description = "The URL of the image associated with the specified event.", example = "/images/event123.jpg"))),
+      @ApiResponse(responseCode = "404", description = "Event not found or no image associated with the event.", content = @Content)
+  })
   @GetMapping("/{eventId}/image")
   public ResponseEntity<Void> getImageUrl(@PathVariable long eventId) {
     try {
-      String fileName = this.eventService.getEventImageName(eventId);
-      return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "/images/" + fileName).build();
+      String objectKey = this.eventService.getEventImageName(eventId);
+      String presignedUrl = this.imageStorageService.getPresignedUrl(objectKey);
+      return ResponseEntity.status(HttpStatus.FOUND)
+          .header(HttpHeaders.LOCATION, presignedUrl)
+          .build();
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
@@ -101,6 +121,11 @@ public class EventController {
    * @return ResponseEntity containing a list of all events, or not found if no
    *         events exist
    */
+  @Operation(summary = "Get popular events", description = "Retrieves a list of popular the top 10 events based on click count.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Popular events retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of popular events retrieved from the database."))),
+      @ApiResponse(responseCode = "404", description = "No popular events found in the database", content = @Content)
+  })
   @GetMapping("/popular")
   public ResponseEntity<List<Event>> getPopularEvents() {
     List<Event> popularEvents = this.eventService.getPopularEvents();
@@ -119,6 +144,11 @@ public class EventController {
    *         substring, or not
    *         found if no events match
    */
+  @Operation(summary = "Search events", description = "Retrieves a list of events that match the provided search query. The search looks for matches in the event name, host, and category name, and is case-insensitive.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Events matching the search query retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events that match the provided search query."))),
+      @ApiResponse(responseCode = "404", description = "No events found matching the search query", content = @Content)
+  })
   @GetMapping("/search")
   public ResponseEntity<List<Event>> searchEvents(@RequestParam String query) {
     List<Event> events = this.eventService.searchEvents(query);
@@ -136,6 +166,11 @@ public class EventController {
    * @return ResponseEntity containing the event, or not found if event does not
    *         exist
    */
+  @Operation(summary = "Get event by ID", description = "Returns the event with the given ID.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Event found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class))),
+      @ApiResponse(responseCode = "404", description = "Event not found")
+  })
   @GetMapping("/event/{eventId}")
   public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
     if (this.eventService.getEvent(eventId).isPresent()) {
@@ -152,6 +187,11 @@ public class EventController {
    * @return ResponseEntity containing a list of events hosted by the provided
    *         host name
    */
+  @Operation(summary = "Get events by host name", description = "Returns a list of all events hosted by the specified host name.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Events found for the specified host name", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events hosted by the specified host name."))),
+      @ApiResponse(responseCode = "404", description = "No events found for the specified host name")
+  })
   @GetMapping("host/{hostName}")
   public ResponseEntity<List<Event>> getEventsByHostName(@PathVariable String hostName) {
     List<Event> events = this.eventService.getEventsByHostName(hostName);
@@ -168,6 +208,11 @@ public class EventController {
    * @param eventName the name of the event
    * @return List of all events containing provided event name
    */
+  @Operation(summary = "Get events by name", description = "Returns a list of all events whose names contain the specified substring (case-insensitive).")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Events found matching the specified name substring", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events whose names contain the specified substring."))),
+      @ApiResponse(responseCode = "404", description = "No events found matching the specified name substring")
+  })
   @GetMapping("/name/{eventName}")
   public ResponseEntity<List<Event>> getEventsByName(@PathVariable String eventName) {
     List<Event> events = this.eventService.getEventsByName(eventName);
@@ -184,6 +229,11 @@ public class EventController {
    * @param categoryName the name of the category
    * @return ResponseEntity containing a list of events in the provided category
    */
+  @Operation(summary = "Get events by category name", description = "Returns a list of all events that belong to the specified category name (case-insensitive).")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Events found for the specified category name", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events that belong to the specified category name."))),
+      @ApiResponse(responseCode = "404", description = "No events found for the specified category name")
+  })
   @GetMapping("/category/{categoryName}")
   public ResponseEntity<List<Event>> getEventsByCategory(@PathVariable String categoryName) {
     List<Event> events = this.eventService.getEventsByCategoryName(categoryName);
@@ -199,6 +249,11 @@ public class EventController {
    * 
    * @return ResponseEntity containing url to the image that was posted
    */
+  @Operation(summary = "Upload event image", description = "Uploads an image file to the server and returns the URL where the image can be accessed. The uploaded image can then be associated with an event by using the returned URL in the event's imgPathUrl field.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Image uploaded successfully", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string", format = "uri", description = "The URL where the uploaded image can be accessed.", example = "images/2625f221-873a-462e-a511-a89f99f94ce8-image.jpg"))),
+      @ApiResponse(responseCode = "500", description = "Image upload failed due to an internal server error", content = @Content)
+  })
   @PostMapping("/upload-image")
   public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
     try {
@@ -218,6 +273,12 @@ public class EventController {
    * @return ResponseEntity with created status and location URI, or bad request
    *         if insertion fails
    */
+  @Operation(summary = "Create a new event", description = "Inserts a new event into the database using the provided event details. The request body should contain all necessary information for creating the event, including the event name, host, category ID, venue ID, description, start and end dates, and an optional image URL. If the specified category or venue does not exist, the request will fail with a conflict status.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "201", description = "Event created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, description = "The event that was created in the database."))),
+      @ApiResponse(responseCode = "400", description = "Invalid event data provided in the request body", content = @Content),
+      @ApiResponse(responseCode = "409", description = "Specified category or venue does not exist", content = @Content)
+  })
   @PostMapping("/event")
   public ResponseEntity<String> insertEventIntoDatabase(@Valid @RequestBody EventRequestDTO eventDTO) {
     Optional<Category> category = this.categoryService.getCategoryByCategoryId(eventDTO.categoryId());
@@ -255,6 +316,11 @@ public class EventController {
    * @return ResponseEntity with no content status if successful, or not found if
    *         event does not exist
    */
+  @Operation(summary = "Delete an event", description = "Removes an event from the database using its ID. If the event with the specified ID does not exist, the request will return a not found status.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "204", description = "Event deleted successfully, no content returned.", content = @Content),
+      @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no deletion performed.", content = @Content)
+  })
   @DeleteMapping("/event/{eventId}")
   public ResponseEntity<Void> removeEvent(@PathVariable int eventId) {
     boolean removed = this.eventService.deleteEvent(eventId);
@@ -272,6 +338,11 @@ public class EventController {
    * @return ResponseEntity with no content status if successful, or not found if
    *         event does not exist
    */
+  @Operation(summary = "Update an event", description = "Updates an existing event in the database using its ID and the provided updated event details. The request body should contain all necessary information for updating the event, including the event name, host, category ID, venue ID, description, start and end dates, and an optional image URL. If the event with the specified ID does not exist, the request will return a not found status.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "204", description = "Event updated successfully, no content returned.", content = @Content),
+      @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no update performed.", content = @Content)
+  })
   @PutMapping("/event/{eventId}")
   public ResponseEntity<Void> updateEventInDatabase(@PathVariable int eventId, @Valid @RequestBody Event event) {
     if (this.eventService.updateEvent(eventId, event)) {

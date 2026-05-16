@@ -1,5 +1,7 @@
 package dog.ticketlords.TicketlordsBE.dbentity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,8 @@ public class EventVenue {
   @Id
   @Column(name = "venue_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private long venueId;
   @Setter
   @Column(name = "arena", nullable = false)

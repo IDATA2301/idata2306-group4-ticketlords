@@ -70,6 +70,24 @@ public class UserService {
   }
 
   /**
+   * Checks whether a registered user already exists with the given email.
+   *
+   * @param email the email address to check
+   * @return {@code true} if a registered user with this email exists, otherwise {@code false}
+   */
+  @Transactional(readOnly = true)
+  public boolean emailExists(String email) {
+    if (email == null) {
+      return false;
+    }
+    String normalized = email.trim();
+    if (normalized.isEmpty()) {
+      return false;
+    }
+    return this.regUserRepo.existsByEmailIgnoreCase(normalized);
+  }
+
+  /**
    * Creates and inserts a new UnregisteredUser into the database.
    * The user_id is generated automatically by the database.
    * 
@@ -86,10 +104,10 @@ public class UserService {
    * @return true, if any user exists, false otherwise.
    */
   public boolean userAlreadyExists(Object user) {
-    if (user instanceof UnregisteredUser) {
-      return this.unregUserRepo.exists(Example.of((UnregisteredUser) user));
-    } else if (user instanceof RegisteredUser) {
-      return this.regUserRepo.exists(Example.of((RegisteredUser) user));
+    if (user instanceof UnregisteredUser unregisteredUser) {
+      return this.unregUserRepo.exists(Example.of(unregisteredUser));
+    } else if (user instanceof RegisteredUser registeredUser) {
+      return this.regUserRepo.exists(Example.of(registeredUser));
     } else {
       return false;
     }
