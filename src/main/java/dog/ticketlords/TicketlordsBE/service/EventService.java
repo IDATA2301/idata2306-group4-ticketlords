@@ -1,19 +1,20 @@
 package dog.ticketlords.TicketlordsBE.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
+import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
+import dog.ticketlords.TicketlordsBE.exception.ResourceNotFoundException;
 import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -21,6 +22,8 @@ import jakarta.persistence.EntityNotFoundException;
 public class EventService {
 
   private final EventRepository eventRepo;
+  private final CategoryService categoryService;
+  private final EventVenueService eventVenueService;
 
   /**
    * Creates a new service for Event operations.
@@ -28,8 +31,12 @@ public class EventService {
    * @param eventRepo the repository to perform persistence operations for
    *                  {@link EventRepository}
    */
-  public EventService(EventRepository eventRepo) {
+  public EventService(EventRepository eventRepo,
+                      CategoryService categoryService,
+                      EventVenueService eventVenueService) {
     this.eventRepo = eventRepo;
+    this.categoryService = categoryService;
+    this.eventVenueService = eventVenueService;
   }
 
   /**
@@ -48,13 +55,29 @@ public class EventService {
    * @param event the event to insert
    * @return the saved Event wrapped in an Optional, or empty if saving failed
    */
-  public Optional<Event> insertEventIntoDatabase(Event event) {
-    try {
-        Event saved = this.eventRepo.save(event);
-        return Optional.of(saved);
-    } catch (Exception e) {
-        return Optional.empty();
+  public Optional<Event> insertEventIntoDatabase(EventRequestDTO eventDTO) {
+    
+    Optional<Category> category = this.categoryService.getCategoryByCategoryId(eventDTO.categoryId());
+    Optional<EventVenue> eventVenue = this.eventVenueService.getEventVenueById(eventDTO.venueId());
+
+    if (category.isEmpty() || eventVenue.isEmpty()) {
+      throw new ResourceNotFoundException("Category or Venues not found.");
     }
+
+    // Creating the actual Event
+    Event event = new Event(
+      eventDTO.eventName(),
+      eventDTO.host(),
+      category.get(),
+      eventVenue.get(),
+      eventDTO.eventDescription(),
+      0,
+      eventDTO.eventDateStart(),
+      eventDTO.eventDateEnd(),
+      eventDTO.imgPathUrl());
+
+    Event saved = this.eventRepo.save(event);
+    return Optional.of(saved);
   }
 
   /**
