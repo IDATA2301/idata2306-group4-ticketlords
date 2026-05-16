@@ -36,6 +36,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
   List<Event> findByCategory_CategoryNameOrderByTotalClicksDesc(String categoryName, Pageable pageable);
 
+  boolean existsByEventIdAndPubliclyVisibleIsTrue(long eventId);
+
   @Query("SELECT e.imgPathUrl FROM Event e WHERE e.eventId = :eventId")
   String findUrlById(@Param("eventId") long eventId);
 
@@ -43,4 +45,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   @Transactional
   @Modifying
   void incrementClickCount(@Param("eventId") long eventId);
+
+  @Query("UPDATE Event e SET e.publiclyVisible = :publiclyVisible WHERE e.eventId = :eventId")
+  @Transactional
+  @Modifying
+  void setPubliclyVisible(@Param("eventId") long eventId, @Param("publiclyVisible") boolean publiclyVisible);
 }
