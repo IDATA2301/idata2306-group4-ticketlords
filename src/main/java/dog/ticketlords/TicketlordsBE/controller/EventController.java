@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
+import dog.ticketlords.TicketlordsBE.exception.ResourceNotFoundException;
 import dog.ticketlords.TicketlordsBE.service.CategoryService;
 import dog.ticketlords.TicketlordsBE.service.EventService;
 import dog.ticketlords.TicketlordsBE.service.EventVenueService;
@@ -326,6 +328,46 @@ public class EventController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+  
+  /**
+   * Sets the public visibility of a event (only for admins)
+   * 
+   * @param eventId the id of the event
+   * @param publiclyVisible the visibility of the event
+   */
+  @Operation(summary = "Changes public visibility of an event", description = "Sets the boolean value that determines if registered and unregistered users can see or enter a Event page.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "204", description = "Public visibility of event has been set.", content = @Content),
+    @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no update performed.", content = @Content)
+  })
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/event/{eventId}/publicVisible")
+  public ResponseEntity<Void> setEventVisibility(@PathVariable long eventId, @Valid @RequestBody boolean publiclyVisible) {
+    try {
+      this.eventService.setEventPublicVisibility(eventId, publiclyVisible);
+      return ResponseEntity.noContent().build();
+    } catch (ResourceNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  /**
+   * Checks if a specific event is publicly visible.
+   * 
+   * @param eventId the ID of the event to check visibility for
+   * @return ResponseEntity containing a boolean indicating if the event is publicly visible,
+   *         or not found if the event does not exist
+   */
+  @Operation(summary = "Check if event is publicly visible", description = "Checks whether a specific event is publicly visible.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Visibility status retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(type = "boolean", description = "True if event is publicly visible, false otherwise."))),
+      @ApiResponse(responseCode = "404", description = "Event not found with the specified ID", content = @Content)
+  })
+  @GetMapping("/event/{eventId}/check-public-visibility")
+  public ResponseEntity<Boolean> checkEventPublicVisibility(@PathVariable long eventId) {
+      boolean isPublic = this.eventService.checkEventPublicVisibility(eventId);
+      return ResponseEntity.ok(isPublic);
   }
 
 }

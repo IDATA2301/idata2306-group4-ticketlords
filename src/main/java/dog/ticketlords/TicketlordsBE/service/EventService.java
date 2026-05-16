@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
@@ -302,6 +301,33 @@ public class EventService {
   public List<Event> getEventsPaged(int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
     return eventRepo.findAll(pageable).getContent();
+  }
+
+  /**
+   * Sets an event's publiclyVisible boolean value.
+   * 
+   * @param eventId the id of the event.
+   * @param publiclyVisible the visibility boolean value of the event.
+   * @throws ResourceNotFoundException if no event with given ID exists.
+   */
+  public void setEventPublicVisibility(long eventId, boolean publiclyVisible) {
+    if (!this.eventRepo.existsById(eventId)) {
+      throw new ResourceNotFoundException("Event with ID " + eventId + " not found");
+    }
+    this.eventRepo.setPubliclyVisible(eventId, publiclyVisible);
+  }
+
+  /**
+   * Checks a event's public visibility.
+   * 
+   * @return the event's public visibility boolean value.
+   * @throws ResourceNotFoundException if no event with given ID exists.
+   */
+  public boolean checkEventPublicVisibility(long eventId) {
+    if (!this.eventRepo.existsById(eventId)) {
+      throw new ResourceNotFoundException("Event with ID " + eventId + " not found");
+    }
+    return this.eventRepo.existsByEventIdAndPubliclyVisibleIsTrue(eventId);
   }
 
 }

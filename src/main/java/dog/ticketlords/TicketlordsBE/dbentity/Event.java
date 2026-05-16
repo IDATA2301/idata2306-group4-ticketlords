@@ -66,6 +66,10 @@ public class Event {
   @Column(name = "image_url", nullable = true)
   private String imgPathUrl;
 
+  @Setter
+  @Column(name = "publicly_visible", nullable = false)
+  private boolean publiclyVisible;
+
   /**
    * Constructs an Event with all fields.
    *
