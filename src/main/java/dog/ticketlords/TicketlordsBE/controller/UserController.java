@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -211,6 +212,7 @@ public class UserController {
       @ApiResponse(responseCode = "200", description = "Registered user updated successfully, returns the updated user details."),
       @ApiResponse(responseCode = "404", description = "Registered user with the specified ID not found in the database.")
   })
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   @PutMapping("/user/{id}")
   public ResponseEntity<UpdateUserDTO> updateRegisteredUser(
       @PathVariable long id,
