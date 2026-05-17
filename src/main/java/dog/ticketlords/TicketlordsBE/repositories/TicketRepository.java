@@ -41,4 +41,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
       "SET t.amountAvailable = :amount " +
       "WHERE t.ticketId = :ticketId")
   int setTicketAmount(@Param("ticketId") long ticketId, @Param("amount") int ticketAmount);
+
+  @Query("SELECT t.amountAvailable FROM Ticket t WHERE t.ticketId = :ticketId")
+  int getAmountAvailable(@Param("ticketId") long ticketId);
 }
