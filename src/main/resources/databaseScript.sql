@@ -93,7 +93,7 @@ CREATE TABLE "price_alert" (
 CREATE TABLE "user_interest" (
   "user_interest_id" bigserial PRIMARY KEY,
   "user_id" bigint REFERENCES "registered_user" ("user_id") ON DELETE CASCADE,
-  "category_id" bigint REFERENCES "category" ("category_id"),
+  "category_id" bigint REFERENCES "category" ("category_id") ON DELETE CASCADE,
   "clicked_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
