@@ -22,7 +22,8 @@ CREATE TABLE "event" (
   --"image_url" text,
   "event_description" text,
   "total_clicks" bigint default 0 not null,
-  "image_url" text
+  "image_url" text,
+  "publicly_visible" boolean default false
 );
 
 CREATE TABLE "booking_site" (
