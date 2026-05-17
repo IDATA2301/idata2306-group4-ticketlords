@@ -174,14 +174,14 @@ public class EventVenueController {
    */
   @Operation(summary = "Delete a venue by id", description = "Deletes a venue by its unique id")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Venue deleted successfully"),
+      @ApiResponse(responseCode = "204", description = "Venue deleted successfully"),
       @ApiResponse(responseCode = "404", description = "Venue not found")
   })
   @DeleteMapping("/delete/{id}")
-  public ResponseEntity<String> deleteVenue(@PathVariable long id) {
+  public ResponseEntity<Void> deleteVenue(@PathVariable long id) {
     boolean deleted = this.eventVenueService.deleteEventVenueById(id);
     if (deleted) {
-      return ResponseEntity.ok("Venue deleted successfully");
+      return ResponseEntity.noContent().build();
     } else {
       return ResponseEntity.notFound().build();
     }
