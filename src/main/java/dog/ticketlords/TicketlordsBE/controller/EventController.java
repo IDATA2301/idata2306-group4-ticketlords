@@ -401,4 +401,4 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
   }
 
   }
-}
+
