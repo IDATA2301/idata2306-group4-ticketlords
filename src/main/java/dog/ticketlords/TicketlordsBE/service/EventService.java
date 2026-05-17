@@ -7,7 +7,8 @@ import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
@@ -46,6 +47,32 @@ public class EventService {
     this.eventVenueRepo = eventVenueRepo;
     this.categoryService = categoryService;
     this.eventVenueService = eventVenueService;
+  }
+
+  /**
+   * Checks if the current user is an admin.
+   *
+   * @return true if the current user has ROLE_ADMIN, false otherwise
+   */
+  private boolean isCurrentUserAdmin() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth != null && auth.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+  }
+
+  /**
+   * Filters events to only include publicly visible ones unless user is admin.
+   *
+   * @param events the list of events to filter
+   * @return filtered list containing all events if user is admin, only public events otherwise
+   */
+  private List<Event> filterByVisibility(List<Event> events) {
+    if (isCurrentUserAdmin()) {
+      return events;
+    }
+    return events.stream()
+        .filter(Event::isPubliclyVisible)
+        .toList();
   }
 
   /**
@@ -94,19 +121,21 @@ public class EventService {
    *
    * @return A list containing the event objects, found in the database.
    *         If no events are found, return an empty list.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getAllEvents() {
-    return this.eventRepo.findAll();
+    return filterByVisibility(this.eventRepo.findAll());
   }
 
   /**
    * Finds the top 10 events based on the most clicks.
    *
    * @return A list containing the top 10 events
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getPopularEvents() {
     Pageable pageable = PageRequest.of(0, 10);
-    return this.eventRepo.findAllByOrderByTotalClicksDesc(pageable);
+    return filterByVisibility(this.eventRepo.findAllByOrderByTotalClicksDesc(pageable));
   }
 
   /**
@@ -188,9 +217,10 @@ public class EventService {
    * Finds all events by a category's id.
    *
    * @return A list of all Events
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getEventsByCategoryId(long id) {
-    return this.eventRepo.findByCategory_CategoryId(id);
+    return filterByVisibility(this.eventRepo.findByCategory_CategoryId(id));
   }
 
   /**
@@ -199,11 +229,12 @@ public class EventService {
    *
    * @param searchTerm the string to search for an event by.
    * @return a {@link List} of all {@link Event} matching the search.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> searchEvents(String searchTerm) {
-    return this.eventRepo
+    return filterByVisibility(this.eventRepo
         .findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
-            searchTerm, searchTerm, searchTerm);
+            searchTerm, searchTerm, searchTerm));
   }
 
   /**
@@ -228,9 +259,10 @@ public class EventService {
    * @param categoryName the name of the category to find events from.
    *
    * @return A list of all Events matching the query.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getEventsByCategoryName(String categoryName) {
-    return this.eventRepo.findByCategory_CategoryNameIgnoreCase(categoryName);
+    return filterByVisibility(this.eventRepo.findByCategory_CategoryNameIgnoreCase(categoryName));
   }
 
   /**
@@ -240,18 +272,20 @@ public class EventService {
    * @param searchEnd   the date to end the search upon reaching.
    *
    * @return A list of all events who'se date is set between the date range.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getEventsBetweenDates(LocalDateTime searchStart, LocalDateTime searchEnd) {
-    return this.eventRepo.findByEventDateStartBetween(searchStart, searchEnd);
+    return filterByVisibility(this.eventRepo.findByEventDateStartBetween(searchStart, searchEnd));
   }
 
   /**
    * Finds all events between the current time, and the specified date.
    *
    * @return A list of all {@link Event} matching the range.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getUpcomingEvents(LocalDateTime searchRangeEnd) {
-    return this.eventRepo.findByEventDateStartAfter(searchRangeEnd);
+    return filterByVisibility(this.eventRepo.findByEventDateStartAfter(searchRangeEnd));
   }
 
   /**
@@ -259,19 +293,21 @@ public class EventService {
    *
    * @return A list of all {@link Event}'s who'se start date is after the current
    *         time.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getAllUpcomingEvents() {
-    return this.eventRepo.findByEventDateStartAfter(LocalDateTime.now());
+    return filterByVisibility(this.eventRepo.findByEventDateStartAfter(LocalDateTime.now()));
   }
 
   /**
    * Retrieves all events that have already ended.
    *
    * @return A list of past events.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getPastEvents() {
     LocalDateTime now = LocalDateTime.now();
-    return eventRepo.findByEventDateEndBefore(now);
+    return filterByVisibility(eventRepo.findByEventDateEndBefore(now));
   }
 
   /**
@@ -280,9 +316,10 @@ public class EventService {
    *
    * @param namePart The substring to search for in event names.
    * @return A list of events whose names contain the given substring.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getEventsByName(String namePart) {
-    return this.eventRepo.findByEventNameContainingIgnoreCase(namePart);
+    return filterByVisibility(this.eventRepo.findByEventNameContainingIgnoreCase(namePart));
   }
 
   /**
@@ -291,9 +328,10 @@ public class EventService {
    *
    * @param hostName The name of the host.
    * @return A list of events organized by the given host.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getEventsByHostName(String hostName) {
-    return eventRepo.findByHostIgnoreCase(hostName);
+    return filterByVisibility(eventRepo.findByHostIgnoreCase(hostName));
   }
 
   /**
@@ -323,10 +361,38 @@ public class EventService {
    * @param page The page number (0-based).
    * @param size The number of events per page.
    * @return A list of events for the specified page.
+   *         Non-admin users only see publicly visible events.
    */
   public List<Event> getEventsPaged(int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    return eventRepo.findAll(pageable).getContent();
+    return filterByVisibility(eventRepo.findAll(pageable).getContent());
+  }
+
+  /**
+   * Sets an event's publiclyVisible boolean value.
+   * 
+   * @param eventId the id of the event.
+   * @param publiclyVisible the visibility boolean value of the event.
+   * @throws ResourceNotFoundException if no event with given ID exists.
+   */
+  public void setEventPublicVisibility(long eventId, boolean publiclyVisible) {
+    if (!this.eventRepo.existsById(eventId)) {
+      throw new ResourceNotFoundException("Event with ID " + eventId + " not found");
+    }
+    this.eventRepo.setPubliclyVisible(eventId, publiclyVisible);
+  }
+
+  /**
+   * Checks a event's public visibility.
+   * 
+   * @return the event's public visibility boolean value.
+   * @throws ResourceNotFoundException if no event with given ID exists.
+   */
+  public boolean checkEventPublicVisibility(long eventId) {
+    if (!this.eventRepo.existsById(eventId)) {
+      throw new ResourceNotFoundException("Event with ID " + eventId + " not found");
+    }
+    return this.eventRepo.existsByEventIdAndPubliclyVisibleIsTrue(eventId);
   }
 
 }

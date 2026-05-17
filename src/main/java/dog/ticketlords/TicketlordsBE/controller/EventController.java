@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,15 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
 
-import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
-import dog.ticketlords.TicketlordsBE.dbentity.Category;
-import dog.ticketlords.TicketlordsBE.dbentity.Event;
-import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
-import dog.ticketlords.TicketlordsBE.service.CategoryService;
-import dog.ticketlords.TicketlordsBE.service.EventService;
-import dog.ticketlords.TicketlordsBE.service.EventVenueService;
+import dog.ticketlords.TicketlordsBE.exception.ResourceNotFoundException;
 import dog.ticketlords.TicketlordsBE.service.ImageStorageService;
+import dog.ticketlords.TicketlordsBE.service.EventService;
+import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -69,14 +69,15 @@ public class EventController {
 
   /**
    * Retrieves all events from the database.
-   * 
-   * @return ResponseEntity containing a list of all events, or not found if no
-   *         events exist
+   * Non-admin users only see publicly visible events.
+   *
+   * @return ResponseEntity containing a list of all events (filtered by visibility for non-admins),
+   *         or not found if no events exist
    */
-  @Operation(summary = "Get all events", description = "Retrieves a list of all events available in the database.")
+  @Operation(summary = "Get all events", description = "Retrieves a list of all events available in the database. Non-admin users only see publicly visible events.")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Events retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events retrieved from the database."))),
-      @ApiResponse(responseCode = "404", description = "No events found in the database", content = @Content)
+      @ApiResponse(responseCode = "404", description = "No publicly visible events found in the database", content = @Content)
   })
   @GetMapping("/")
   public ResponseEntity<List<Event>> getAllEvents() {
@@ -113,14 +114,15 @@ public class EventController {
 
   /**
    * Retrieves popular events from the database.
+   * Non-admin users only see publicly visible events.
    *
-   * @return ResponseEntity containing a list of all events, or not found if no
-   *         events exist
+   * @return ResponseEntity containing a list of the top 10 events based on click count
+   *         (filtered by visibility for non-admins), or not found if no events exist
    */
-  @Operation(summary = "Get popular events", description = "Retrieves a list of popular the top 10 events based on click count.")
+  @Operation(summary = "Get popular events", description = "Retrieves a list of popular the top 10 events based on click count. Non-admin users only see publicly visible events.")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Popular events retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of popular events retrieved from the database."))),
-      @ApiResponse(responseCode = "404", description = "No popular events found in the database", content = @Content)
+      @ApiResponse(responseCode = "404", description = "No popular publicly visible events found in the database", content = @Content)
   })
   @GetMapping("/popular")
   public ResponseEntity<List<Event>> getPopularEvents() {
@@ -134,16 +136,17 @@ public class EventController {
 
   /**
    * Retrieves events based on substring in the search field from the database.
+   * Non-admin users only see publicly visible events.
    *
    * @param query substring of the events to retrieve
    * @return ResponseEntity containing a list of all events matching the
-   *         substring, or not
+   *         substring (filtered by visibility for non-admins), or not
    *         found if no events match
    */
-  @Operation(summary = "Search events", description = "Retrieves a list of events that match the provided search query. The search looks for matches in the event name, host, and category name, and is case-insensitive.")
+  @Operation(summary = "Search events", description = "Retrieves a list of events that match the provided search query. The search looks for matches in the event name, host, and category name, and is case-insensitive. Non-admin users only see publicly visible events.")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Events matching the search query retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events that match the provided search query."))),
-      @ApiResponse(responseCode = "404", description = "No events found matching the search query", content = @Content)
+      @ApiResponse(responseCode = "404", description = "No publicly visible events found matching the search query", content = @Content)
   })
   @GetMapping("/search")
   public ResponseEntity<List<Event>> searchEvents(@RequestParam String query) {
@@ -168,25 +171,34 @@ public class EventController {
       @ApiResponse(responseCode = "404", description = "Event not found")
   })
   @GetMapping("/event/{eventId}")
-  public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
-    if (this.eventService.getEvent(eventId).isPresent()) {
-      return ResponseEntity.ok(eventService.getEvent(eventId).get());
-    } else {
-      return ResponseEntity.notFound().build();
+public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
+    Optional<Event> event = this.eventService.getEvent(eventId);
+
+    if (event.isEmpty()) {
+        return ResponseEntity.notFound().build();
     }
-  }
+
+    // Check visibility for non-admins
+    Event e = event.get();
+    if (!e.isPubliclyVisible() && !isCurrentUserAdmin()) {
+        return ResponseEntity.notFound().build();
+    }
+
+    return ResponseEntity.ok(e);
+}
 
   /**
    * Retrieves all events hosted by a specific host.
-   * 
+   * Non-admin users only see publicly visible events.
+   *
    * @param hostName the name of the host
    * @return ResponseEntity containing a list of events hosted by the provided
-   *         host name
+   *         host name (filtered by visibility for non-admins)
    */
-  @Operation(summary = "Get events by host name", description = "Returns a list of all events hosted by the specified host name.")
+  @Operation(summary = "Get events by host name", description = "Returns a list of all events hosted by the specified host name. Non-admin users only see publicly visible events.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Events found for the specified host name", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events hosted by the specified host name."))),
-      @ApiResponse(responseCode = "404", description = "No events found for the specified host name")
+      @ApiResponse(responseCode = "404", description = "No publicly visible events found for the specified host name")
   })
   @GetMapping("host/{hostName}")
   public ResponseEntity<List<Event>> getEventsByHostName(@PathVariable String hostName) {
@@ -200,14 +212,15 @@ public class EventController {
 
   /**
    * Returns a list of all events containing provided event name.
-   * 
+   * Non-admin users only see publicly visible events.
+   *
    * @param eventName the name of the event
-   * @return List of all events containing provided event name
+   * @return List of all events containing provided event name (filtered by visibility for non-admins)
    */
-  @Operation(summary = "Get events by name", description = "Returns a list of all events whose names contain the specified substring (case-insensitive).")
+  @Operation(summary = "Get events by name", description = "Returns a list of all events whose names contain the specified substring (case-insensitive). Non-admin users only see publicly visible events.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Events found matching the specified name substring", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events whose names contain the specified substring."))),
-      @ApiResponse(responseCode = "404", description = "No events found matching the specified name substring")
+      @ApiResponse(responseCode = "404", description = "No publicly visible events found matching the specified name substring")
   })
   @GetMapping("/name/{eventName}")
   public ResponseEntity<List<Event>> getEventsByName(@PathVariable String eventName) {
@@ -221,14 +234,16 @@ public class EventController {
 
   /**
    * Retrieves all events in a specific category.
-   * 
+   * Non-admin users only see publicly visible events.
+   *
    * @param categoryName the name of the category
    * @return ResponseEntity containing a list of events in the provided category
+   *         (filtered by visibility for non-admins)
    */
-  @Operation(summary = "Get events by category name", description = "Returns a list of all events that belong to the specified category name (case-insensitive).")
+  @Operation(summary = "Get events by category name", description = "Returns a list of all events that belong to the specified category name (case-insensitive). Non-admin users only see publicly visible events.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Events found for the specified category name", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class, type = "array", description = "A list of events that belong to the specified category name."))),
-      @ApiResponse(responseCode = "404", description = "No events found for the specified category name")
+      @ApiResponse(responseCode = "404", description = "No publicly visible events found for the specified category name")
   })
   @GetMapping("/category/{categoryName}")
   public ResponseEntity<List<Event>> getEventsByCategory(@PathVariable String categoryName) {
@@ -276,11 +291,10 @@ public class EventController {
       @ApiResponse(responseCode = "409", description = "Specified category or venue does not exist", content = @Content)
   })
   @PostMapping("/event")
-  public ResponseEntity<String> insertEventIntoDatabase(@Valid @RequestBody EventRequestDTO eventDTO) {
-
+  public ResponseEntity<Void> insertEventIntoDatabase(@Valid @RequestBody EventRequestDTO eventDTO) {
     Optional<Event> saved = this.eventService.insertEventIntoDatabase(eventDTO);
     if (saved.isPresent()) {
-      return ResponseEntity.created(URI.create("/events/event/" + saved.get().getEventId())).build();
+      return ResponseEntity.created(URI.create("/event/" + saved.get().getEventId())).build();
     } else {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
@@ -333,6 +347,58 @@ public class EventController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 
     }
+  }
+
+  /**
+   * Sets the public visibility of a event (only for admins)
+   *
+   * @param eventId the id of the event
+   * @param publiclyVisible the visibility of the event
+   */
+  @Operation(summary = "Changes public visibility of an event", description = "Sets the boolean value that determines if registered and unregistered users can see or enter a Event page.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "204", description = "Public visibility of event has been set.", content = @Content),
+    @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no update performed.", content = @Content)
+  })
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/event/{eventId}/publicVisible")
+  public ResponseEntity<Void> setEventVisibility(@PathVariable long eventId, @Valid @RequestBody boolean publiclyVisible) {
+    try {
+      this.eventService.setEventPublicVisibility(eventId, publiclyVisible);
+      return ResponseEntity.noContent().build();
+    } catch (ResourceNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  /**
+   * Checks if a specific event is publicly visible.
+   *
+   * @param eventId the ID of the event to check visibility for
+   * @return ResponseEntity containing a boolean indicating if the event is publicly visible,
+   *         or not found if the event does not exist
+   */
+  @Operation(summary = "Check if event is publicly visible", description = "Checks whether a specific event is publicly visible.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Visibility status retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(type = "boolean", description = "True if event is publicly visible, false otherwise."))),
+      @ApiResponse(responseCode = "404", description = "Event not found with the specified ID", content = @Content)
+  })
+  @GetMapping("/event/{eventId}/check-public-visibility")
+  public ResponseEntity<Boolean> checkEventPublicVisibility(@PathVariable long eventId) {
+      boolean isPublic = this.eventService.checkEventPublicVisibility(eventId);
+      return ResponseEntity.ok(isPublic);
+  }
+
+  /**
+   * Returns true or false if the user is a admin or not.
+   *
+   * @return true or false value if the user is a admin or not.
+   */
+  private boolean isCurrentUserAdmin() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth != null && auth.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+  }
 
   }
 }
