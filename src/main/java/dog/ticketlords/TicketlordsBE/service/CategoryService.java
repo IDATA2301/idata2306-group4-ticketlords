@@ -53,12 +53,12 @@ public class CategoryService {
    * @param category the category object to add.
    * @return true if successfully added, false otherwise.
    */
-  public boolean addCategory(String categoryName) {
+  public long addCategory(String categoryName) {
     if (!this.categoryRepository.existsByCategoryNameIgnoreCase(categoryName)) {
       this.categoryRepository.save(new Category(categoryName));
-      return true;
+      return this.categoryRepository.findByCategoryName(categoryName).get().getCategoryId();
     } else {
-      return false;
+      return -1;
     }
   }
 

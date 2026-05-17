@@ -70,4 +70,10 @@ public class Ticket {
     this.ticketDescription = ticketDescription;
   }
 
+  @Override
+  public String toString() {
+    return "Ticket [ticketId=" + ticketId + ", event=" + event + ", ticketType=" + ticketType + ", price=" + price
+        + ", amountAvailable=" + amountAvailable + ", ticketDescription=" + ticketDescription + "]";
+  }
+
 }

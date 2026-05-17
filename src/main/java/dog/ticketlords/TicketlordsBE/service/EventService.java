@@ -16,13 +16,18 @@ import dog.ticketlords.TicketlordsBE.dbentity.Category;
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
 import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
 import dog.ticketlords.TicketlordsBE.exception.ResourceNotFoundException;
+import dog.ticketlords.TicketlordsBE.dbentity.EventVenue;
+import dog.ticketlords.TicketlordsBE.repositories.CategoryRepository;
 import dog.ticketlords.TicketlordsBE.repositories.EventRepository;
+import dog.ticketlords.TicketlordsBE.repositories.EventVenueRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class EventService {
 
   private final EventRepository eventRepo;
+  private final CategoryRepository categoryRepo;
+  private final EventVenueRepository eventVenueRepo;
   private final CategoryService categoryService;
   private final EventVenueService eventVenueService;
 
@@ -34,8 +39,12 @@ public class EventService {
    */
   public EventService(EventRepository eventRepo,
                       CategoryService categoryService,
-                      EventVenueService eventVenueService) {
+                      EventVenueService eventVenueService,
+                      CategoryRepository categoryRepo,
+                      EventVenueRepository eventVenueRepo) {
     this.eventRepo = eventRepo;
+    this.categoryRepo = categoryRepo;
+    this.eventVenueRepo = eventVenueRepo;
     this.categoryService = categoryService;
     this.eventVenueService = eventVenueService;
   }
@@ -79,11 +88,11 @@ public class EventService {
   /**
    * Inserts an event into the database.
    *
-   * @param event the event to insert
+   * @param eventDTO the event to insert
    * @return the saved Event wrapped in an Optional, or empty if saving failed
    */
   public Optional<Event> insertEventIntoDatabase(EventRequestDTO eventDTO) {
-    
+
     Optional<Category> category = this.categoryService.getCategoryByCategoryId(eventDTO.categoryId());
     Optional<EventVenue> eventVenue = this.eventVenueService.getEventVenueById(eventDTO.venueId());
 
@@ -102,9 +111,9 @@ public class EventService {
       eventDTO.eventDateStart(),
       eventDTO.eventDateEnd(),
       eventDTO.imgPathUrl());
+      Event saved = this.eventRepo.save(event);
+      return Optional.of(saved);
 
-    Event saved = this.eventRepo.save(event);
-    return Optional.of(saved);
   }
 
   /**
@@ -139,33 +148,49 @@ public class EventService {
    * @param updatedEvent the dummy whose fields are to be copied over to the
    *                     actual event in the database.
    */
-  public boolean updateEvent(long eventId, Event updatedEvent) {
-    try {
-      Event existingEvent = this.eventRepo.findById(eventId)
-          .orElseThrow(() -> new EntityNotFoundException("Event not found"));
-      if (updatedEvent.getEventName() != null)
-        existingEvent.setEventName(updatedEvent.getEventName());
-      if (updatedEvent.getHost() != null)
-        existingEvent.setHost(updatedEvent.getHost());
-      if (updatedEvent.getCategory() != null)
-        existingEvent.setCategory(updatedEvent.getCategory());
-      if (updatedEvent.getEventDateStart() != null)
-        existingEvent.setEventDateStart(updatedEvent.getEventDateStart());
-      if (updatedEvent.getEventDateEnd() != null)
-        existingEvent.setEventDateEnd(updatedEvent.getEventDateEnd());
-      if (updatedEvent.getEventVenue() != null)
-        existingEvent.setEventVenue(updatedEvent.getEventVenue());
-      if (updatedEvent.getEventDescription() != null)
-        existingEvent.setEventDescription(updatedEvent.getEventDescription());
-      this.eventRepo.save(existingEvent);
-      return true;
-    } catch (EntityNotFoundException e) {
-      return false;
+  public void updateEvent(long eventId, EventRequestDTO updatedEvent)
+      throws IllegalArgumentException, EntityNotFoundException {
+    Event existingEvent = this.eventRepo.findById(eventId)
+        .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
+    if (updatedEvent.eventName() == null || updatedEvent.eventName().isBlank())
+      throw new IllegalArgumentException("Event name is required.");
+    if (updatedEvent.host() == null || updatedEvent.host().isBlank())
+      throw new IllegalArgumentException("Host is required.");
+    if (updatedEvent.categoryId() == null)
+      throw new IllegalArgumentException("Category ID is required.");
+    if (updatedEvent.eventDateStart() == null)
+      throw new IllegalArgumentException("Event start date is required.");
+    if (updatedEvent.eventDateEnd() == null)
+      throw new IllegalArgumentException("Event end date is required.");
+    if (updatedEvent.venueId() == null)
+      throw new IllegalArgumentException("Event venue is required.");
+
+    existingEvent.setEventName(updatedEvent.eventName());
+    existingEvent.setHost(updatedEvent.host());
+
+    Category category = this.categoryRepo.findById(updatedEvent.categoryId())
+        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    existingEvent.setCategory(category);
+
+    existingEvent.setEventDateStart(updatedEvent.eventDateStart());
+    existingEvent.setEventDateEnd(updatedEvent.eventDateEnd());
+
+    EventVenue venue = this.eventVenueRepo.findById(updatedEvent.venueId())
+        .orElseThrow(() -> new EntityNotFoundException("Event venue not found"));
+    existingEvent.setEventVenue(venue);
+
+    if (updatedEvent.eventDescription() != null) {
+      existingEvent.setEventDescription(updatedEvent.eventDescription());
     }
+    if (updatedEvent.imgPathUrl() != null) {
+      existingEvent.setImgPathUrl(updatedEvent.imgPathUrl());
+    }
+    this.eventRepo.save(existingEvent);
   }
 
   /**
-   * Increments the clickCount of an event.
+   * ncrements the clickCount of an event.
    * 
    * @param eventId the id of the event to increment clickcount of.
    */

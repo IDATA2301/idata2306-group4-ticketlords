@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 /**
@@ -69,7 +70,7 @@ public class EventController {
   /**
    * Retrieves all events from the database.
    * Non-admin users only see publicly visible events.
-   * 
+   *
    * @return ResponseEntity containing a list of all events (filtered by visibility for non-admins),
    *         or not found if no events exist
    */
@@ -172,24 +173,24 @@ public class EventController {
   @GetMapping("/event/{eventId}")
 public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
     Optional<Event> event = this.eventService.getEvent(eventId);
-    
+
     if (event.isEmpty()) {
         return ResponseEntity.notFound().build();
     }
-    
+
     // Check visibility for non-admins
     Event e = event.get();
     if (!e.isPubliclyVisible() && !isCurrentUserAdmin()) {
         return ResponseEntity.notFound().build();
     }
-    
+
     return ResponseEntity.ok(e);
 }
 
   /**
    * Retrieves all events hosted by a specific host.
    * Non-admin users only see publicly visible events.
-   * 
+   *
    * @param hostName the name of the host
    * @return ResponseEntity containing a list of events hosted by the provided
    *         host name (filtered by visibility for non-admins)
@@ -212,7 +213,7 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
   /**
    * Returns a list of all events containing provided event name.
    * Non-admin users only see publicly visible events.
-   * 
+   *
    * @param eventName the name of the event
    * @return List of all events containing provided event name (filtered by visibility for non-admins)
    */
@@ -234,7 +235,7 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
   /**
    * Retrieves all events in a specific category.
    * Non-admin users only see publicly visible events.
-   * 
+   *
    * @param categoryName the name of the category
    * @return ResponseEntity containing a list of events in the provided category
    *         (filtered by visibility for non-admins)
@@ -334,17 +335,23 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
       @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no update performed.", content = @Content)
   })
   @PutMapping("/event/{eventId}")
-  public ResponseEntity<Void> updateEventInDatabase(@PathVariable int eventId, @Valid @RequestBody Event event) {
-    if (this.eventService.updateEvent(eventId, event)) {
+  public ResponseEntity<?> updateEventInDatabase(@PathVariable int eventId,
+      @Valid @RequestBody EventRequestDTO event) {
+    try {
+      this.eventService.updateEvent(eventId, event);
       return ResponseEntity.noContent().build();
-    } else {
-      return ResponseEntity.notFound().build();
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+
     }
   }
-  
+
   /**
    * Sets the public visibility of a event (only for admins)
-   * 
+   *
    * @param eventId the id of the event
    * @param publiclyVisible the visibility of the event
    */
@@ -366,7 +373,7 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
 
   /**
    * Checks if a specific event is publicly visible.
-   * 
+   *
    * @param eventId the ID of the event to check visibility for
    * @return ResponseEntity containing a boolean indicating if the event is publicly visible,
    *         or not found if the event does not exist
@@ -384,7 +391,7 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
 
   /**
    * Returns true or false if the user is a admin or not.
-   * 
+   *
    * @return true or false value if the user is a admin or not.
    */
   private boolean isCurrentUserAdmin() {
@@ -393,4 +400,5 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }
 
+  }
 }

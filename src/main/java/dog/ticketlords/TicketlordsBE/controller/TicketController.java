@@ -193,7 +193,8 @@ public class TicketController {
    *
    * @param ticketDTO the ticket data to be inserted
    * @return ResponseEntity with created status and location URI if successful;
-   *         {@code 409 Conflict} with error message if a ticket with the same type already exists for the event;
+   *         {@code 409 Conflict} with error message if a ticket with the same
+   *         type already exists for the event;
    *         {@code 400 Bad Request} if validation fails
    */
   @Operation(summary = "Create a new ticket", description = "Inserts a new ticket into the database.")
@@ -249,7 +250,8 @@ public class TicketController {
       @ApiResponse(responseCode = "500", description = "Failed to purchase tickets due to insufficient availability or other server error")
   })
   @PutMapping("/ticket/{ticketId}/quantity/{quantity}/purchase")
-  public ResponseEntity<Map<Long, Integer>> purchaseTicketCount(@PathVariable long ticketId, @PathVariable int quantity) {
+  public ResponseEntity<Map<Long, Integer>> purchaseTicketCount(@PathVariable long ticketId,
+      @PathVariable int quantity) {
     int newAmount = this.ticketService.getAvailableTickets(ticketId) - quantity;
     if (this.ticketService.setAmountOfAvailableTickets(ticketId, newAmount)) {
       return ResponseEntity.ok(Map.of(ticketId, this.ticketService.getAvailableTickets(ticketId)));
@@ -296,10 +298,10 @@ public class TicketController {
    * For use by admins to change amount of available tickets.
    *
    * <p>
-  * Example: {@code PUT /tickets/ticket/reduceAmount?ticketId=1&amp;quantity=5}
+   * Example: {@code PUT /tickets/ticket/reduceAmount?ticketId=1&quantity=5}
    *
    * @param ticketId the ticket id to reduce availability for
-  * @param quantity the amount to reduce (must be >= 0)
+   * @param quantity the amount to reduce (must be >= 0)
    */
   @Operation(summary = "Change ticket availability amount", description = "Allows admins to set the available quantity for a specific ticket.")
   @ApiResponses(value = {

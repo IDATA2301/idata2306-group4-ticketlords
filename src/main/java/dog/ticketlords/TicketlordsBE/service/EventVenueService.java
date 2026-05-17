@@ -122,8 +122,8 @@ public class EventVenueService {
    * @return true if successfully updated, false otherwise.
    */
   public boolean updateEventVenue(long venueId, EventVenue updatedEVenue) {
-    if (this.eventVenueRepo.existsById(updatedEVenue.getVenueId())) {
-      EventVenue databaseEVenue = this.eventVenueRepo.getReferenceById(updatedEVenue.getVenueId());
+    if (this.eventVenueRepo.existsById(venueId)) {
+      EventVenue databaseEVenue = this.eventVenueRepo.getReferenceById(venueId);
       if (updatedEVenue.getAddress() != null) {
         databaseEVenue.setAddress(updatedEVenue.getAddress());
       }

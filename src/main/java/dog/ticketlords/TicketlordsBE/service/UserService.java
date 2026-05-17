@@ -122,12 +122,17 @@ public class UserService {
    * @throws IllegalArgumentException if the associated UnregisteredUser is not
    *                                  found
    */
-  public long insertRegisteredUserToDatabase(RegisteredUser user, long unregId) {
+  public long insertRegisteredUserToDatabase(RegisteredUser user, long unregId) throws IllegalArgumentException {
+    if (!this.unregUserRepo.existsById(unregId)) {
+      throw new IllegalArgumentException(
+          "Unregistered user with id " + unregId
+              + " not found. Cannot create registered user without a valid unregistered user.");
+    }
+
     if (this.regUserRepo.existsById(unregId) || unregId < 0) {
       UnregisteredUser newUnregUser = this.insertUnregisteredUserToDatabase();
       unregId = newUnregUser.getUId();
     }
-
     Optional<UnregisteredUser> unregUser = this.getUnregUser(unregId);
 
     RegisteredUser newUser = new RegisteredUser(

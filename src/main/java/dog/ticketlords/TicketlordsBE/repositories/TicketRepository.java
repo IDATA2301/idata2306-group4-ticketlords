@@ -24,7 +24,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
   boolean existsByTicketTypeIgnoreCaseAndEvent_EventId(String ticketType, long eventId);
 
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("UPDATE Ticket t " +
       "SET t.amountAvailable = t.amountAvailable - :ticketAmount " +
       "WHERE t.ticketId = :ticketId AND t.amountAvailable >= :ticketAmount")
@@ -41,4 +41,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
       "SET t.amountAvailable = :amount " +
       "WHERE t.ticketId = :ticketId")
   int setTicketAmount(@Param("ticketId") long ticketId, @Param("amount") int ticketAmount);
+
+  @Query("SELECT t.amountAvailable FROM Ticket t WHERE t.ticketId = :ticketId")
+  int getAmountAvailable(@Param("ticketId") long ticketId);
 }

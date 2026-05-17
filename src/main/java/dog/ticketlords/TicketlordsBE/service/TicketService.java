@@ -50,11 +50,12 @@ public class TicketService {
    *
    * @param ticketDTO the ticket data to insert
    * @return the saved ticket
-   * @throws EntityExistsException if a ticket with the same type already exists for this event
+   * @throws EntityExistsException if a ticket with the same type already exists
+   *                               for this event
    */
   public Ticket insertTicketIntoDatabase(TicketRequestDTO ticketDTO) {
     if (ticketTypeExistsForEvent(ticketDTO.ticketType(), ticketDTO.eventId())) {
-      throw new EntityExistsException (
+      throw new EntityExistsException(
           "A ticket with type '" + ticketDTO.ticketType() + "' already exists for event id: " + ticketDTO.eventId());
     }
     Ticket ticket = new Ticket(
@@ -62,8 +63,7 @@ public class TicketService {
         ticketDTO.ticketType(),
         ticketDTO.price(),
         ticketDTO.amountAvailable(),
-        ticketDTO.ticketDescription()
-    );
+        ticketDTO.ticketDescription());
     return ticketRepo.save(ticket);
   }
 
@@ -96,15 +96,17 @@ public class TicketService {
    * Checks if a ticket type already exists for the specified event.
    *
    * @param ticketType the ticket type to check (case-insensitive)
-   * @param eventId the event id to check
-   * @return {@code true} if a ticket with the given type exists for the event, {@code false} otherwise
+   * @param eventId    the event id to check
+   * @return {@code true} if a ticket with the given type exists for the event,
+   *         {@code false} otherwise
    */
   public boolean ticketTypeExistsForEvent(String ticketType, long eventId) {
     return ticketRepo.existsByTicketTypeIgnoreCaseAndEvent_EventId(ticketType, eventId);
   }
 
   /**
-   * Retrieves all {@link Ticket}s belonging to events with names containing the given string (case-insensitive).
+   * Retrieves all {@link Ticket}s belonging to events with names containing the
+   * given string (case-insensitive).
    *
    * @param eventName the event name substring to search for
    * @return a list of tickets for events matching the search (may be empty)
@@ -203,9 +205,8 @@ public class TicketService {
    * @return the amount available, or 0.
    */
   public int getAvailableTickets(long ticketId) {
-    Optional<Ticket> ticket = this.ticketRepo.findById(ticketId);
-    if (ticket.isPresent()) {
-      return ticket.get().getAmountAvailable();
+    if (this.ticketRepo.existsById(ticketId)) {
+      return this.ticketRepo.getAmountAvailable(ticketId);
     }
     return 0;
   }

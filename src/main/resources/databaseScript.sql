@@ -22,7 +22,8 @@ CREATE TABLE "event" (
   --"image_url" text,
   "event_description" text,
   "total_clicks" bigint default 0 not null,
-  "image_url" text
+  "image_url" text,
+  "publicly_visible" boolean default false
 );
 
 CREATE TABLE "booking_site" (
@@ -93,7 +94,7 @@ CREATE TABLE "price_alert" (
 CREATE TABLE "user_interest" (
   "user_interest_id" bigserial PRIMARY KEY,
   "user_id" bigint REFERENCES "registered_user" ("user_id") ON DELETE CASCADE,
-  "category_id" bigint REFERENCES "category" ("category_id"),
+  "category_id" bigint REFERENCES "category" ("category_id") ON DELETE CASCADE,
   "clicked_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
