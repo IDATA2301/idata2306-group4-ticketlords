@@ -15,8 +15,8 @@ import dog.ticketlords.TicketlordsBE.dbentity.Event;
 public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findByCategory_CategoryNameIgnoreCase(String categoryName);
 
-  List<Event> findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
-      String search1, String search2, String search3);
+  List<Event> findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCaseOrEventVenue_CityContainingIgnoreCaseOrEventVenue_CountryContainingIgnoreCase(
+          String search1, String search2, String search3, String search4, String search5);
 
   long countByCategory_CategoryNameContainingIgnoreCase(String categoryNameSubstring);
 
@@ -35,6 +35,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   List<Event> findAllByOrderByTotalClicksDesc(Pageable pageable);
 
   List<Event> findByCategory_CategoryNameOrderByTotalClicksDesc(String categoryName, Pageable pageable);
+
 
   boolean existsByEventIdAndPubliclyVisibleIsTrue(long eventId);
 
