@@ -232,9 +232,8 @@ public class EventService {
    *         Non-admin users only see publicly visible events.
    */
   public List<Event> searchEvents(String searchTerm) {
-    return filterByVisibility(this.eventRepo
-        .findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCase(
-            searchTerm, searchTerm, searchTerm));
+    return filterByVisibility(this.eventRepo.findDistinctByEventNameContainingIgnoreCaseOrHostContainingIgnoreCaseOrCategory_CategoryNameContainingIgnoreCaseOrEventVenue_CityContainingIgnoreCaseOrEventVenue_CountryContainingIgnoreCase(
+            searchTerm, searchTerm, searchTerm, searchTerm, searchTerm));
   }
 
   /**
