@@ -36,10 +36,10 @@ You can now start the project locally, using either of the commands mentioned ab
 
 ## Tests with postman:
 If you ran the program with either of these commands:
-Windows (cmd/powershell)
+Windows (cmd/powershell):
 .\gradlew bootRun --args="--spring.profiles.active=test"
 
-Unix (bash/zsh)
+Unix (bash/zsh):
 ./gradlew bootRun --args="--spring.profiles.active=test"
 
 The Spring Boot program connects to the test database, which is not used in production.
@@ -48,7 +48,9 @@ After the program has compiled, and opened its port (8081) we can connect to it 
 In postman:
 Navigate to environments: and set BASE_URL=http://localhost:8081 
 
-Then you can run the test collection, which can be downloaded from this link: 
+Import the test collection which can be downloaded from this link:
+https://github.com/IDATA2301/idata2306-group4-ticketlords/blob/devBranch/postman/Server%20backend%20ticketlords%20tests.postman_collection.json
 
+And Run the collection. Right click Server backend ticketlords tests -> Run -> Start run
 
 
