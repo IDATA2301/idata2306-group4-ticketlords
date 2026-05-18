@@ -65,4 +65,6 @@ When the backend is up and running, you can access the swagger docs information 
 This application allows dynamic insert of images, which are stored on a "spaces" on digital ocean. However, for others intending to interract with this program, that doesn't have access to this service, we've included some static images aswell.
 These images can be found under resource/static/images
 
+Our team has written sprintreports weekly, which can be found here: https://github.com/IDATA2301/idata2301-ticketlords-group4/wiki
+
 
