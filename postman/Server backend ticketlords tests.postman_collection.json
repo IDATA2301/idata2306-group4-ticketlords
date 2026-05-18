@@ -1,0 +1,4129 @@
+{
+  "info": {
+    "_postman_id": "89c84b8d-e539-4278-bc72-c425534a14de",
+    "name": "Server backend ticketlords tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51929882",
+    "_collection_link": "https://go.postman.co/collection/51929882-89c84b8d-e539-4278-bc72-c425534a14de?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "UserEndpoints",
+      "item": [
+        {
+          "name": "Create unregistered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Create unregistered user: status is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const latestUregId = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"ureg_id\", latestUregId);\r",
+                  "pm.collectionVariables.set(\"invalid_ureg_id\", latestUregId + 100);\r",
+                  "\r",
+                  "pm.test(\"Save unregistered user ID\", function () {\r",
+                  "    const text = pm.response.text().trim();\r",
+                  "\r",
+                  "    try {\r",
+                  "        const json = pm.response.json();\r",
+                  "\r",
+                  "        if (typeof json === \"number\") {\r",
+                  "            pm.collectionVariables.set(\"ureg_id\", json);\r",
+                  "        } else {\r",
+                  "            const id = json.userId || json.uregId;\r",
+                  "            pm.expect(id, \"Expected unregistered user ID\").to.exist;\r",
+                  "            pm.collectionVariables.set(\"ureg_id\", id);\r",
+                  "        }\r",
+                  "    } catch (e) {\r",
+                  "        const id = Number(text);\r",
+                  "        pm.expect(Number.isNaN(id)).to.eql(false);\r",
+                  "        pm.collectionVariables.set(\"ureg_id\", id);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create registered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Create user: status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const requestBody = JSON.parse(pm.request.body.raw);",
+                  "pm.collectionVariables.set(\"email\", requestBody.email);",
+                  "pm.collectionVariables.set(\"password\", requestBody.hashedPassword);",
+                  "",
+                  "pm.test(\"Unregistered user ID exists\", function() {",
+                  "    pm.expect(pm.collectionVariables.get(\"ureg_id\")).to.be.a(\"number\");",
+                  "});",
+                  "",
+                  "pm.test('Create user: response body is present', function () {",
+                  "    pm.expect(pm.response.contentInfo.length > 0);",
+                  "    pm.expect(pm.response.text()).to.not.eql('');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test@example{{ureg_id}}.com\",\r\n    \"displayName\": \"Postman Test\",\r\n    \"firstName\": \"Post\",\r\n    \"lastName\": \"Man\",\r\n    \"hashedPassword\": \"Postman Password\",\r\n    \"phoneNumber\": 1881123144,\r\n    \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/register?uregId={{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "register"
+              ],
+              "query": [
+                {
+                  "key": "uregId",
+                  "value": "{{ureg_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get registered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get user: status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "})",
+                  "",
+                  "pm.test('Get user: response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "})",
+                  "",
+                  "pm.test('Get user: response body is non-empty', function () {",
+                  "    pm.expect(pm.response.text()).to.be.a('string');",
+                  "    pm.expect(pm.response.text().length).to.be.above(0);",
+                  "})",
+                  "",
+                  "pm.test('Get user: JSON response has a safe generic shape when JSON is returned', function () {",
+                  "    var contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "    var bodyText = pm.response.text();",
+                  "    var looksJson = contentType.includes('application/json') || /^[\\s]*[\\[{]/.test(bodyText);",
+                  "    if (looksJson && bodyText) {",
+                  "        var data;",
+                  "        pm.expect(function () {",
+                  "            data = pm.response.json();",
+                  "        }).to.not.throw();",
+                  "        pm.expect(data !== null && (Array.isArray(data) || typeof data === 'object')).to.be.true;",
+                  "    } else {",
+                  "        pm.expect(true).to.be.true;",
+                  "    }",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cannot create invalid registered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is not 201\", function() {\r",
+                  "    pm.expect(pm.response.code).not.to.eql(201);\r",
+                  "})\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"invalid_test@example{{ureg_id}}.com\",\r\n    \"displayName\": \"Postman Test\",\r\n    \"firstName\": \"Post\",\r\n    \"lastName\": \"Man\",\r\n    \"hashedPassword\": \"Postman Password\",\r\n    \"phoneNumber\": 1881123144,\r\n    \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/register?uregId={{invalid_ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "register"
+              ],
+              "query": [
+                {
+                  "key": "uregId",
+                  "value": "{{invalid_ureg_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User doesnt exist by invalid registration id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "    });\r",
+                  "    "
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"invalid_test@example{{ureg_id}}.com\",\r\n    \"displayName\": \"Postman Test\",\r\n    \"firstName\": \"Post\",\r\n    \"lastName\": \"Man\",\r\n    \"hashedPassword\": \"Postman Password\",\r\n    \"phoneNumber\": 1881123144,\r\n    \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{invalid_ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{invalid_ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check admin role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check if the response status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "    });\r",
+                  "\r",
+                  "pm.test(\"Check if admin is false:\", function() {\r",
+                  "    pm.expect(pm.response.json().isAdmin).to.be.false; \r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"invalid_test@example{{ureg_id}}.com\",\r\n    \"displayName\": \"Postman Test\",\r\n    \"firstName\": \"Post\",\r\n    \"lastName\": \"Man\",\r\n    \"hashedPassword\": \"Postman Password\",\r\n    \"phoneNumber\": 1881123144,\r\n    \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{ureg_id}}/is-admin",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{ureg_id}}",
+                "is-admin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get unregistered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "    });\r",
+                  "\r",
+                  "pm.test(\"Status code is not 404\", function() {\r",
+                  "    pm.response.to.not.have.status(404);\r",
+                  "    });\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"invalid_test@example{{ureg_id}}.com\",\r\n    \"displayName\": \"Postman Test\",\r\n    \"firstName\": \"Post\",\r\n    \"lastName\": \"Man\",\r\n    \"hashedPassword\": \"Postman Password\",\r\n    \"phoneNumber\": 1881123144,\r\n    \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/unregistered/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "unregistered",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Build request body dynamically (optional; if you use raw JSON with {{loginEmail}} etc.)\r",
+                  "const email = pm.collectionVariables.get(\"email\");\r",
+                  "const password = pm.collectionVariables.get(\"password\");\r",
+                  "\r",
+                  "if (!email || !password) {\r",
+                  "  console.warn(\"Missing env vars: loginEmail and/or loginPassword\");\r",
+                  "}\r",
+                  "\r",
+                  "pm.variables.set(\"loginEmail\", email);\r",
+                  "pm.variables.set(\"loginPassword\", password);\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "    });\r",
+                  "\r",
+                  "pm.test(\"Status code is not 401\", function() {\r",
+                  "    pm.response.to.not.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token is present in the response\", function() {\r",
+                  "    pm.response.to.have.jsonBody(\"token\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token is not empty\", function() {\r",
+                  "    pm.expect(pm.response.json().token).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token is a string\", function() {\r",
+                  "    pm.expect(pm.response.json().token).to.be.a('string');\r",
+                  "});\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"token\", pm.response.json().token);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/login",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modify registered user credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"status code is not 404\", function() {\r",
+                  "    pm.response.to.not.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "    \r",
+                  "    "
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"modified_test@example{{ureg_id}}.com\",\r\n    \"displayName\": \"Postman Test Modified\",\r\n    \"firstName\": \"Post\",\r\n    \"lastName\": \"Man\",\r\n    \"password\": \"Postman Password Modified\",\r\n    \"phoneNumber\": 12345678\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Users updated values should match what they were changed to",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"All credentials returned match what was sent\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.email).to.eql(\"modified_test@example\" + pm.collectionVariables.get(\"ureg_id\") + \".com\");",
+                  "    pm.expect(jsonData.displayName).to.eql(\"Postman Test Modified\");",
+                  "    pm.expect(jsonData.firstName).to.eql(\"Post\");",
+                  "    pm.expect(jsonData.lastName).to.eql(\"Man\");",
+                  "    pm.expect(jsonData.hashedPassword).to.be.a(\"string\").and.not.empty;",
+                  "    pm.expect(jsonData.phoneNumber).to.eql(12345678);",
+                  "",
+                  "    pm.collectionVariables.set(\"email\", jsonData.email);",
+                  "    pm.collectionVariables.set(\"password\", jsonData.hashedPassword);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get admin login token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"Admin token\", pm.response.json().token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"ADMINtest@example.com\",\r\n    \"password\": \"Postman Password\"\r\n}\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/login",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with new credentials",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const email = pm.collectionVariables.get(\"email\");\r",
+                  "const password = pm.collectionVariables.get(\"password\");\r",
+                  "\r",
+                  "\r",
+                  "if (!email || !password) {\r",
+                  "  console.warn(\"Missing env vars: loginEmail and/or loginPassword\");\r",
+                  "}\r",
+                  "\r",
+                  "pm.variables.set(\"loginEmail\", email);\r",
+                  "pm.variables.set(\"loginPassword\", password);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "    });\r",
+                  "\r",
+                  "pm.test(\"Status code is not 401\", function() {\r",
+                  "    pm.response.to.not.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token is present in the response\", function() {\r",
+                  "    pm.response.to.have.jsonBody(\"token\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token is not empty\", function() {\r",
+                  "    pm.expect(pm.response.json().token).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token is a string\", function() {\r",
+                  "    pm.expect(pm.response.json().token).to.be.a('string');\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"Postman Password Modified\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/login",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Should not find registered user after delete",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{invalid_ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{invalid_ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Category Endpoints",
+      "item": [
+        {
+          "name": "Create category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Response should be 200:', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"category1ID\", pm.response.json());",
+                  "",
+                  "",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/category?categoryName=Postman%20category%201",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "category"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "Postman%20category%201"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"category2ID\", pm.response.json());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryName\": \"Postman category 2\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/category?categoryName=Postman%20category%202",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "category"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "Postman%20category%202"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get category 1 by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Respond with found category's id:\", function () {\r",
+                  "    pm.expect(pm.response.json().categoryId).to.equal(pm.collectionVariables.get(\"category1ID\"));\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/{{category1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "{{category1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get category 2 by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Respond with found category's id:\", function () {\r",
+                  "    pm.expect(pm.response.json().categoryId).to.equal(pm.collectionVariables.get(\"category2ID\"));\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/{{category2ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "{{category2ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get categoryname by category 1 ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response message is 200\", function() {\r",
+                  "    pm.expect(pm.response.code).to.eql(200);\r",
+                  "    pm.collectionVariables.set(\"category1Name\", pm.response.json().categoryName);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/{{category1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "{{category1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get categoryname by category 2 ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response message is 200\", function() {\r",
+                  "    pm.expect(pm.response.code).to.eql(200);\r",
+                  "    pm.collectionVariables.set(\"category2Name\", pm.response.json().categoryName);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/{{category2ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "{{category2ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get category 1 by name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is 200 OK:\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response body contains correct category name:\", function () {\r",
+                  "    pm.expect(pm.response.json().categoryName).to.eql(\"Postman category 1\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/name/Postman%20category%201",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "name",
+                "Postman%20category%201"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Body contains at least 2 categories\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.at.least(2);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Category names are correct\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const id1 = Number(pm.collectionVariables.get(\"category1ID\"));\r",
+                  "    const id2 = Number(pm.collectionVariables.get(\"category2ID\"));\r",
+                  "    const category1 = jsonData.find(c => c.categoryId === id1);\r",
+                  "    const category2 = jsonData.find(c => c.categoryId === id2);\r",
+                  "    pm.expect(category1.categoryName).to.eql(\"Postman category 1\");\r",
+                  "    pm.expect(category2.categoryName).to.eql(\"Postman category 2\");\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search for categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "})\r",
+                  "\r",
+                  "pm.test(\"Body should be atleast two items\", function() {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.at.least(2);\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/search?name=post",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "post"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Event Venues Endpoints",
+      "item": [
+        {
+          "name": "Create Event Venue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Create Event Venue: response status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"arena\": \"Postman arena 1\",\r\n    \"city\": \"Postman city\",\r\n    \"country\": \"Postman country\",\r\n    \"address\": \"Postman address 1\"\r\n }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/add",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event Venue 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Create Event Venue: response status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"arena\": \"Postman arena 2\",\r\n    \"city\": \"Postman city\",\r\n    \"country\": \"Postman country\",\r\n    \"address\": \"Postman address 2\"\r\n }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/add",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get venue by location",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response should have at least two items\", function() {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.at.least(2);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Venues should match inserted ones and export IDs\", function () {\r",
+                  "  const venues = pm.response.json();\r",
+                  "\r",
+                  "  const matches = venues.filter(v =>\r",
+                  "    (v.country === \"Postman country\" && v.city === \"Postman city\")\r",
+                  "  );\r",
+                  "\r",
+                  "  pm.expect(matches).to.have.lengthOf(2);\r",
+                  "\r",
+                  "  matches.forEach(v => {\r",
+                  "    if (v.arena === \"Postman arena 1\" && v.address === \"Postman address 1\") {\r",
+                  "      pm.collectionVariables.set(\"Venue1ID\", v.venueId);\r",
+                  "    }\r",
+                  "    if (v.arena === \"Postman arena 2\" && v.address === \"Postman address 2\") {\r",
+                  "      pm.collectionVariables.set(\"Venue2ID\", v.venueId);\r",
+                  "    }\r",
+                  "  });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/location?country=Postman%20country&city=Postman%20city",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "location"
+              ],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "Postman%20country"
+                },
+                {
+                  "key": "city",
+                  "value": "Postman%20city"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get venue by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Venue is correct\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.venueId).to.eql(pm.collectionVariables.get(\"Venue1ID\"));\r",
+                  "    pm.expect(jsonData.arena).to.eql(\"Postman arena 1\");\r",
+                  "    pm.expect(jsonData.city).to.eql(\"Postman city\");\r",
+                  "    pm.expect(jsonData.country).to.eql(\"Postman country\");\r",
+                  "    pm.expect(jsonData.address).to.eql(\"Postman address 1\");\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/{{Venue1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "{{Venue1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get venue2 by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Venue is correct\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.venueId).to.eql(pm.collectionVariables.get(\"Venue2ID\"));\r",
+                  "    pm.expect(jsonData.arena).to.eql(\"Postman arena 2\");\r",
+                  "    pm.expect(jsonData.city).to.eql(\"Postman city\");\r",
+                  "    pm.expect(jsonData.country).to.eql(\"Postman country\");\r",
+                  "    pm.expect(jsonData.address).to.eql(\"Postman address 2\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/{{Venue2ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "{{Venue2ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get venue count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Count is 2 or more\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.greaterThan(2);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/count",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "count"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Edit venue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"arena\": \"Postman arena updated\",\r\n    \"city\": \"Postman city updated\",\r\n    \"country\": \"Postman country updated\",\r\n    \"address\": \"Postman address updated\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/update/{{Venue1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "update",
+                "{{Venue1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get updated request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Newly updated values are returned\", function () {\r",
+                  "    pm.expect(pm.response.json().arena).to.eql(\"Postman arena updated\");\r",
+                  "    pm.expect(pm.response.json().city).to.eql(\"Postman city updated\");\r",
+                  "    pm.expect(pm.response.json().country).to.eql(\"Postman country updated\");\r",
+                  "    pm.expect(pm.response.json().address).to.eql(\"Postman address updated\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/{{Venue1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "{{Venue1ID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Events Endpoints",
+      "item": [
+        {
+          "name": "Create event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { ",
+                  "    pm.response.to.have.status(201); ",
+                  "});",
+                  "",
+                  "pm.test(\"Location header has path\", function () { ",
+                  "    const location = pm.response.headers.get(\"Location\");",
+                  "    pm.expect(location).to.not.be.null;",
+                  "",
+                  "    let id = location.split(\"/\").pop();",
+                  "    pm.collectionVariables.set(\"eventId\", id);",
+                  "});",
+                  "",
+                  "setTimeout(() => {}, 2000);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventName\": \"Postman Event\",\r\n    \"host\": \"Postman Host Test\",\r\n    \"categoryId\": \"{{category1ID}}\",\r\n    \"eventDateStart\": \"2000-01-01T01:00:00Z\",\r\n    \"eventDateEnd\": \"2001-02-02T02:00:00Z\",\r\n    \"venueId\": {{Venue1ID}},\r\n    \"eventDescription\": \"Postman description\",\r\n    \"imgPathUrl\": \"wumboJumbo.png\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Make event visible",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "true\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event/{{eventId}}/publicVisible",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event",
+                "{{eventId}}",
+                "publicVisible"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Search events: status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "})",
+                  "",
+                  "",
+                  "pm.test(\"Search events: should find atleast one event\", function () {",
+                  "    let jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.length).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/search?query=post",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "post"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get event by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is the newly created event\", function () {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson.eventId).to.equal(Number(pm.collectionVariables.get(\"eventId\")));\r",
+                  "});\r",
+                  "\r",
+                  "const event = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"eventObject\", JSON.stringify(event));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get event by host",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response should be 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/host/Postman%20host%20test",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "host",
+                "Postman%20host%20test"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response should have at least one object\", function() {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"array\").that.is.not.empty;\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get popular preexisting events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Search events (query The Jhon): status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "})",
+                  "",
+                  " pm.test(\"Should return an array of up to 10 events\", function() {",
+                  "     const data = pm.response.json();",
+                  "     pm.expect(data).to.be.an('array');",
+                  "     pm.expect(data.length).to.be.at.most(10);",
+                  "   });",
+                  "",
+                  "   pm.test(\"Events should be sorted by total clicks descending\", function() {",
+                  "     const data = pm.response.json();",
+                  "     for (let i = 1; i < data.length; i++) {",
+                  "       pm.expect(data[i-1].totalClicks).to.be.at.least(data[i].totalClicks);",
+                  "     }",
+                  "   });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/popular",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "popular"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get event by name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/name/Postman%20Event",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "name",
+                "Postman%20Event"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get events by category name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Event's category's name should be what was used to retrieve this event\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData[0].category.categoryName).to.eql(pm.collectionVariables.get(\"category1Name\"));\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/category/{{category1Name}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "category",
+                "{{category1Name}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update event's details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventName\": \"Updated Postman Event\",\r\n    \"host\": \"Updated Postman Host\",\r\n    \"categoryId\": {{category2ID}},\r\n    \"eventDateStart\": \"2003-01-01T01:00:00.000\",\r\n    \"eventDateEnd\": \"2004-01-01T01:00:00.000\",\r\n    \"venueId\": {{Venue2ID}},\r\n    \"eventDescription\": \"Updated event\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check updated event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Object returned is actually the updated object with correct values\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.eventId).to.equal(Number(pm.collectionVariables.get(\"eventId\")));\r",
+                  "    pm.expect(jsonData.eventName).to.equal(\"Updated Postman Event\");\r",
+                  "    pm.expect(jsonData.host).to.equal(\"Updated Postman Host\");\r",
+                  "    pm.expect(jsonData.category.categoryName).to.equal(pm.collectionVariables.get(\"category2Name\"));\r",
+                  "    pm.expect(jsonData.eventDateStart).to.equal(\"2003-01-01T01:00:00\");\r",
+                  "    pm.expect(jsonData.eventDateEnd).to.equal(\"2004-01-01T01:00:00\");\r",
+                  "    pm.expect(jsonData.eventVenue.venueId).to.equal(pm.collectionVariables.get(\"Venue2ID\"));\r",
+                  "    pm.expect(jsonData.eventDescription).to.equal(\"Updated event\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Wishlist Endpoints",
+      "item": [
+        {
+          "name": "Create wishlisting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/user/{{ureg_id}}/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "user",
+                "{{ureg_id}}",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user's wish",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/user/{{ureg_id}}/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "user",
+                "{{ureg_id}}",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all users wishes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response should be atleast one wish\", function () {\r",
+                  "    pm.expect(pm.response.json().length).to.be.at.least(1);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/user/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "user",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get wishlistings amount",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User should have at least one wish\", function () {\r",
+                  "    const wishCount = Number(pm.response.json());\r",
+                  "    pm.expect(wishCount).to.be.at.least(1);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/user/{{ureg_id}}/amount",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "user",
+                "{{ureg_id}}",
+                "amount"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check that user wishlist status is true",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Wishlist status should be true\", function () {\r",
+                  "    const isWishlisted = pm.response.json();\r",
+                  "    pm.expect(isWishlisted).to.be.true;\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/is-wishlisted/{{ureg_id}}/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "is-wishlisted",
+                "{{ureg_id}}",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get wishlist amount for a specific event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Event should have atleast one wish\", function () {\r",
+                  "    const jsonData = Number(pm.response.json());\r",
+                  "    pm.expect(jsonData).to.be.at.least(1);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove wish",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response should be 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/user/{{ureg_id}}/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "user",
+                "{{ureg_id}}",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wish was removed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/wishlists/user/{{ureg_id}}/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "wishlists",
+                "user",
+                "{{ureg_id}}",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Event Clicks Endpoints",
+      "item": [
+        {
+          "name": "Register click",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\",  function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/api/event-clicks/{{eventId}}/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "api",
+                "event-clicks",
+                "{{eventId}}",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Was click registered",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Click count should be more than 0\", function() {\r",
+                  "    const clickCount = Number(pm.response.json());\r",
+                  "    pm.expect(clickCount).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/api/event-clicks/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "api",
+                "event-clicks",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ticket Endpoints",
+      "item": [
+        {
+          "name": "Create standard ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Postman exclusive test ticket type\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/ticket",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "ticket"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create VIP ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Postman exclusive test ticket type VIP\",\r\n    \"price\": 500,\r\n    \"amountAvailable\": 60,\r\n    \"ticketDescription\": \"VIP seating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/ticket",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "ticket"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get ticket by ticket type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response should be 200\", function() {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "})\r",
+                  "\r",
+                  "const jsonData = pm.response.json()[0];\r",
+                  "const ticketID = jsonData.ticketId;\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"ticketID\", ticketID);\r",
+                  "pm.collectionVariables.set(\"availableTickets\", jsonData.amountAvailable);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Standard\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/type/Postman%20exclusive%20test%20ticket%20type",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "type",
+                "Postman%20exclusive%20test%20ticket%20type"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get ticket2 by ticket type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response should be 200\", function() {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "})\r",
+                  "\r",
+                  "const jsonData = pm.response.json()[0];\r",
+                  "const ticketID = jsonData.ticketId;\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"ticket2ID\", ticketID);\r",
+                  "pm.collectionVariables.set(\"availableTickets2\", jsonData.amountAvailable);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Standard\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/type/Postman%20exclusive%20test%20ticket%20type%20VIP",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "type",
+                "Postman%20exclusive%20test%20ticket%20type%20VIP"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get ticket by ticket ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Ticket is correct based on the ID\", function() {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson.ticketId).to.equal(pm.collectionVariables.get(\"ticketID\"));\r",
+                  "    pm.expect(responseJson.ticketType).to.equal(\"Postman exclusive test ticket type\");\r",
+                  "    pm.expect(responseJson.price).to.equal(350);\r",
+                  "    pm.expect(responseJson.amountAvailable).to.equal(100);\r",
+                  "    pm.expect(responseJson.ticketDescription).to.equal(\"Standard seats no extras\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Postman exclusive test ticket type\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/{{ticketID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get tickets by event id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"One ticket should be available\", function () {\r",
+                  "    pm.expect(pm.response.json().length).to.equal(2);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"The ticket should be Postman exclusive test ticket type\", function () {\r",
+                  "    pm.expect(pm.response.json()[0].ticketType).to.equal(\"Postman exclusive test ticket type\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Postman exclusive test ticket type\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/by-event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "by-event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get tickets by event name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Ticket type should be Postman exclusive test ticket type\", function () {\r",
+                  "    let jsonData = pm.response.json()[0];\r",
+                  "    let ticketType = jsonData.ticketType;\r",
+                  "    pm.expect(jsonData.ticketType).to.equal(\"Postman exclusive test ticket type\");\r",
+                  "\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Postman exclusive test ticket type\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/search/by-event-name?name=Updated%20Postman%20Event",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "search",
+                "by-event-name"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "Updated%20Postman%20Event"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get tickets cheaper than x",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"At least one ticket is cheaper than 380\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.above(0);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"eventId\": {{eventId}},\r\n    \"ticketType\": \"Postman exclusive test ticket type\",\r\n    \"price\": 350,\r\n    \"amountAvailable\": 100,\r\n    \"ticketDescription\": \"Standard seats no extras\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/search/price?max=380",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "search",
+                "price"
+              ],
+              "query": [
+                {
+                  "key": "max",
+                  "value": "380"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get tickets in range x - y",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"At least one ticket is cheaper than 380\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.above(0);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/search/price?min=340&max=360",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "search",
+                "price"
+              ],
+              "query": [
+                {
+                  "key": "min",
+                  "value": "340"
+                },
+                {
+                  "key": "max",
+                  "value": "360"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Purchasing tickets decreates available amount",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Available tickets have been reduced\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const availableCount = jsonData[pm.collectionVariables.get(\"ticketID\")];\r",
+                  "    pm.expect(availableCount).to.equal(pm.collectionVariables.get(\"availableTickets\") - 3);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/ticket/{{ticketID}}/quantity/3/purchase",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "ticket",
+                "{{ticketID}}",
+                "quantity",
+                "3",
+                "purchase"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Purchase multiple tickets by payload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Available tickets have been reduced\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const ticket1AvailableCount = jsonData[pm.collectionVariables.get(\"ticketID\")];\r",
+                  "    const ticket2AvailableCount = jsonData[pm.collectionVariables.get(\"ticket2ID\")];\r",
+                  "    pm.expect(ticket1AvailableCount).to.equal(pm.collectionVariables.get(\"availableTickets\") - 6);\r",
+                  "    pm.expect(ticket2AvailableCount).to.equal(pm.collectionVariables.get(\"availableTickets2\") - 3);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    {\r\n        \"ticketId\": {{ticketID}},\r\n        \"amount\": 3\r\n    },\r\n    {\r\n        \"ticketId\": {{ticket2ID}},\r\n        \"amount\": 3\r\n    }\r\n]\r\n"
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/payload/purchase",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "payload",
+                "purchase"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Interest Endpoints",
+      "item": [
+        {
+          "name": "Track interest",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/api/user/{{ureg_id}}/{{category1ID}}/interest/add",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "{{ureg_id}}",
+                "{{category1ID}}",
+                "interest",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Track interest 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/api/user/{{ureg_id}}/{{category2ID}}/interest/add",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "{{ureg_id}}",
+                "{{category2ID}}",
+                "interest",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get percentage based interest",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Interests should be 50/50\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.lengthOf(2);\r",
+                  "    pm.expect(jsonData[0].percentageInterest).to.equal(0.5);\r",
+                  "    pm.expect(jsonData[1].percentageInterest).to.equal(0.5);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/api/user/{{ureg_id}}/interests",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "{{ureg_id}}",
+                "interests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all interest instances",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response should have two interests\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.equal(2);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/api/user/{{ureg_id}}/raw-interests",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "{{ureg_id}}",
+                "raw-interests"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Teardown",
+      "item": [
+        {
+          "name": "Delete VIP ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "Application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/ticket/{{ticket2ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "ticket",
+                "{{ticket2ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete standard ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{Admin token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "Application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/ticket/{{ticketID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "ticket",
+                "{{ticketID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "\r",
+                  "pm.test(\"Event deleted successfully\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete event venue 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/delete/{{Venue2ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "delete",
+                "{{Venue2ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete event venue 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/delete/{{Venue1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "delete",
+                "{{Venue1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/category/{{category2ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "category",
+                "{{category2ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/category/{{category1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "category",
+                "{{category1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete recently registered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function() {\r",
+                  "    pm.response.to.have.status(204); // No Content\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Status code should not be 404\", function() {\r",
+                  "    pm.response.to.not.have.status(404); // Not Found\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Post teardown checking",
+      "item": [
+        {
+          "name": "Look for category 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/{{category1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "{{category1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Look for category 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/categories/{{category1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "categories",
+                "{{category1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Venue 1 is no more",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/{{Venue1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "{{Venue1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Venue 2 is no more",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/venues/{{Venue1ID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "venues",
+                "{{Venue1ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Event is no more",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\" , function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/events/event/{{eventId}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "events",
+                "event",
+                "{{eventId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Standard ticket has ceased to exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/{{ticketID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VIP Ticket has ceased to exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function() {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/tickets/{{ticketID}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "tickets",
+                "{{ticketID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registered user nowhere to be found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SERVER_BACKEND_TESTING}}/users/user/{{ureg_id}}",
+              "host": [
+                "{{SERVER_BACKEND_TESTING}}"
+              ],
+              "path": [
+                "users",
+                "user",
+                "{{ureg_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ureg_id",
+      "value": ""
+    },
+    {
+      "key": "invalid_ureg_id",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "Admin token",
+      "value": ""
+    },
+    {
+      "key": "category1ID",
+      "value": ""
+    },
+    {
+      "key": "category2ID",
+      "value": ""
+    },
+    {
+      "key": "category1Name",
+      "value": ""
+    },
+    {
+      "key": "category2Name",
+      "value": ""
+    },
+    {
+      "key": "Venue1ID",
+      "value": ""
+    },
+    {
+      "key": "Venue2ID",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    },
+    {
+      "key": "eventObject",
+      "value": ""
+    },
+    {
+      "key": "ticketID",
+      "value": ""
+    },
+    {
+      "key": "availableTickets",
+      "value": ""
+    },
+    {
+      "key": "ticket2ID",
+      "value": ""
+    },
+    {
+      "key": "availableTickets2",
+      "value": ""
+    }
+  ]
+}

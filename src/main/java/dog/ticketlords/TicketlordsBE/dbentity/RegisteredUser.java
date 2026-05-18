@@ -1,0 +1,122 @@
+package dog.ticketlords.TicketlordsBE.dbentity;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * Entity representation of the database registered_user table.
+ * Reoresents a registered user with personal details, credentials,
+ * and a role.
+ * Each RegisteredUser is linked to an {@link UnregisteredUser} via
+ * a one-to-one relationship.
+ */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Entity
+@Table(name = "registered_user")
+public class RegisteredUser {
+
+  @Id
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  @Column(name = "user_id")
+  private Long userId;
+
+  @MapsId
+  @OneToOne
+  @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+  private UnregisteredUser unregisteredUser;
+
+  @Setter
+  @NotNull(message = "Email cannot be null")
+  @Column(name = "email", nullable = false)
+  private String email;
+  @Setter
+  @Column(name = "display_name")
+  private String displayName;
+  @Setter
+  @Column(name = "first_name")
+  private String firstName;
+  @Setter
+  @Column(name = "last_name")
+  private String lastName;
+  @Setter
+  @NotNull(message = "Password cannot be null")
+  @Column(name = "password", nullable = false, unique = true)
+  private String hashedPassword;
+  @Setter
+  @Column(name = "phonenumber")
+  private int phoneNumber;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "user_role", columnDefinition = "role_type")
+  private UserRole role;
+
+  @Override
+  public boolean equals(Object o) {
+    boolean doesEquals = false;
+    if (this == o) {
+      doesEquals = true;
+    }
+    if (o instanceof UnregisteredUser) {
+      RegisteredUser that = (RegisteredUser) o;
+      if (this.unregisteredUser == that.unregisteredUser
+          && this.unregisteredUser.getUId() == that.unregisteredUser.getUId()) {
+        doesEquals = true;
+      }
+    }
+    return doesEquals;
+  }
+
+  @Override
+  public int hashCode() {
+    return Long.hashCode(this.unregisteredUser.getUId());
+  }
+
+  @Override
+  public String toString() {
+    return "RegisteredUser [userId=" + userId + ", unregisteredUser=" + unregisteredUser + ", email=" + email
+        + ", displayName=" + displayName + ", firstName=" + firstName + ", lastName=" + lastName
+        + ", hashedPassword=" + hashedPassword + ", phoneNumber=" + phoneNumber + ", role=" + role + "]";
+  }
+
+  /**
+   * Constructs a RegisteredUser. Should only be used for testing.
+   *
+   * @param unregisteredUser the associated {@link UnregisteredUser} entity.
+   * @param email            the email address of the user.
+   * @param displayName      the display name of the user.
+   * @param firstName        the first name of the user.
+   * @param lastName         the last name of the user.
+   * @param hPassw           the hashed password of the user.
+   * @param phoneNumber      the phone number of the user.
+   * @param role             the {@link UserRole} assigned to the user.
+   */
+  public RegisteredUser(UnregisteredUser unregisteredUser, String email, String displayName, String firstName,
+      String lastName, String hPassw,
+      int phoneNumber, UserRole role) {
+    this.unregisteredUser = unregisteredUser;
+    this.email = email;
+    this.displayName = displayName;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.hashedPassword = hPassw;
+    this.phoneNumber = phoneNumber;
+    this.role = role;
+  }
+}

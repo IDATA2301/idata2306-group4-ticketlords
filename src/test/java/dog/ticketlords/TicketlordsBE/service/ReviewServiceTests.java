@@ -1,0 +1,79 @@
+package dog.ticketlords.TicketlordsBE.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import dog.ticketlords.TicketlordsBE.DTO.VendorRatingDTO;
+import dog.ticketlords.TicketlordsBE.dbentity.BookingSite;
+import dog.ticketlords.TicketlordsBE.dbentity.Review;
+import dog.ticketlords.TicketlordsBE.repositories.ReviewRepository;
+
+/**
+ * This class tests methods related to the ReviewService class.
+ *
+ * ----------- Positive tests ------------
+ *
+ *
+ * ----------- Negative tests ------------
+ */
+@ExtendWith(MockitoExtension.class)
+public class ReviewServiceTests {
+
+  @Mock
+  private ReviewRepository reviewRepo;
+  @InjectMocks
+  private ReviewService reviewService;
+
+  /**
+   * Tests that the method actually returns the Vendor's name, with its average
+   * review.
+   */
+  @Test
+  public void testGetAverageRatingForAllVendorsByName() {
+    Review review1 = mock(Review.class);
+    Review review2 = mock(Review.class);
+    Review review3 = mock(Review.class);
+    Review review4 = mock(Review.class);
+
+    BookingSite site1 = mock(BookingSite.class);
+    BookingSite site2 = mock(BookingSite.class);
+
+    when(site1.getTicketVendor()).thenReturn("VendorA");
+    when(site2.getTicketVendor()).thenReturn("VendorB");
+
+    when(review1.getBookingSite()).thenReturn(site1);
+    when(review2.getBookingSite()).thenReturn(site1);
+    when(review3.getBookingSite()).thenReturn(site2);
+    when(review4.getBookingSite()).thenReturn(site1);
+
+    when(review1.getScore()).thenReturn(new BigDecimal(4.0));
+    when(review2.getScore()).thenReturn(new BigDecimal(3.0));
+    when(review3.getScore()).thenReturn(new BigDecimal(5.0));
+    when(review4.getScore()).thenReturn(new BigDecimal(3.0));
+    List<Review> reviews = Arrays.asList(review1, review2, review3, review4);
+    when(reviewRepo.findAllByBookingSite_TicketVendorIgnoreCaseContaining("Vendor"))
+        .thenReturn(reviews);
+
+    List<VendorRatingDTO> result = reviewService.getAverageRatingForAllVendorsByName("Vendor");
+    System.out.println(result.get(0).vendorName() + " " + result.get(0).avgVendorRating());
+    System.out.println(result.get(1).vendorName() + " " + result.get(1).avgVendorRating());
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(
+        vr -> vr.vendorName().equals("VendorA") && vr.avgVendorRating().compareTo(new BigDecimal("3.3")) == 0));
+    assertTrue(result.stream()
+        .anyMatch(
+            vr -> vr.vendorName().equals("VendorB") && vr.avgVendorRating().compareTo(new BigDecimal("5.0")) == 0));
+  }
+}
