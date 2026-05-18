@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.core.Authentication;
 
-import dog.ticketlords.TicketlordsBE.exception.ResourceNotFoundException;
-import dog.ticketlords.TicketlordsBE.service.ImageStorageService;
-import dog.ticketlords.TicketlordsBE.service.EventService;
 import dog.ticketlords.TicketlordsBE.DTO.EventRequestDTO;
 import dog.ticketlords.TicketlordsBE.dbentity.Event;
+import dog.ticketlords.TicketlordsBE.exception.ResourceNotFoundException;
+import dog.ticketlords.TicketlordsBE.service.EventService;
+import dog.ticketlords.TicketlordsBE.service.ImageStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -334,6 +334,7 @@ public ResponseEntity<Event> getEvent(@PathVariable int eventId) {
       @ApiResponse(responseCode = "204", description = "Event updated successfully, no content returned.", content = @Content),
       @ApiResponse(responseCode = "404", description = "Event not found with the specified ID, no update performed.", content = @Content)
   })
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/event/{eventId}")
   public ResponseEntity<?> updateEventInDatabase(@PathVariable int eventId,
       @Valid @RequestBody EventRequestDTO event) {
