@@ -61,4 +61,8 @@ And Run the collection. Right click Server backend ticketlords tests -> Run -> S
 # Swagger docs
 When the backend is up and running, you can access the swagger docs information using http://locahost:8081/swagger-ui.html if you're hosting the program locally, or alternatively, https://ticketlords-backend-app-ripdj.ondigitalocean.app/swagger-ui/index.html for our own hosted backend.
 
+# Additional information:
+This application allows dynamic insert of images, which are stored on a "spaces" on digital ocean. However, for others intending to interract with this program, that doesn't have access to this service, we've included some static images aswell.
+These images can be found under resource/static/images
+
 
